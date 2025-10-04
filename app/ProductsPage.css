@@ -1,20 +1,467 @@
-/* Add to ProductsPage.css */
+/* Products Sorting Info - Mobile First */
 .products-sorting-info {
   margin-bottom: 1rem;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
+@media (min-width: 640px) {
+  .products-sorting-info {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .products-sorting-info {
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Sorting Badge - Mobile Optimized */
 .sorting-badge {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: 0.5rem 1rem;
   border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  min-height: 32px; /* Better touch target */
+  text-align: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Add to GamingLaptops.css */
+@media (min-width: 768px) {
+  .sorting-badge {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
+}
+
+.sorting-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.sorting-badge:hover::before,
+.sorting-badge:focus::before {
+  left: 100%;
+}
+
+.sorting-badge:hover,
+.sorting-badge:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.sorting-badge:active {
+  transform: translateY(0);
+}
+
+/* Sorting Controls - Mobile Optimized */
+.sorting-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .sorting-controls {
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+}
+
+.sort-filter-btn {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 40px; /* Better touch target */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #374151;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .sort-filter-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+}
+
+.sort-filter-btn:hover,
+.sort-filter-btn:focus {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sort-filter-btn:active {
+  transform: translateY(0);
+}
+
+.sort-filter-btn.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Gaming Laptops Sorting Info - Mobile Optimized */
 .sorting-info {
   text-align: center;
   margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .sorting-info {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .sorting-info {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* Enhanced Sorting Badge for Gaming Laptops */
+.gaming-sorting-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  min-height: 44px; /* Better touch target */
+  position: relative;
+  overflow: hidden;
+}
+
+.gaming-sorting-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.gaming-sorting-badge:hover::before,
+.gaming-sorting-badge:focus::before {
+  left: 100%;
+}
+
+.gaming-sorting-badge:hover,
+.gaming-sorting-badge:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+}
+
+.gaming-sorting-badge:active {
+  transform: translateY(-1px);
+}
+
+/* Sorting Dropdown - Mobile Optimized */
+.sorting-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.sorting-select {
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 44px; /* Better touch target */
+  min-width: 160px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.sorting-select:hover,
+.sorting-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+.sorting-select:focus {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Mobile-First Responsive Design */
+@media (max-width: 480px) {
+  .products-sorting-info {
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+  }
+
+  .sorting-badge {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.75rem;
+    min-height: 30px;
+  }
+
+  .sorting-controls {
+    gap: 0.5rem;
+  }
+
+  .sort-filter-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  .sorting-info {
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .gaming-sorting-badge {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+    min-height: 40px;
+  }
+
+  .sorting-select {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-height: 40px;
+    min-width: 140px;
+    background-position: right 0.5rem center;
+  }
+}
+
+/* Mobile Landscape Optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .products-sorting-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .sorting-info {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .sorting-badge:active,
+  .gaming-sorting-badge:active,
+  .sort-filter-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  .sorting-badge:hover,
+  .gaming-sorting-badge:hover,
+  .sort-filter-btn:hover {
+    transform: none;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.sorting-badge:focus-visible,
+.gaming-sorting-badge:focus-visible,
+.sort-filter-btn:focus-visible,
+.sorting-select:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .sorting-badge,
+  .gaming-sorting-badge,
+  .sort-filter-btn,
+  .sorting-select {
+    transition: none;
+  }
+
+  .sorting-badge::before,
+  .gaming-sorting-badge::before {
+    display: none;
+  }
+
+  .sorting-badge:hover,
+  .gaming-sorting-badge:hover,
+  .sort-filter-btn:hover {
+    transform: none;
+  }
+}
+
+/* Safe Area Insets for Notched Devices */
+@supports(padding: max(0px)) {
+  .products-sorting-info,
+  .sorting-info {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+}
+
+/* Print Styles */
+@media print {
+  .products-sorting-info,
+  .sorting-info {
+    display: none !important;
+  }
+}
+
+/* Battery Saver Mode */
+@media (prefers-reduced-data: reduce) {
+  .sorting-badge,
+  .gaming-sorting-badge,
+  .sort-filter-btn {
+    transition: none;
+  }
+
+  .sorting-badge::before,
+  .gaming-sorting-badge::before {
+    display: none;
+  }
+}
+
+/* Very Small Screen Optimizations */
+@media (max-width: 360px) {
+  .products-sorting-info {
+    padding: 0 0.25rem;
+  }
+
+  .sorting-badge {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+    min-height: 28px;
+  }
+
+  .sorting-controls {
+    gap: 0.25rem;
+  }
+
+  .sort-filter-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    min-height: 32px;
+    gap: 0.25rem;
+  }
+
+  .sorting-info {
+    padding: 0 0.25rem;
+    gap: 0.5rem;
+  }
+
+  .gaming-sorting-badge {
+    padding: 0.375rem 1rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  .sorting-select {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+    min-width: 120px;
+  }
+}
+
+/* Enhanced Sorting Info with Icons */
+.sorting-badge.with-icon,
+.gaming-sorting-badge.with-icon {
+  padding-left: 0.875rem;
+}
+
+.sorting-badge.with-icon::after,
+.gaming-sorting-badge.with-icon::after {
+  content: '↓';
+  margin-left: 0.25rem;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.sorting-badge.with-icon.asc::after,
+.gaming-sorting-badge.with-icon.asc::after {
+  transform: rotate(180deg);
+}
+
+/* Loading State for Sorting */
+.sorting-badge.loading,
+.gaming-sorting-badge.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.sorting-badge.loading::after,
+.gaming-sorting-badge.loading::after {
+  content: '...';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sorting-badge.loading::after,
+  .gaming-sorting-badge.loading::after {
+    animation: none;
+    content: '...';
+  }
 }

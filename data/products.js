@@ -5,6 +5,7 @@ const products = [
     description: "High-performance laptop with RTX graphics and 144Hz display.",
     price: 95000,
     image: "1.jpg",
+    images: ["1.jpg", "1-side.jpg", "1-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "16GB DDR4",
@@ -19,6 +20,7 @@ const products = [
     description: "Lightweight and secure laptop for professionals on the go.",
     price: 72000,
     image: "2.jpg",
+    images: ["2.jpg", "2-side.jpg", "2-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB DDR4",
@@ -33,6 +35,7 @@ const products = [
     description: "Affordable laptop for students and everyday tasks.",
     price: 38000,
     image: "11.jpg",
+    images: ["11.jpg", "11-side.jpg", "11-back.jpg"],
     specs: {
       cpu: "Intel Celeron N4020",
       ram: "4GB DDR4",
@@ -47,6 +50,7 @@ const products = [
     description: "Convertible 2-in-1 laptop with sleek design and powerful performance.",
     price: 115000,
     image: "3.jpg",
+    images: ["3.jpg", "3-side.jpg", "3-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB DDR4",
@@ -61,6 +65,7 @@ const products = [
     description: "Premium laptop with InfinityEdge display and powerful Intel processors.",
     price: 130000,
     image: "15.jpg",
+    images: ["15.jpg", "15-side.jpg", "15-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "16GB DDR4",
@@ -75,6 +80,7 @@ const products = [
     description: "Durable business laptop with excellent keyboard and long battery life.",
     price: 125000,
     image: "x1.webp",
+    images: ["x1.webp", "x1-side.jpg", "x1-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -89,6 +95,7 @@ const products = [
     description: "Ultra-light laptop with Apple's powerful M2 chip and Retina display.",
     price: 135000,
     image: "macbook-air-m2.jpg",
+    images: ["macbook-air-m2.jpg", "macbook-air-m2-side.jpg", "macbook-air-m2-back.jpg"],
     specs: {
       cpu: "Apple M2 chip",
       ram: "8GB Unified Memory",
@@ -103,6 +110,7 @@ const products = [
     description: "Gaming laptop with AMD Ryzen CPU and RTX graphics in a compact form factor.",
     price: 105000,
     image: "asus-rog-zephyrus-g14.jpg",
+    images: ["asus-rog-zephyrus-g14.jpg", "asus-rog-zephyrus-g14-side.jpg", "asus-rog-zephyrus-g14-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 5900HS",
       ram: "16GB DDR4",
@@ -117,6 +125,7 @@ const products = [
     description: "Elegant and versatile laptop with touchscreen and premium build quality.",
     price: 95000,
     image: "surface-laptop-5.jpg",
+    images: ["surface-laptop-5.jpg", "surface-laptop-5-side.jpg", "surface-laptop-5-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1265U",
       ram: "16GB LPDDR4x",
@@ -131,6 +140,7 @@ const products = [
     description: "Affordable and lightweight laptop with solid performance for everyday use.",
     price: 48000,
     image: "acer-swift-3.jpg",
+    images: ["acer-swift-3.jpg", "acer-swift-3-side.jpg", "acer-swift-3-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 4500U",
       ram: "8GB DDR4",
@@ -145,6 +155,7 @@ const products = [
     description: "High-end gaming laptop with RGB keyboard and top-tier GPU options.",
     price: 150000,
     image: "razer-blade-15.jpg",
+    images: ["razer-blade-15.jpg", "razer-blade-15-side.jpg", "razer-blade-15-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "32GB DDR4",
@@ -159,6 +170,7 @@ const products = [
     description: "Powerful and stylish laptop aimed at content creators and professionals.",
     price: 98000,
     image: "msi-prestige-14.jpg",
+    images: ["msi-prestige-14.jpg", "msi-prestige-14-side.jpg", "msi-prestige-14-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1185G7",
       ram: "16GB DDR4",
@@ -173,6 +185,7 @@ const products = [
     description: "Performance laptop with a large display and dedicated graphics for creatives.",
     price: 140000,
     image: "hp-envy-16.jpg",
+    images: ["hp-envy-16.jpg", "hp-envy-16-side.jpg", "hp-envy-16-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "16GB DDR4",
@@ -187,6 +200,7 @@ const products = [
     description: "Versatile mid-range laptop suitable for work and entertainment.",
     price: 55000,
     image: "dell-inspiron-14.jpg",
+    images: ["dell-inspiron-14.jpg", "dell-inspiron-14-side.jpg", "dell-inspiron-14-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB DDR4",
@@ -201,6 +215,7 @@ const products = [
     description: "Gaming laptop with powerful AMD Ryzen CPU and NVIDIA GPU.",
     price: 110000,
     image: "lenovo-legion-5.jpg",
+    images: ["lenovo-legion-5.jpg", "lenovo-legion-5-side.jpg", "lenovo-legion-5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 5800H",
       ram: "16GB DDR4",
@@ -215,6 +230,7 @@ const products = [
     description: "Professional-grade laptop with M1 Pro chip and brilliant Liquid Retina XDR display.",
     price: 190000,
     image: "macbook-pro-14-m1-pro.jpg",
+    images: ["macbook-pro-14-m1-pro.jpg", "macbook-pro-14-m1-pro-side.jpg", "macbook-pro-14-m1-pro-back.jpg"],
     specs: {
       cpu: "Apple M1 Pro 8-core CPU",
       ram: "16GB Unified Memory",
@@ -229,6 +245,7 @@ const products = [
     description: "Budget-friendly laptop with decent specs for everyday use.",
     price: 45000,
     image: "asus-vivobook-15.jpg",
+    images: ["asus-vivobook-15.jpg", "asus-vivobook-15-side.jpg", "asus-vivobook-15-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1115G4",
       ram: "8GB DDR4",
@@ -237,14 +254,13 @@ const products = [
       gpu: "Intel UHD Graphics",
     },
   },
-
-  // Additional laptops (18-200)
   {
     id: 18,
     name: "Dell Latitude E7440",
     description: "Business laptop from 2014 with reliable performance for office tasks.",
     price: 25000,
     image: "dell-latitude-e7440.jpg",
+    images: ["dell-latitude-e7440.jpg", "dell-latitude-e7440-side.jpg", "dell-latitude-e7440-back.jpg"],
     specs: {
       cpu: "Intel Core i5-4300U",
       ram: "8GB DDR3",
@@ -259,6 +275,7 @@ const products = [
     description: "Older budget laptop suitable for basic computing needs.",
     price: 18000,
     image: "hp-pavilion-g6.jpg",
+    images: ["hp-pavilion-g6.jpg", "hp-pavilion-g6-side.jpg", "hp-pavilion-g6-back.jpg"],
     specs: {
       cpu: "AMD A6-3420M",
       ram: "4GB DDR3",
@@ -273,6 +290,7 @@ const products = [
     description: "2012 multimedia laptop with decent specs for its time.",
     price: 22000,
     image: "lenovo-ideapad-z580.jpg",
+    images: ["lenovo-ideapad-z580.jpg", "lenovo-ideapad-z580-side.jpg", "lenovo-ideapad-z580-back.jpg"],
     specs: {
       cpu: "Intel Core i5-3210M",
       ram: "6GB DDR3",
@@ -287,6 +305,7 @@ const products = [
     description: "Classic MacBook Pro with Retina display and reliable performance.",
     price: 45000,
     image: "macbook-pro-13-2015.jpg",
+    images: ["macbook-pro-13-2015.jpg", "macbook-pro-13-2015-side.jpg", "macbook-pro-13-2015-back.jpg"],
     specs: {
       cpu: "Intel Core i5-5257U",
       ram: "8GB DDR3",
@@ -301,6 +320,7 @@ const products = [
     description: "2-in-1 convertible laptop from 2013 with tablet functionality.",
     price: 28000,
     image: "asus-transformer-book.jpg",
+    images: ["asus-transformer-book.jpg", "asus-transformer-book-side.jpg", "asus-transformer-book-back.jpg"],
     specs: {
       cpu: "Intel Core i3-3217U",
       ram: "4GB DDR3",
@@ -315,6 +335,7 @@ const products = [
     description: "Sleek ultrabook from 2011 with premium design.",
     price: 32000,
     image: "sony-vaio-s-series.jpg",
+    images: ["sony-vaio-s-series.jpg", "sony-vaio-s-series-side.jpg", "sony-vaio-s-series-back.jpg"],
     specs: {
       cpu: "Intel Core i5-2410M",
       ram: "4GB DDR3",
@@ -329,6 +350,7 @@ const products = [
     description: "Budget-friendly laptop from 2014 for everyday computing.",
     price: 20000,
     image: "toshiba-satellite-c55.jpg",
+    images: ["toshiba-satellite-c55.jpg", "toshiba-satellite-c55-side.jpg", "toshiba-satellite-c55-back.jpg"],
     specs: {
       cpu: "Intel Pentium N3540",
       ram: "4GB DDR3",
@@ -343,6 +365,7 @@ const products = [
     description: "Mid-range laptop from 2015 with balanced performance.",
     price: 30000,
     image: "acer-aspire-e5-573.jpg",
+    images: ["acer-aspire-e5-573.jpg", "acer-aspire-e5-573-side.jpg", "acer-aspire-e5-573-back.jpg"],
     specs: {
       cpu: "Intel Core i5-5200U",
       ram: "8GB DDR3",
@@ -357,6 +380,7 @@ const products = [
     description: "Ultra-thin premium laptop from 2012 with aluminum body.",
     price: 38000,
     image: "samsung-series-9.jpg",
+    images: ["samsung-series-9.jpg", "samsung-series-9-side.jpg", "samsung-series-9-back.jpg"],
     specs: {
       cpu: "Intel Core i5-3317U",
       ram: "4GB DDR3",
@@ -371,6 +395,7 @@ const products = [
     description: "2014 gaming laptop with dedicated graphics for gaming.",
     price: 52000,
     image: "msi-ge60-apache.jpg",
+    images: ["msi-ge60-apache.jpg", "msi-ge60-apache-side.jpg", "msi-ge60-apache-back.jpg"],
     specs: {
       cpu: "Intel Core i7-4700HQ",
       ram: "8GB DDR3",
@@ -385,6 +410,7 @@ const products = [
     description: "Premium gaming laptop from 2012 with iconic Alienware design.",
     price: 68000,
     image: "alienware-m14x-r2.jpg",
+    images: ["alienware-m14x-r2.jpg", "alienware-m14x-r2-side.jpg", "alienware-m14x-r2-back.jpg"],
     specs: {
       cpu: "Intel Core i7-3720QM",
       ram: "8GB DDR3",
@@ -399,6 +425,7 @@ const products = [
     description: "Business ultrabook from 2014 with premium features.",
     price: 42000,
     image: "fujitsu-lifebook-u904.jpg",
+    images: ["fujitsu-lifebook-u904.jpg", "fujitsu-lifebook-u904-side.jpg", "fujitsu-lifebook-u904-back.jpg"],
     specs: {
       cpu: "Intel Core i5-4200U",
       ram: "8GB DDR3",
@@ -413,6 +440,7 @@ const products = [
     description: "Premium Chromebook from 2015 with high-resolution display.",
     price: 35000,
     image: "chromebook-pixel.jpg",
+    images: ["chromebook-pixel.jpg", "chromebook-pixel-side.jpg", "chromebook-pixel-back.jpg"],
     specs: {
       cpu: "Intel Core i5-5200U",
       ram: "8GB DDR3",
@@ -427,6 +455,7 @@ const products = [
     description: "Convertible 2-in-1 laptop from 2015 with innovative hinge design.",
     price: 48000,
     image: "lenovo-yoga-900.jpg",
+    images: ["lenovo-yoga-900.jpg", "lenovo-yoga-900-side.jpg", "lenovo-yoga-900-back.jpg"],
     specs: {
       cpu: "Intel Core i7-6500U",
       ram: "8GB DDR3",
@@ -441,6 +470,7 @@ const products = [
     description: "Mobile workstation from 2014 for professional applications.",
     price: 75000,
     image: "dell-precision-m4800.jpg",
+    images: ["dell-precision-m4800.jpg", "dell-precision-m4800-side.jpg", "dell-precision-m4800-back.jpg"],
     specs: {
       cpu: "Intel Core i7-4800MQ",
       ram: "16GB DDR3",
@@ -455,6 +485,7 @@ const products = [
     description: "Business laptop from 2011 with durable construction.",
     price: 22000,
     image: "hp-elitebook-8460p.jpg",
+    images: ["hp-elitebook-8460p.jpg", "hp-elitebook-8460p-side.jpg", "hp-elitebook-8460p-back.jpg"],
     specs: {
       cpu: "Intel Core i5-2520M",
       ram: "4GB DDR3",
@@ -469,6 +500,7 @@ const products = [
     description: "2014 gaming laptop with large display and powerful graphics.",
     price: 89000,
     image: "asus-rog-g751j.jpg",
+    images: ["asus-rog-g751j.jpg", "asus-rog-g751j-side.jpg", "asus-rog-g751j-back.jpg"],
     specs: {
       cpu: "Intel Core i7-4710HQ",
       ram: "16GB DDR3",
@@ -483,6 +515,7 @@ const products = [
     description: "Compact ultrabook from 2013 with excellent portability.",
     price: 32000,
     image: "macbook-air-11-2013.jpg",
+    images: ["macbook-air-11-2013.jpg", "macbook-air-11-2013-side.jpg", "macbook-air-11-2013-back.jpg"],
     specs: {
       cpu: "Intel Core i5-4250U",
       ram: "4GB DDR3",
@@ -497,6 +530,7 @@ const products = [
     description: "Large-screen Chromebook from 2015 for web-based tasks.",
     price: 18000,
     image: "acer-chromebook-15.jpg",
+    images: ["acer-chromebook-15.jpg", "acer-chromebook-15-side.jpg", "acer-chromebook-15-back.jpg"],
     specs: {
       cpu: "Intel Celeron 3205U",
       ram: "4GB DDR3",
@@ -511,6 +545,7 @@ const products = [
     description: "High-performance gaming laptop from 2015 with desktop-level power.",
     price: 125000,
     image: "msi-gt72-dominator.jpg",
+    images: ["msi-gt72-dominator.jpg", "msi-gt72-dominator-side.jpg", "msi-gt72-dominator-back.jpg"],
     specs: {
       cpu: "Intel Core i7-5700HQ",
       ram: "16GB DDR3",
@@ -525,6 +560,7 @@ const products = [
     description: "Classic business laptop from 2011 known for its durability.",
     price: 15000,
     image: "thinkpad-t420.jpg",
+    images: ["thinkpad-t420.jpg", "thinkpad-t420-side.jpg", "thinkpad-t420-back.jpg"],
     specs: {
       cpu: "Intel Core i5-2520M",
       ram: "4GB DDR3",
@@ -539,6 +575,7 @@ const products = [
     description: "Latest gaming laptop with cutting-edge components.",
     price: 145000,
     image: "hp-omen-15-2023.jpg",
+    images: ["hp-omen-15-2023.jpg", "hp-omen-15-2023-side.jpg", "hp-omen-15-2023-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900HX",
       ram: "32GB DDR5",
@@ -553,6 +590,7 @@ const products = [
     description: "Innovative ultrabook with edge-to-edge keyboard and haptic touchpad.",
     price: 155000,
     image: "dell-xps-13-plus.jpg",
+    images: ["dell-xps-13-plus.jpg", "dell-xps-13-plus-side.jpg", "dell-xps-13-plus-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1360P",
       ram: "16GB LPDDR5",
@@ -567,6 +605,7 @@ const products = [
     description: "Professional laptop with M2 Max chip for extreme performance.",
     price: 320000,
     image: "macbook-pro-16-m2-max.jpg",
+    images: ["macbook-pro-16-m2-max.jpg", "macbook-pro-16-m2-max-side.jpg", "macbook-pro-16-m2-max-back.jpg"],
     specs: {
       cpu: "Apple M2 Max 12-core CPU",
       ram: "32GB Unified Memory",
@@ -581,6 +620,7 @@ const products = [
     description: "Massive gaming laptop with 18-inch display and top-tier specs.",
     price: 280000,
     image: "asus-rog-strix-scar-18.jpg",
+    images: ["asus-rog-strix-scar-18.jpg", "asus-rog-strix-scar-18-side.jpg", "asus-rog-strix-scar-18-back.jpg"],
     specs: {
       cpu: "Intel Core i9-14900HX",
       ram: "64GB DDR5",
@@ -595,6 +635,7 @@ const products = [
     description: "Ultra-light business laptop with 5G connectivity.",
     price: 185000,
     image: "thinkpad-x1-nano-gen3.jpg",
+    images: ["thinkpad-x1-nano-gen3.jpg", "thinkpad-x1-nano-gen3-side.jpg", "thinkpad-x1-nano-gen3-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1360P",
       ram: "16GB LPDDR5",
@@ -609,6 +650,7 @@ const products = [
     description: "Convertible laptop/studio for creative professionals.",
     price: 220000,
     image: "surface-studio-2-plus.jpg",
+    images: ["surface-studio-2-plus.jpg", "surface-studio-2-plus-side.jpg", "surface-studio-2-plus-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11370H",
       ram: "32GB DDR4",
@@ -623,6 +665,7 @@ const products = [
     description: "Premium gaming laptop with massive 18-inch display.",
     price: 350000,
     image: "razer-blade-18.jpg",
+    images: ["razer-blade-18.jpg", "razer-blade-18-side.jpg", "razer-blade-18-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13950HX",
       ram: "64GB DDR5",
@@ -637,6 +680,7 @@ const products = [
     description: "Gaming laptop with advanced cooling and high refresh rate.",
     price: 195000,
     image: "acer-predator-helios-18.jpg",
+    images: ["acer-predator-helios-18.jpg", "acer-predator-helios-18-side.jpg", "acer-predator-helios-18-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900HX",
       ram: "32GB DDR5",
@@ -651,6 +695,7 @@ const products = [
     description: "Enterprise laptop with advanced security features.",
     price: 165000,
     image: "hp-dragonfly-g4.jpg",
+    images: ["hp-dragonfly-g4.jpg", "hp-dragonfly-g4-side.jpg", "hp-dragonfly-g4-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1355U",
       ram: "32GB LPDDR5",
@@ -665,6 +710,7 @@ const products = [
     description: "Sleek performance laptop with AMOLED display.",
     price: 175000,
     image: "samsung-galaxy-book3-ultra.jpg",
+    images: ["samsung-galaxy-book3-ultra.jpg", "samsung-galaxy-book3-ultra-side.jpg", "samsung-galaxy-book3-ultra-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13700H",
       ram: "16GB DDR5",
@@ -679,6 +725,7 @@ const products = [
     description: "Ultra-light 17-inch laptop with exceptional battery life.",
     price: 145000,
     image: "lg-gram-17-2023.jpg",
+    images: ["lg-gram-17-2023.jpg", "lg-gram-17-2023-side.jpg", "lg-gram-17-2023-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1360P",
       ram: "16GB LPDDR5",
@@ -693,6 +740,7 @@ const products = [
     description: "Modular laptop with upgradeable and replaceable components.",
     price: 135000,
     image: "framework-laptop-16.jpg",
+    images: ["framework-laptop-16.jpg", "framework-laptop-16-side.jpg", "framework-laptop-16-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 7840HS",
       ram: "32GB DDR5",
@@ -707,6 +755,7 @@ const products = [
     description: "Compact gaming laptop with professional aesthetics.",
     price: 165000,
     image: "msi-stealth-14-studio.jpg",
+    images: ["msi-stealth-14-studio.jpg", "msi-stealth-14-studio-side.jpg", "msi-stealth-14-studio-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13900H",
       ram: "32GB DDR5",
@@ -721,6 +770,7 @@ const products = [
     description: "Slim gaming laptop with premium build and performance.",
     price: 185000,
     image: "alienware-x14-r2.jpg",
+    images: ["alienware-x14-r2.jpg", "alienware-x14-r2-side.jpg", "alienware-x14-r2-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13620H",
       ram: "16GB DDR5",
@@ -735,6 +785,7 @@ const products = [
     description: "Dual-screen laptop for enhanced productivity.",
     price: 195000,
     image: "asus-zenbook-pro-14-duo.jpg",
+    images: ["asus-zenbook-pro-14-duo.jpg", "asus-zenbook-pro-14-duo-side.jpg", "asus-zenbook-pro-14-duo-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900H",
       ram: "32GB LPDDR5",
@@ -749,6 +800,7 @@ const products = [
     description: "Performance-focused gaming laptop with vapor chamber cooling.",
     price: 225000,
     image: "lenovo-legion-pro-7i.jpg",
+    images: ["lenovo-legion-pro-7i.jpg", "lenovo-legion-pro-7i-side.jpg", "lenovo-legion-pro-7i-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900HX",
       ram: "32GB DDR5",
@@ -763,6 +815,7 @@ const products = [
     description: "Budget gaming laptop with solid performance.",
     price: 85000,
     image: "hp-victus-16.jpg",
+    images: ["hp-victus-16.jpg", "hp-victus-16-side.jpg", "hp-victus-16-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 7640HS",
       ram: "16GB DDR5",
@@ -777,6 +830,7 @@ const products = [
     description: "Lightweight laptop with OLED display and AI features.",
     price: 95000,
     image: "acer-swift-go-14.jpg",
+    images: ["acer-swift-go-14.jpg", "acer-swift-go-14-side.jpg", "acer-swift-go-14-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1355U",
       ram: "16GB LPDDR5",
@@ -791,6 +845,7 @@ const products = [
     description: "Versatile convertible laptop for creatives.",
     price: 245000,
     image: "surface-laptop-studio-2.jpg",
+    images: ["surface-laptop-studio-2.jpg", "surface-laptop-studio-2-side.jpg", "surface-laptop-studio-2-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13700H",
       ram: "32GB LPDDR5",
@@ -805,6 +860,7 @@ const products = [
     description: "Large-screen ultrabook with M2 chip.",
     price: 145000,
     image: "macbook-air-15-m2.jpg",
+    images: ["macbook-air-15-m2.jpg", "macbook-air-15-m2-side.jpg", "macbook-air-15-m2-back.jpg"],
     specs: {
       cpu: "Apple M2 chip",
       ram: "8GB Unified Memory",
@@ -819,6 +875,7 @@ const products = [
     description: "Durable gaming laptop with military-grade construction.",
     price: 115000,
     image: "asus-tuf-gaming-a15.jpg",
+    images: ["asus-tuf-gaming-a15.jpg", "asus-tuf-gaming-a15-side.jpg", "asus-tuf-gaming-a15-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 7735HS",
       ram: "16GB DDR5",
@@ -833,6 +890,7 @@ const products = [
     description: "2-in-1 convertible laptop for everyday use.",
     price: 65000,
     image: "lenovo-ideapad-flex-5.jpg",
+    images: ["lenovo-ideapad-flex-5.jpg", "lenovo-ideapad-flex-5-side.jpg", "lenovo-ideapad-flex-5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 7530U",
       ram: "16GB DDR4",
@@ -847,6 +905,7 @@ const products = [
     description: "Large convertible laptop for work and entertainment.",
     price: 95000,
     image: "dell-inspiron-16-2in1.jpg",
+    images: ["dell-inspiron-16-2in1.jpg", "dell-inspiron-16-2in1-side.jpg", "dell-inspiron-16-2in1-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1360P",
       ram: "16GB LPDDR5",
@@ -861,6 +920,7 @@ const products = [
     description: "Sleek laptop with OLED display for multimedia.",
     price: 85000,
     image: "hp-pavilion-plus-14.jpg",
+    images: ["hp-pavilion-plus-14.jpg", "hp-pavilion-plus-14-side.jpg", "hp-pavilion-plus-14-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1340P",
       ram: "16GB LPDDR5",
@@ -875,6 +935,7 @@ const products = [
     description: "Premium convertible Chromebook for productivity.",
     price: 55000,
     image: "acer-chromebook-spin-714.jpg",
+    images: ["acer-chromebook-spin-714.jpg", "acer-chromebook-spin-714-side.jpg", "acer-chromebook-spin-714-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "8GB LPDDR4x",
@@ -889,6 +950,7 @@ const products = [
     description: "Convertible laptop with AMOLED display and S Pen.",
     price: 125000,
     image: "samsung-galaxy-book2-pro-360.jpg",
+    images: ["samsung-galaxy-book2-pro-360.jpg", "samsung-galaxy-book2-pro-360-side.jpg", "samsung-galaxy-book2-pro-360-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1260P",
       ram: "16GB LPDDR5",
@@ -903,6 +965,7 @@ const products = [
     description: "Business laptop with minimalist design.",
     price: 65000,
     image: "msi-modern-14.jpg",
+    images: ["msi-modern-14.jpg", "msi-modern-14-side.jpg", "msi-modern-14-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "8GB DDR4",
@@ -917,6 +980,7 @@ const products = [
     description: "Business convertible with security features.",
     price: 95000,
     image: "thinkbook-14s-yoga.jpg",
+    images: ["thinkbook-14s-yoga.jpg", "thinkbook-14s-yoga-side.jpg", "thinkbook-14s-yoga-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1240P",
       ram: "16GB LPDDR5",
@@ -931,6 +995,7 @@ const products = [
     description: "Ultra-light business laptop with long battery life.",
     price: 135000,
     image: "asus-expertbook-b9.jpg",
+    images: ["asus-expertbook-b9.jpg", "asus-expertbook-b9-side.jpg", "asus-expertbook-b9-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1255U",
       ram: "16GB LPDDR5",
@@ -945,6 +1010,7 @@ const products = [
     description: "Small business laptop with essential features.",
     price: 55000,
     image: "dell-vostro-14-5000.jpg",
+    images: ["dell-vostro-14-5000.jpg", "dell-vostro-14-5000-side.jpg", "dell-vostro-14-5000-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "8GB DDR4",
@@ -959,6 +1025,7 @@ const products = [
     description: "Enterprise laptop with advanced management features.",
     price: 115000,
     image: "hp-elitebook-840-g9.jpg",
+    images: ["hp-elitebook-840-g9.jpg", "hp-elitebook-840-g9-side.jpg", "hp-elitebook-840-g9-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1245U",
       ram: "16GB DDR5",
@@ -973,6 +1040,7 @@ const products = [
     description: "Versatile 2-in-1 with premium audio.",
     price: 85000,
     image: "lenovo-yoga-7i.jpg",
+    images: ["lenovo-yoga-7i.jpg", "lenovo-yoga-7i-side.jpg", "lenovo-yoga-7i-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "16GB LPDDR5",
@@ -987,6 +1055,7 @@ const products = [
     description: "Budget all-rounder for everyday computing.",
     price: 45000,
     image: "acer-aspire-5.jpg",
+    images: ["acer-aspire-5.jpg", "acer-aspire-5-side.jpg", "acer-aspire-5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 5500U",
       ram: "8GB DDR4",
@@ -1001,6 +1070,7 @@ const products = [
     description: "Affordable convertible with OLED option.",
     price: 75000,
     image: "asus-vivobook-s14-flip.jpg",
+    images: ["asus-vivobook-s14-flip.jpg", "asus-vivobook-s14-flip-side.jpg", "asus-vivobook-s14-flip-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12500H",
       ram: "16GB DDR4",
@@ -1015,6 +1085,7 @@ const products = [
     description: "Business convertible with powerful performance.",
     price: 125000,
     image: "msi-summit-e13-flip-evo.jpg",
+    images: ["msi-summit-e13-flip-evo.jpg", "msi-summit-e13-flip-evo-side.jpg", "msi-summit-e13-flip-evo-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1280P",
       ram: "16GB LPDDR5",
@@ -1029,6 +1100,7 @@ const products = [
     description: "Executive business laptop with premium features.",
     price: 155000,
     image: "dell-latitude-9430.jpg",
+    images: ["dell-latitude-9430.jpg", "dell-latitude-9430-side.jpg", "dell-latitude-9430-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1265U",
       ram: "16GB LPDDR5",
@@ -1043,6 +1115,7 @@ const products = [
     description: "Mobile workstation for professional applications.",
     price: 135000,
     image: "hp-zbook-firefly-14-g9.jpg",
+    images: ["hp-zbook-firefly-14-g9.jpg", "hp-zbook-firefly-14-g9-side.jpg", "hp-zbook-firefly-14-g9-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1265U",
       ram: "16GB DDR5",
@@ -1057,6 +1130,7 @@ const products = [
     description: "Compact mobile workstation for professionals.",
     price: 145000,
     image: "thinkpad-p14s.jpg",
+    images: ["thinkpad-p14s.jpg", "thinkpad-p14s-side.jpg", "thinkpad-p14s-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 PRO 6850U",
       ram: "32GB DDR5",
@@ -1071,6 +1145,7 @@ const products = [
     description: "Powerful mobile workstation in compact form factor.",
     price: 195000,
     image: "dell-precision-5470.jpg",
+    images: ["dell-precision-5470.jpg", "dell-precision-5470-side.jpg", "dell-precision-5470-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12800H",
       ram: "32GB DDR5",
@@ -1085,6 +1160,7 @@ const products = [
     description: "Large gaming laptop with desktop replacement power.",
     price: 185000,
     image: "hp-omen-17-2023.jpg",
+    images: ["hp-omen-17-2023.jpg", "hp-omen-17-2023-side.jpg", "hp-omen-17-2023-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13700HX",
       ram: "32GB DDR5",
@@ -1099,6 +1175,7 @@ const products = [
     description: "Gaming tablet with detachable keyboard.",
     price: 145000,
     image: "asus-rog-flow-z13.jpg",
+    images: ["asus-rog-flow-z13.jpg", "asus-rog-flow-z13-side.jpg", "asus-rog-flow-z13-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900H",
       ram: "16GB LPDDR5",
@@ -1113,6 +1190,7 @@ const products = [
     description: "Content creation laptop with unique 17-inch design.",
     price: 225000,
     image: "msi-creator-z17.jpg",
+    images: ["msi-creator-z17.jpg", "msi-creator-z17-side.jpg", "msi-creator-z17-back.jpg"],
     specs: {
       cpu: "Intel Core i9-12900H",
       ram: "32GB DDR5",
@@ -1127,6 +1205,7 @@ const products = [
     description: "Ultrabook with premium design and performance.",
     price: 125000,
     image: "razer-book-13.jpg",
+    images: ["razer-book-13.jpg", "razer-book-13-side.jpg", "razer-book-13-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -1141,6 +1220,7 @@ const products = [
     description: "Extremely lightweight laptop with long battery.",
     price: 115000,
     image: "lg-gram-14-2023.jpg",
+    images: ["lg-gram-14-2023.jpg", "lg-gram-14-2023-side.jpg", "lg-gram-14-2023-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1340P",
       ram: "16GB LPDDR5",
@@ -1155,6 +1235,7 @@ const products = [
     description: "Always-connected laptop with Snapdragon processor.",
     price: 45000,
     image: "samsung-galaxy-book-go.jpg",
+    images: ["samsung-galaxy-book-go.jpg", "samsung-galaxy-book-go-side.jpg", "samsung-galaxy-book-go-back.jpg"],
     specs: {
       cpu: "Snapdragon 7c Gen 2",
       ram: "4GB LPDDR4x",
@@ -1169,6 +1250,7 @@ const products = [
     description: "Business laptop with military-grade durability.",
     price: 75000,
     image: "acer-travelmate-p4.jpg",
+    images: ["acer-travelmate-p4.jpg", "acer-travelmate-p4-side.jpg", "acer-travelmate-p4-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "8GB DDR4",
@@ -1183,6 +1265,7 @@ const products = [
     description: "All-in-one desktop replacement laptop.",
     price: 95000,
     image: "dell-optiplex-7490-aio.jpg",
+    images: ["dell-optiplex-7490-aio.jpg", "dell-optiplex-7490-aio-side.jpg", "dell-optiplex-7490-aio-back.jpg"],
     specs: {
       cpu: "Intel Core i5-10500T",
       ram: "8GB DDR4",
@@ -1197,6 +1280,7 @@ const products = [
     description: "Business laptop with AMD processor.",
     price: 65000,
     image: "hp-probook-445-g9.jpg",
+    images: ["hp-probook-445-g9.jpg", "hp-probook-445-g9-side.jpg", "hp-probook-445-g9-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 5625U",
       ram: "8GB DDR4",
@@ -1211,6 +1295,7 @@ const products = [
     description: "Entry-level gaming laptop with good value.",
     price: 75000,
     image: "lenovo-ideapad-gaming-3.jpg",
+    images: ["lenovo-ideapad-gaming-3.jpg", "lenovo-ideapad-gaming-3-side.jpg", "lenovo-ideapad-gaming-3-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 6600H",
       ram: "8GB DDR5",
@@ -1225,6 +1310,7 @@ const products = [
     description: "Professional content creation workstation.",
     price: 285000,
     image: "asus-proart-studiobook-16.jpg",
+    images: ["asus-proart-studiobook-16.jpg", "asus-proart-studiobook-16-side.jpg", "asus-proart-studiobook-16-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 6900HX",
       ram: "32GB DDR5",
@@ -1239,6 +1325,7 @@ const products = [
     description: "Value gaming laptop with solid performance.",
     price: 95000,
     image: "msi-katana-gf66.jpg",
+    images: ["msi-katana-gf66.jpg", "msi-katana-gf66-side.jpg", "msi-katana-gf66-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12650H",
       ram: "16GB DDR4",
@@ -1253,6 +1340,7 @@ const products = [
     description: "Popular gaming laptop with great cooling.",
     price: 85000,
     image: "acer-nitro-5.jpg",
+    images: ["acer-nitro-5.jpg", "acer-nitro-5-side.jpg", "acer-nitro-5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 6600H",
       ram: "16GB DDR5",
@@ -1267,6 +1355,7 @@ const products = [
     description: "Gaming laptop with Alienware-inspired design.",
     price: 105000,
     image: "dell-g15-5530.jpg",
+    images: ["dell-g15-5530.jpg", "dell-g15-5530-side.jpg", "dell-g15-5530-back.jpg"],
     specs: {
       cpu: "Intel Core i7-13650HX",
       ram: "16GB DDR5",
@@ -1281,6 +1370,7 @@ const products = [
     description: "Basic laptop for everyday computing tasks.",
     price: 35000,
     image: "hp-laptop-15s.jpg",
+    images: ["hp-laptop-15s.jpg", "hp-laptop-15s-side.jpg", "hp-laptop-15s-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1115G4",
       ram: "8GB DDR4",
@@ -1295,6 +1385,7 @@ const products = [
     description: "Entry-level business laptop with ThinkPad quality.",
     price: 55000,
     image: "thinkpad-e14.jpg",
+    images: ["thinkpad-e14.jpg", "thinkpad-e14-side.jpg", "thinkpad-e14-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "8GB DDR4",
@@ -1309,6 +1400,7 @@ const products = [
     description: "Premium Chromebook with powerful specs.",
     price: 45000,
     image: "asus-chromebook-flip-cx5.jpg",
+    images: ["asus-chromebook-flip-cx5.jpg", "asus-chromebook-flip-cx5-side.jpg", "asus-chromebook-flip-cx5-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1215U",
       ram: "8GB LPDDR4x",
@@ -1323,6 +1415,7 @@ const products = [
     description: "Compact and affordable Surface laptop.",
     price: 55000,
     image: "surface-laptop-go-2.jpg",
+    images: ["surface-laptop-go-2.jpg", "surface-laptop-go-2-side.jpg", "surface-laptop-go-2-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB LPDDR4x",
@@ -1337,6 +1430,7 @@ const products = [
     description: "Updated MacBook Pro with M2 chip.",
     price: 125000,
     image: "macbook-pro-13-m2-2022.jpg",
+    images: ["macbook-pro-13-m2-2022.jpg", "macbook-pro-13-m2-2022-side.jpg", "macbook-pro-13-m2-2022-back.jpg"],
     specs: {
       cpu: "Apple M2 chip",
       ram: "8GB Unified Memory",
@@ -1351,6 +1445,7 @@ const products = [
     description: "Budget laptop for students and home use.",
     price: 32000,
     image: "dell-inspiron-15-3000.jpg",
+    images: ["dell-inspiron-15-3000.jpg", "dell-inspiron-15-3000-side.jpg", "dell-inspiron-15-3000-back.jpg"],
     specs: {
       cpu: "Intel Celeron N4020",
       ram: "4GB DDR4",
@@ -1365,6 +1460,7 @@ const products = [
     description: "Everyday laptop with modern features.",
     price: 42000,
     image: "hp-14s-dq5000tu.jpg",
+    images: ["hp-14s-dq5000tu.jpg", "hp-14s-dq5000tu-side.jpg", "hp-14s-dq5000tu-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1215U",
       ram: "8GB DDR4",
@@ -1379,6 +1475,7 @@ const products = [
     description: "Business laptop with essential features.",
     price: 38000,
     image: "lenovo-v15-g2.jpg",
+    images: ["lenovo-v15-g2.jpg", "lenovo-v15-g2-side.jpg", "lenovo-v15-g2-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 3 5300U",
       ram: "8GB DDR4",
@@ -1393,6 +1490,7 @@ const products = [
     description: "Affordable laptop for small businesses.",
     price: 35000,
     image: "acer-extensa-15.jpg",
+    images: ["acer-extensa-15.jpg", "acer-extensa-15-side.jpg", "acer-extensa-15-back.jpg"],
     specs: {
       cpu: "Intel Pentium Silver N6000",
       ram: "4GB DDR4",
@@ -1401,13 +1499,13 @@ const products = [
       gpu: "Intel UHD Graphics",
     },
   },
-  // Continuing with more laptops to reach 200...
   {
     id: 101,
     name: "Asus ExpertCenter B5",
     description: "Business desktop with compact design.",
     price: 45000,
     image: "asus-expertcenter-b5.jpg",
+    images: ["asus-expertcenter-b5.jpg", "asus-expertcenter-b5-side.jpg", "asus-expertcenter-b5-back.jpg"],
     specs: {
       cpu: "Intel Core i5-11400",
       ram: "8GB DDR4",
@@ -1422,6 +1520,7 @@ const products = [
     description: "Business desktop with security features.",
     price: 65000,
     image: "hp-elitedesk-800-g8.jpg",
+    images: ["hp-elitedesk-800-g8.jpg", "hp-elitedesk-800-g8-side.jpg", "hp-elitedesk-800-g8-back.jpg"],
     specs: {
       cpu: "Intel Core i5-11500",
       ram: "16GB DDR4",
@@ -1436,6 +1535,7 @@ const products = [
     description: "Compact workstation for professionals.",
     price: 85000,
     image: "dell-precision-3460.jpg",
+    images: ["dell-precision-3460.jpg", "dell-precision-3460-side.jpg", "dell-precision-3460-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700",
       ram: "16GB DDR4",
@@ -1450,6 +1550,7 @@ const products = [
     description: "AMD-powered business desktop.",
     price: 55000,
     image: "thinkcentre-m75s.jpg",
+    images: ["thinkcentre-m75s.jpg", "thinkcentre-m75s-side.jpg", "thinkcentre-m75s-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 PRO 5650G",
       ram: "8GB DDR4",
@@ -1464,6 +1565,7 @@ const products = [
     description: "All-in-one desktop with M1 chip.",
     price: 125000,
     image: "imac-24-m1.jpg",
+    images: ["imac-24-m1.jpg", "imac-24-m1-side.jpg", "imac-24-m1-back.jpg"],
     specs: {
       cpu: "Apple M1 chip",
       ram: "8GB Unified Memory",
@@ -1478,6 +1580,7 @@ const products = [
     description: "Compact gaming desktop.",
     price: 95000,
     image: "msi-trident-3.jpg",
+    images: ["msi-trident-3.jpg", "msi-trident-3-side.jpg", "msi-trident-3-back.jpg"],
     specs: {
       cpu: "Intel Core i5-11400F",
       ram: "16GB DDR4",
@@ -1492,6 +1595,7 @@ const products = [
     description: "Gaming desktop with RGB lighting.",
     price: 115000,
     image: "asus-rog-strix-g15.jpg",
+    images: ["asus-rog-strix-g15.jpg", "asus-rog-strix-g15-side.jpg", "asus-rog-strix-g15-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 5700X",
       ram: "16GB DDR4",
@@ -1506,6 +1610,7 @@ const products = [
     description: "Budget gaming desktop.",
     price: 75000,
     image: "hp-pavilion-gaming-desktop.jpg",
+    images: ["hp-pavilion-gaming-desktop.jpg", "hp-pavilion-gaming-desktop-side.jpg", "hp-pavilion-gaming-desktop-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12400F",
       ram: "8GB DDR4",
@@ -1520,6 +1625,7 @@ const products = [
     description: "Premium desktop for home and office.",
     price: 85000,
     image: "dell-xps-8940.jpg",
+    images: ["dell-xps-8940.jpg", "dell-xps-8940-side.jpg", "dell-xps-8940-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11700",
       ram: "16GB DDR4",
@@ -1534,6 +1640,7 @@ const products = [
     description: "Gaming desktop with powerful components.",
     price: 105000,
     image: "lenovo-legion-t5.jpg",
+    images: ["lenovo-legion-t5.jpg", "lenovo-legion-t5-side.jpg", "lenovo-legion-t5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 7600X",
       ram: "16GB DDR5",
@@ -1548,6 +1655,7 @@ const products = [
     description: "Gaming desktop with aggressive design.",
     price: 125000,
     image: "acer-predator-orion-3000.jpg",
+    images: ["acer-predator-orion-3000.jpg", "acer-predator-orion-3000-side.jpg", "acer-predator-orion-3000-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700F",
       ram: "16GB DDR5",
@@ -1562,6 +1670,7 @@ const products = [
     description: "Mini PC for office and home use.",
     price: 45000,
     image: "intel-nuc-13-pro.jpg",
+    images: ["intel-nuc-13-pro.jpg", "intel-nuc-13-pro-side.jpg", "intel-nuc-13-pro-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1340P",
       ram: "16GB DDR4",
@@ -1576,6 +1685,7 @@ const products = [
     description: "Compact desktop workstation.",
     price: 225000,
     image: "mac-studio-m2-max.jpg",
+    images: ["mac-studio-m2-max.jpg", "mac-studio-m2-max-side.jpg", "mac-studio-m2-max-back.jpg"],
     specs: {
       cpu: "Apple M2 Max 12-core CPU",
       ram: "32GB Unified Memory",
@@ -1590,6 +1700,7 @@ const products = [
     description: "Business mini PC.",
     price: 35000,
     image: "asus-pn64.jpg",
+    images: ["asus-pn64.jpg", "asus-pn64-side.jpg", "asus-pn64-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12500H",
       ram: "8GB DDR5",
@@ -1604,6 +1715,7 @@ const products = [
     description: "All-in-one business desktop.",
     price: 75000,
     image: "hp-proone-440-g9.jpg",
+    images: ["hp-proone-440-g9.jpg", "hp-proone-440-g9-side.jpg", "hp-proone-440-g9-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12500T",
       ram: "16GB DDR4",
@@ -1618,6 +1730,7 @@ const products = [
     description: "Innovative modular desktop.",
     price: 65000,
     image: "dell-optiplex-7090-ultra.jpg",
+    images: ["dell-optiplex-7090-ultra.jpg", "dell-optiplex-7090-ultra-side.jpg", "dell-optiplex-7090-ultra-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1145G7",
       ram: "8GB DDR4",
@@ -1632,6 +1745,7 @@ const products = [
     description: "Compact workstation.",
     price: 135000,
     image: "thinkstation-p360.jpg",
+    images: ["thinkstation-p360.jpg", "thinkstation-p360-side.jpg", "thinkstation-p360-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700",
       ram: "32GB DDR5",
@@ -1646,6 +1760,7 @@ const products = [
     description: "Tower workstation for professionals.",
     price: 155000,
     image: "hp-z2-tower-g9.jpg",
+    images: ["hp-z2-tower-g9.jpg", "hp-z2-tower-g9-side.jpg", "hp-z2-tower-g9-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700K",
       ram: "32GB DDR5",
@@ -1660,6 +1775,7 @@ const products = [
     description: "Gaming desktop with liquid cooling.",
     price: 185000,
     image: "alienware-aurora-r15.jpg",
+    images: ["alienware-aurora-r15.jpg", "alienware-aurora-r15-side.jpg", "alienware-aurora-r15-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 7700X",
       ram: "32GB DDR5",
@@ -1674,6 +1790,7 @@ const products = [
     description: "Workstation for content creators.",
     price: 195000,
     image: "asus-proart-station-pd5.jpg",
+    images: ["asus-proart-station-pd5.jpg", "asus-proart-station-pd5-side.jpg", "asus-proart-station-pd5-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900K",
       ram: "64GB DDR5",
@@ -1688,6 +1805,7 @@ const products = [
     description: "Premium gaming desktop.",
     price: 225000,
     image: "msi-meg-trident-x2.jpg",
+    images: ["msi-meg-trident-x2.jpg", "msi-meg-trident-x2-side.jpg", "msi-meg-trident-x2-back.jpg"],
     specs: {
       cpu: "Intel Core i9-13900K",
       ram: "32GB DDR5",
@@ -1702,6 +1820,7 @@ const products = [
     description: "Budget desktop for home use.",
     price: 32000,
     image: "acer-aspire-tc.jpg",
+    images: ["acer-aspire-tc.jpg", "acer-aspire-tc-side.jpg", "acer-aspire-tc-back.jpg"],
     specs: {
       cpu: "Intel Core i3-12100",
       ram: "8GB DDR4",
@@ -1716,6 +1835,7 @@ const products = [
     description: "Family desktop with modern design.",
     price: 45000,
     image: "lenovo-ideacentre-5i.jpg",
+    images: ["lenovo-ideacentre-5i.jpg", "lenovo-ideacentre-5i-side.jpg", "lenovo-ideacentre-5i-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12400",
       ram: "12GB DDR4",
@@ -1730,6 +1850,7 @@ const products = [
     description: "Compact desktop for basic computing.",
     price: 28000,
     image: "hp-slim-desktop-s01.jpg",
+    images: ["hp-slim-desktop-s01.jpg", "hp-slim-desktop-s01-side.jpg", "hp-slim-desktop-s01-back.jpg"],
     specs: {
       cpu: "AMD Athlon Gold 3150U",
       ram: "4GB DDR4",
@@ -1744,6 +1865,7 @@ const products = [
     description: "Small business desktop.",
     price: 42000,
     image: "dell-vostro-3910.jpg",
+    images: ["dell-vostro-3910.jpg", "dell-vostro-3910-side.jpg", "dell-vostro-3910-back.jpg"],
     specs: {
       cpu: "Intel Core i3-12100",
       ram: "8GB DDR4",
@@ -1758,6 +1880,7 @@ const products = [
     description: "Ultra-compact mini PC.",
     price: 25000,
     image: "asus-mini-pc-pn41.jpg",
+    images: ["asus-mini-pc-pn41.jpg", "asus-mini-pc-pn41-side.jpg", "asus-mini-pc-pn41-back.jpg"],
     specs: {
       cpu: "Intel Celeron N5100",
       ram: "8GB DDR4",
@@ -1772,6 +1895,7 @@ const products = [
     description: "Mini PC with discrete graphics.",
     price: 75000,
     image: "intel-nuc-12-enthusiast.jpg",
+    images: ["intel-nuc-12-enthusiast.jpg", "intel-nuc-12-enthusiast-side.jpg", "intel-nuc-12-enthusiast-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1260P",
       ram: "16GB DDR4",
@@ -1786,6 +1910,7 @@ const products = [
     description: "Compact desktop with M2 chip.",
     price: 65000,
     image: "mac-mini-m2.jpg",
+    images: ["mac-mini-m2.jpg", "mac-mini-m2-side.jpg", "mac-mini-m2-back.jpg"],
     specs: {
       cpu: "Apple M2 chip",
       ram: "8GB Unified Memory",
@@ -1800,6 +1925,7 @@ const products = [
     description: "Business mini PC.",
     price: 35000,
     image: "msi-cubi-5.jpg",
+    images: ["msi-cubi-5.jpg", "msi-cubi-5-side.jpg", "msi-cubi-5-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1215U",
       ram: "8GB DDR4",
@@ -1814,6 +1940,7 @@ const products = [
     description: "Mini PC for home theater.",
     price: 32000,
     image: "zotac-zbox.jpg",
+    images: ["zotac-zbox.jpg", "zotac-zbox-side.jpg", "zotac-zbox-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB DDR4",
@@ -1828,6 +1955,7 @@ const products = [
     description: "Compact gaming mini PC.",
     price: 85000,
     image: "gigabyte-brix.jpg",
+    images: ["gigabyte-brix.jpg", "gigabyte-brix-side.jpg", "gigabyte-brix-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 5800U",
       ram: "16GB DDR4",
@@ -1842,6 +1970,7 @@ const products = [
     description: "Mini PC with AMD processor.",
     price: 28000,
     image: "beelink-ser5.jpg",
+    images: ["beelink-ser5.jpg", "beelink-ser5-side.jpg", "beelink-ser5-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 5560U",
       ram: "16GB DDR4",
@@ -1856,6 +1985,7 @@ const products = [
     description: "Mini PC for productivity.",
     price: 35000,
     image: "minisforum-um773.jpg",
+    images: ["minisforum-um773.jpg", "minisforum-um773-side.jpg", "minisforum-um773-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 7735HS",
       ram: "32GB DDR5",
@@ -1870,6 +2000,7 @@ const products = [
     description: "Business mini desktop.",
     price: 38000,
     image: "acer-veriton-n.jpg",
+    images: ["acer-veriton-n.jpg", "acer-veriton-n-side.jpg", "acer-veriton-n-back.jpg"],
     specs: {
       cpu: "Intel Core i5-11400T",
       ram: "8GB DDR4",
@@ -1884,6 +2015,7 @@ const products = [
     description: "Compact workstation.",
     price: 95000,
     image: "dell-precision-3260.jpg",
+    images: ["dell-precision-3260.jpg", "dell-precision-3260-side.jpg", "dell-precision-3260-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700",
       ram: "16GB DDR5",
@@ -1898,6 +2030,7 @@ const products = [
     description: "Business mini PC.",
     price: 65000,
     image: "hp-elite-mini-800-g9.jpg",
+    images: ["hp-elite-mini-800-g9.jpg", "hp-elite-mini-800-g9-side.jpg", "hp-elite-mini-800-g9-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12500T",
       ram: "16GB DDR5",
@@ -1912,6 +2045,7 @@ const products = [
     description: "Tiny business desktop.",
     price: 42000,
     image: "thinkcentre-m70q.jpg",
+    images: ["thinkcentre-m70q.jpg", "thinkcentre-m70q-side.jpg", "thinkcentre-m70q-back.jpg"],
     specs: {
       cpu: "Intel Core i3-12100T",
       ram: "8GB DDR4",
@@ -1926,6 +2060,7 @@ const products = [
     description: "Small form factor desktop.",
     price: 48000,
     image: "asus-expertcenter-d5.jpg",
+    images: ["asus-expertcenter-d5.jpg", "asus-expertcenter-d5-side.jpg", "asus-expertcenter-d5-back.jpg"],
     specs: {
       cpu: "Intel Core i5-12400",
       ram: "8GB DDR4",
@@ -1940,6 +2075,7 @@ const products = [
     description: "Business desktop.",
     price: 35000,
     image: "msi-pro-dp21.jpg",
+    images: ["msi-pro-dp21.jpg", "msi-pro-dp21-side.jpg", "msi-pro-dp21-back.jpg"],
     specs: {
       cpu: "Intel Core i3-12100",
       ram: "8GB DDR4",
@@ -1954,6 +2090,7 @@ const products = [
     description: "Mini PC for business use.",
     price: 45000,
     image: "intel-nuc-11-pro.jpg",
+    images: ["intel-nuc-11-pro.jpg", "intel-nuc-11-pro-side.jpg", "intel-nuc-11-pro-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "16GB DDR4",
@@ -1968,6 +2105,7 @@ const products = [
     description: "Workstation for professionals.",
     price: 450000,
     image: "mac-pro-2019.jpg",
+    images: ["mac-pro-2019.jpg", "mac-pro-2019-side.jpg", "mac-pro-2019-back.jpg"],
     specs: {
       cpu: "Intel Xeon W-3245",
       ram: "32GB DDR4",
@@ -1982,6 +2120,7 @@ const products = [
     description: "Entry-level server.",
     price: 55000,
     image: "dell-poweredge-t40.jpg",
+    images: ["dell-poweredge-t40.jpg", "dell-poweredge-t40-side.jpg", "dell-poweredge-t40-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2224",
       ram: "8GB DDR4",
@@ -1996,6 +2135,7 @@ const products = [
     description: "Small business server.",
     price: 75000,
     image: "hp-proliant-ml30-gen10.jpg",
+    images: ["hp-proliant-ml30-gen10.jpg", "hp-proliant-ml30-gen10-side.jpg", "hp-proliant-ml30-gen10-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2314",
       ram: "16GB DDR4",
@@ -2010,6 +2150,7 @@ const products = [
     description: "Tower server.",
     price: 85000,
     image: "thinksystem-st50.jpg",
+    images: ["thinksystem-st50.jpg", "thinksystem-st50-side.jpg", "thinksystem-st50-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2334",
       ram: "16GB DDR4",
@@ -2024,6 +2165,7 @@ const products = [
     description: "Workstation server.",
     price: 95000,
     image: "supermicro-sys-5039d.jpg",
+    images: ["supermicro-sys-5039d.jpg", "supermicro-sys-5039d-side.jpg", "supermicro-sys-5039d-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2278G",
       ram: "32GB DDR4",
@@ -2038,6 +2180,7 @@ const products = [
     description: "Tower server.",
     price: 65000,
     image: "fujitsu-primeergy-tx1330.jpg",
+    images: ["fujitsu-primeergy-tx1330.jpg", "fujitsu-primeergy-tx1330-side.jpg", "fujitsu-primeergy-tx1330-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2314",
       ram: "16GB DDR4",
@@ -2052,6 +2195,7 @@ const products = [
     description: "Rack server.",
     price: 185000,
     image: "cisco-ucs-c240-m5.jpg",
+    images: ["cisco-ucs-c240-m5.jpg", "cisco-ucs-c240-m5-side.jpg", "cisco-ucs-c240-m5-back.jpg"],
     specs: {
       cpu: "Intel Xeon Silver 4210",
       ram: "32GB DDR4",
@@ -2066,6 +2210,7 @@ const products = [
     description: "1U rack server.",
     price: 95000,
     image: "hpe-proliant-dl20-gen10.jpg",
+    images: ["hpe-proliant-dl20-gen10.jpg", "hpe-proliant-dl20-gen10-side.jpg", "hpe-proliant-dl20-gen10-back.jpg"],
     specs: {
       cpu: "Intel Xeon E-2334",
       ram: "16GB DDR4",
@@ -2080,6 +2225,7 @@ const products = [
     description: "2U rack server.",
     price: 225000,
     image: "dell-emc-poweredge-r740.jpg",
+    images: ["dell-emc-poweredge-r740.jpg", "dell-emc-poweredge-r740-side.jpg", "dell-emc-poweredge-r740-back.jpg"],
     specs: {
       cpu: "Intel Xeon Gold 5218",
       ram: "64GB DDR4",
@@ -2094,6 +2240,7 @@ const products = [
     description: "Enterprise server.",
     price: 350000,
     image: "ibm-power-system-s822lc.jpg",
+    images: ["ibm-power-system-s822lc.jpg", "ibm-power-system-s822lc-side.jpg", "ibm-power-system-s822lc-back.jpg"],
     specs: {
       cpu: "POWER8 Processor",
       ram: "64GB DDR4",
@@ -2108,6 +2255,7 @@ const products = [
     description: "Enterprise server.",
     price: 285000,
     image: "oracle-server-x8-2.jpg",
+    images: ["oracle-server-x8-2.jpg", "oracle-server-x8-2-side.jpg", "oracle-server-x8-2-back.jpg"],
     specs: {
       cpu: "Intel Xeon Platinum 8256",
       ram: "128GB DDR4",
@@ -2122,6 +2270,7 @@ const products = [
     description: "Flagship workstation.",
     price: 325000,
     image: "thinkstation-p920.jpg",
+    images: ["thinkstation-p920.jpg", "thinkstation-p920-side.jpg", "thinkstation-p920-back.jpg"],
     specs: {
       cpu: "Intel Xeon Gold 6226R",
       ram: "64GB DDR4",
@@ -2136,6 +2285,7 @@ const products = [
     description: "Workstation for professionals.",
     price: 295000,
     image: "hp-z8-g4.jpg",
+    images: ["hp-z8-g4.jpg", "hp-z8-g4-side.jpg", "hp-z8-g4-back.jpg"],
     specs: {
       cpu: "Intel Xeon Gold 5218",
       ram: "128GB DDR4",
@@ -2150,6 +2300,7 @@ const products = [
     description: "Tower workstation.",
     price: 185000,
     image: "dell-precision-7820.jpg",
+    images: ["dell-precision-7820.jpg", "dell-precision-7820-side.jpg", "dell-precision-7820-back.jpg"],
     specs: {
       cpu: "Intel Xeon W-2295",
       ram: "64GB DDR4",
@@ -2164,6 +2315,7 @@ const products = [
     description: "Mobile workstation.",
     price: 145000,
     image: "fujitsu-celsius-m740.jpg",
+    images: ["fujitsu-celsius-m740.jpg", "fujitsu-celsius-m740-side.jpg", "fujitsu-celsius-m740-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "32GB DDR4",
@@ -2178,6 +2330,7 @@ const products = [
     description: "Mobile workstation.",
     price: 165000,
     image: "msi-ws76.jpg",
+    images: ["msi-ws76.jpg", "msi-ws76-side.jpg", "msi-ws76-back.jpg"],
     specs: {
       cpu: "Intel Core i9-11900H",
       ram: "32GB DDR4",
@@ -2192,6 +2345,7 @@ const products = [
     description: "Mobile workstation for creatives.",
     price: 195000,
     image: "asus-proart-studiobook-17.jpg",
+    images: ["asus-proart-studiobook-17.jpg", "asus-proart-studiobook-17-side.jpg", "asus-proart-studiobook-17-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 5980HX",
       ram: "64GB DDR4",
@@ -2206,6 +2360,7 @@ const products = [
     description: "Ultra-thin mobile workstation.",
     price: 175000,
     image: "thinkpad-p1-gen5.jpg",
+    images: ["thinkpad-p1-gen5.jpg", "thinkpad-p1-gen5-side.jpg", "thinkpad-p1-gen5-back.jpg"],
     specs: {
       cpu: "Intel Core i9-12900H",
       ram: "32GB DDR5",
@@ -2220,6 +2375,7 @@ const products = [
     description: "Mobile workstation with large display.",
     price: 225000,
     image: "dell-precision-7770.jpg",
+    images: ["dell-precision-7770.jpg", "dell-precision-7770-side.jpg", "dell-precision-7770-back.jpg"],
     specs: {
       cpu: "Intel Core i9-12950HX",
       ram: "64GB DDR5",
@@ -2234,6 +2390,7 @@ const products = [
     description: "Mobile workstation for professionals.",
     price: 195000,
     image: "hp-zbook-fury-17-g8.jpg",
+    images: ["hp-zbook-fury-17-g8.jpg", "hp-zbook-fury-17-g8-side.jpg", "hp-zbook-fury-17-g8-back.jpg"],
     specs: {
       cpu: "Intel Core i9-11950H",
       ram: "64GB DDR4",
@@ -2248,6 +2405,7 @@ const products = [
     description: "Professional laptop with M1 Max chip.",
     price: 285000,
     image: "macbook-pro-16-m1-max.jpg",
+    images: ["macbook-pro-16-m1-max.jpg", "macbook-pro-16-m1-max-side.jpg", "macbook-pro-16-m1-max-back.jpg"],
     specs: {
       cpu: "Apple M1 Max 10-core CPU",
       ram: "32GB Unified Memory",
@@ -2262,6 +2420,7 @@ const products = [
     description: "Detachable laptop with powerful graphics.",
     price: 165000,
     image: "surface-book-3.jpg",
+    images: ["surface-book-3.jpg", "surface-book-3-side.jpg", "surface-book-3-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1065G7",
       ram: "32GB LPDDR4x",
@@ -2276,6 +2435,7 @@ const products = [
     description: "Ultrabook with gaming capabilities.",
     price: 125000,
     image: "razer-blade-stealth-13.jpg",
+    images: ["razer-blade-stealth-13.jpg", "razer-blade-stealth-13-side.jpg", "razer-blade-stealth-13-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -2290,6 +2450,7 @@ const products = [
     description: "Lightweight 16-inch laptop.",
     price: 135000,
     image: "lg-gram-16-2022.jpg",
+    images: ["lg-gram-16-2022.jpg", "lg-gram-16-2022-side.jpg", "lg-gram-16-2022-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1260P",
       ram: "16GB LPDDR5",
@@ -2304,6 +2465,7 @@ const products = [
     description: "Convertible laptop with AMOLED display.",
     price: 145000,
     image: "samsung-galaxy-book-pro-360.jpg",
+    images: ["samsung-galaxy-book-pro-360.jpg", "samsung-galaxy-book-pro-360-side.jpg", "samsung-galaxy-book-pro-360-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -2318,6 +2480,7 @@ const products = [
     description: "Premium ultrabook with touchscreen.",
     price: 125000,
     image: "huawei-matebook-x-pro.jpg",
+    images: ["huawei-matebook-x-pro.jpg", "huawei-matebook-x-pro-side.jpg", "huawei-matebook-x-pro-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -2332,6 +2495,7 @@ const products = [
     description: "Value premium laptop.",
     price: 85000,
     image: "xiaomi-mi-notebook-pro.jpg",
+    images: ["xiaomi-mi-notebook-pro.jpg", "xiaomi-mi-notebook-pro-side.jpg", "xiaomi-mi-notebook-pro-back.jpg"],
     specs: {
       cpu: "Intel Core i5-11300H",
       ram: "16GB DDR4",
@@ -2346,6 +2510,7 @@ const products = [
     description: "Premium Chromebook.",
     price: 65000,
     image: "pixelbook-go.jpg",
+    images: ["pixelbook-go.jpg", "pixelbook-go-side.jpg", "pixelbook-go-back.jpg"],
     specs: {
       cpu: "Intel Core i5-8200Y",
       ram: "8GB LPDDR3",
@@ -2360,6 +2525,7 @@ const products = [
     description: "Business ultrabook.",
     price: 95000,
     image: "dynabook-portege-x40l-k.jpg",
+    images: ["dynabook-portege-x40l-k.jpg", "dynabook-portege-x40l-k-side.jpg", "dynabook-portege-x40l-k-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1235U",
       ram: "16GB LPDDR4x",
@@ -2374,6 +2540,7 @@ const products = [
     description: "Rugged laptop for field work.",
     price: 285000,
     image: "panasonic-toughbook-40.jpg",
+    images: ["panasonic-toughbook-40.jpg", "panasonic-toughbook-40-side.jpg", "panasonic-toughbook-40-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1145G7",
       ram: "16GB DDR4",
@@ -2388,6 +2555,7 @@ const products = [
     description: "Rugged laptop with bright display.",
     price: 195000,
     image: "getac-b360.jpg",
+    images: ["getac-b360.jpg", "getac-b360-side.jpg", "getac-b360-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1145G7",
       ram: "16GB DDR4",
@@ -2402,6 +2570,7 @@ const products = [
     description: "Rugged laptop for harsh environments.",
     price: 225000,
     image: "dell-latitude-7330-rugged.jpg",
+    images: ["dell-latitude-7330-rugged.jpg", "dell-latitude-7330-rugged-side.jpg", "dell-latitude-7330-rugged-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1145G7",
       ram: "16GB DDR4",
@@ -2416,6 +2585,7 @@ const products = [
     description: "Lightweight business laptop.",
     price: 115000,
     image: "hp-elitebook-840-aero-g8.jpg",
+    images: ["hp-elitebook-840-aero-g8.jpg", "hp-elitebook-840-aero-g8-side.jpg", "hp-elitebook-840-aero-g8-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "16GB LPDDR4x",
@@ -2430,6 +2600,7 @@ const products = [
     description: "Business convertible laptop.",
     price: 135000,
     image: "thinkpad-x13-yoga-gen2.jpg",
+    images: ["thinkpad-x13-yoga-gen2.jpg", "thinkpad-x13-yoga-gen2-side.jpg", "thinkpad-x13-yoga-gen2-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "16GB LPDDR4x",
@@ -2444,6 +2615,7 @@ const products = [
     description: "Ultrabook with beautiful display.",
     price: 105000,
     image: "asus-zenbook-14x-oled.jpg",
+    images: ["asus-zenbook-14x-oled.jpg", "asus-zenbook-14x-oled-side.jpg", "asus-zenbook-14x-oled-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "16GB LPDDR4x",
@@ -2458,6 +2630,7 @@ const products = [
     description: "Creative convertible laptop.",
     price: 125000,
     image: "acer-conceptd-3-ezel.jpg",
+    images: ["acer-conceptd-3-ezel.jpg", "acer-conceptd-3-ezel-side.jpg", "acer-conceptd-3-ezel-back.jpg"],
     specs: {
       cpu: "Intel Core i7-10750H",
       ram: "16GB DDR4",
@@ -2472,6 +2645,7 @@ const products = [
     description: "Content creation laptop.",
     price: 115000,
     image: "msi-prestige-15.jpg",
+    images: ["msi-prestige-15.jpg", "msi-prestige-15-side.jpg", "msi-prestige-15-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1185G7",
       ram: "32GB DDR4",
@@ -2486,6 +2660,7 @@ const products = [
     description: "Creative laptop with OLED display.",
     price: 155000,
     image: "gigabyte-aero-15-oled.jpg",
+    images: ["gigabyte-aero-15-oled.jpg", "gigabyte-aero-15-oled-side.jpg", "gigabyte-aero-15-oled-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "16GB DDR4",
@@ -2500,6 +2675,7 @@ const products = [
     description: "Slim gaming laptop.",
     price: 125000,
     image: "eluktronics-mag-15.jpg",
+    images: ["eluktronics-mag-15.jpg", "eluktronics-mag-15-side.jpg", "eluktronics-mag-15-back.jpg"],
     specs: {
       cpu: "Intel Core i7-10875H",
       ram: "16GB DDR4",
@@ -2514,6 +2690,7 @@ const products = [
     description: "AMD-powered ultrabook.",
     price: 95000,
     image: "schenker-via-15-pro.jpg",
+    images: ["schenker-via-15-pro.jpg", "schenker-via-15-pro-side.jpg", "schenker-via-15-pro-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 5800H",
       ram: "32GB DDR4",
@@ -2528,6 +2705,7 @@ const products = [
     description: "Linux laptop with high-end specs.",
     price: 105000,
     image: "tuxedo-infinitybook-pro-14.jpg",
+    images: ["tuxedo-infinitybook-pro-14.jpg", "tuxedo-infinitybook-pro-14-side.jpg", "tuxedo-infinitybook-pro-14-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1165G7",
       ram: "32GB DDR4",
@@ -2542,6 +2720,7 @@ const products = [
     description: "Linux gaming laptop.",
     price: 145000,
     image: "system76-oryx-pro.jpg",
+    images: ["system76-oryx-pro.jpg", "system76-oryx-pro-side.jpg", "system76-oryx-pro-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11800H",
       ram: "32GB DDR4",
@@ -2556,6 +2735,7 @@ const products = [
     description: "Privacy-focused laptop.",
     price: 125000,
     image: "purism-librem-14.jpg",
+    images: ["purism-librem-14.jpg", "purism-librem-14-side.jpg", "purism-librem-14-back.jpg"],
     specs: {
       cpu: "Intel Core i7-10710U",
       ram: "16GB DDR4",
@@ -2570,6 +2750,7 @@ const products = [
     description: "Large creative laptop.",
     price: 185000,
     image: "dell-xps-17-9720.jpg",
+    images: ["dell-xps-17-9720.jpg", "dell-xps-17-9720-side.jpg", "dell-xps-17-9720-back.jpg"],
     specs: {
       cpu: "Intel Core i7-12700H",
       ram: "32GB DDR5",
@@ -2584,6 +2765,7 @@ const products = [
     description: "Large convertible laptop.",
     price: 155000,
     image: "hp-spectre-x360-16.jpg",
+    images: ["hp-spectre-x360-16.jpg", "hp-spectre-x360-16-side.jpg", "hp-spectre-x360-16-back.jpg"],
     specs: {
       cpu: "Intel Core i7-11390H",
       ram: "16GB LPDDR4x",
@@ -2598,6 +2780,7 @@ const products = [
     description: "Premium convertible laptop.",
     price: 125000,
     image: "lenovo-yoga-9i-14.jpg",
+    images: ["lenovo-yoga-9i-14.jpg", "lenovo-yoga-9i-14-side.jpg", "lenovo-yoga-9i-14-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1185G7",
       ram: "16GB LPDDR4x",
@@ -2612,6 +2795,7 @@ const products = [
     description: "Convertible laptop with S Pen.",
     price: 115000,
     image: "samsung-galaxy-book2-360.jpg",
+    images: ["samsung-galaxy-book2-360.jpg", "samsung-galaxy-book2-360-side.jpg", "samsung-galaxy-book2-360-back.jpg"],
     specs: {
       cpu: "Intel Core i7-1255U",
       ram: "16GB LPDDR5",
@@ -2626,6 +2810,7 @@ const products = [
     description: "Premium business laptop.",
     price: 105000,
     image: "surface-laptop-4.jpg",
+    images: ["surface-laptop-4.jpg", "surface-laptop-4-side.jpg", "surface-laptop-4-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB LPDDR4x",
@@ -2640,6 +2825,7 @@ const products = [
     description: "Convertible laptop with pen support.",
     price: 85000,
     image: "acer-spin-5.jpg",
+    images: ["acer-spin-5.jpg", "acer-spin-5-side.jpg", "acer-spin-5-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "16GB LPDDR4x",
@@ -2654,6 +2840,7 @@ const products = [
     description: "Convertible Chromebook.",
     price: 45000,
     image: "asus-chromebook-flip-c536.jpg",
+    images: ["asus-chromebook-flip-c536.jpg", "asus-chromebook-flip-c536-side.jpg", "asus-chromebook-flip-c536-back.jpg"],
     specs: {
       cpu: "Intel Core i3-1115G4",
       ram: "8GB LPDDR4x",
@@ -2668,6 +2855,7 @@ const products = [
     description: "Detachable Chromebook.",
     price: 35000,
     image: "lenovo-chromebook-duet-5.jpg",
+    images: ["lenovo-chromebook-duet-5.jpg", "lenovo-chromebook-duet-5-side.jpg", "lenovo-chromebook-duet-5-back.jpg"],
     specs: {
       cpu: "Snapdragon 7c Gen 2",
       ram: "8GB LPDDR4x",
@@ -2682,6 +2870,7 @@ const products = [
     description: "Convertible Chromebook.",
     price: 42000,
     image: "hp-chromebook-x360-14c.jpg",
+    images: ["hp-chromebook-x360-14c.jpg", "hp-chromebook-x360-14c-side.jpg", "hp-chromebook-x360-14c-back.jpg"],
     specs: {
       cpu: "Intel Core i3-10110U",
       ram: "8GB DDR4",
@@ -2696,6 +2885,7 @@ const products = [
     description: "Business detachable laptop.",
     price: 125000,
     image: "dell-latitude-7320-detachable.jpg",
+    images: ["dell-latitude-7320-detachable.jpg", "dell-latitude-7320-detachable-side.jpg", "dell-latitude-7320-detachable-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1130G7",
       ram: "16GB LPDDR4x",
@@ -2710,6 +2900,7 @@ const products = [
     description: "Business detachable laptop.",
     price: 115000,
     image: "thinkpad-x12-detachable.jpg",
+    images: ["thinkpad-x12-detachable.jpg", "thinkpad-x12-detachable-side.jpg", "thinkpad-x12-detachable-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1130G7",
       ram: "16GB LPDDR4x",
@@ -2724,6 +2915,7 @@ const products = [
     description: "2-in-1 tablet with keyboard.",
     price: 105000,
     image: "surface-pro-8.jpg",
+    images: ["surface-pro-8.jpg", "surface-pro-8-side.jpg", "surface-pro-8-back.jpg"],
     specs: {
       cpu: "Intel Core i5-1135G7",
       ram: "8GB LPDDR4x",
@@ -2738,6 +2930,7 @@ const products = [
     description: "Professional tablet with M2 chip.",
     price: 115000,
     image: "ipad-pro-12-9-m2.jpg",
+    images: ["ipad-pro-12-9-m2.jpg", "ipad-pro-12-9-m2-side.jpg", "ipad-pro-12-9-m2-back.jpg"],
     specs: {
       cpu: "Apple M2 chip",
       ram: "8GB Unified Memory",
@@ -2752,6 +2945,7 @@ const products = [
     description: "Large Android tablet.",
     price: 85000,
     image: "samsung-galaxy-tab-s8-ultra.jpg",
+    images: ["samsung-galaxy-tab-s8-ultra.jpg", "samsung-galaxy-tab-s8-ultra-side.jpg", "samsung-galaxy-tab-s8-ultra-back.jpg"],
     specs: {
       cpu: "Snapdragon 8 Gen 1",
       ram: "12GB LPDDR5",
@@ -2766,6 +2960,7 @@ const products = [
     description: "Android tablet for productivity.",
     price: 65000,
     image: "lenovo-tab-p12-pro.jpg",
+    images: ["lenovo-tab-p12-pro.jpg", "lenovo-tab-p12-pro-side.jpg", "lenovo-tab-p12-pro-back.jpg"],
     specs: {
       cpu: "Snapdragon 870",
       ram: "6GB LPDDR5",
@@ -2780,6 +2975,7 @@ const products = [
     description: "Premium Android tablet.",
     price: 75000,
     image: "huawei-matepad-pro-12-6.jpg",
+    images: ["huawei-matepad-pro-12-6.jpg", "huawei-matepad-pro-12-6-side.jpg", "huawei-matepad-pro-12-6-back.jpg"],
     specs: {
       cpu: "Kirin 9000E",
       ram: "8GB LPDDR5",
@@ -2794,6 +2990,7 @@ const products = [
     description: "Value Android tablet.",
     price: 45000,
     image: "xiaomi-pad-5-pro.jpg",
+    images: ["xiaomi-pad-5-pro.jpg", "xiaomi-pad-5-pro-side.jpg", "xiaomi-pad-5-pro-back.jpg"],
     specs: {
       cpu: "Snapdragon 870",
       ram: "6GB LPDDR5",
@@ -2802,13 +2999,13 @@ const products = [
       gpu: "Adreno 650",
     },
   },
-  // 2024 Laptops
   {
     id: 201,
     name: "Dell XPS 16 (2024)",
     description: "Revolutionary 16-inch laptop with ultra-thin bezels and Intel Core Ultra processors.",
     price: 185000,
     image: "dell-xps-16-2024.jpg",
+    images: ["dell-xps-16-2024.jpg", "dell-xps-16-2024-side.jpg", "dell-xps-16-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "32GB LPDDR5X",
@@ -2823,6 +3020,7 @@ const products = [
     description: "Professional laptop with next-generation M3 Max chip and enhanced neural engine.",
     price: 345000,
     image: "macbook-pro-16-m3-max-2024.jpg",
+    images: ["macbook-pro-16-m3-max-2024.jpg", "macbook-pro-16-m3-max-2024-side.jpg", "macbook-pro-16-m3-max-2024-back.jpg"],
     specs: {
       cpu: "Apple M3 Max 16-core CPU",
       ram: "48GB Unified Memory",
@@ -2837,6 +3035,7 @@ const products = [
     description: "Slim gaming laptop with AMD Ryzen 8000 series and advanced cooling system.",
     price: 195000,
     image: "asus-rog-zephyrus-g16-2024.jpg",
+    images: ["asus-rog-zephyrus-g16-2024.jpg", "asus-rog-zephyrus-g16-2024-side.jpg", "asus-rog-zephyrus-g16-2024-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 8945HS",
       ram: "32GB DDR5",
@@ -2851,6 +3050,7 @@ const products = [
     description: "Business ultrabook with AI-enhanced features and improved security.",
     price: 165000,
     image: "thinkpad-x1-carbon-gen12-2024.jpg",
+    images: ["thinkpad-x1-carbon-gen12-2024.jpg", "thinkpad-x1-carbon-gen12-2024-side.jpg", "thinkpad-x1-carbon-gen12-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 7 165U",
       ram: "32GB LPDDR5X",
@@ -2865,6 +3065,7 @@ const products = [
     description: "Premium convertible with 2.8K OLED display and Intel Core Ultra processors.",
     price: 155000,
     image: "hp-spectre-x360-14-2024.jpg",
+    images: ["hp-spectre-x360-14-2024.jpg", "hp-spectre-x360-14-2024-side.jpg", "hp-spectre-x360-14-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 7 155H",
       ram: "16GB LPDDR5X",
@@ -2879,6 +3080,7 @@ const products = [
     description: "Content creation laptop optimized for AI workloads and creative applications.",
     price: 225000,
     image: "msi-stealth-16-ai-studio-2024.jpg",
+    images: ["msi-stealth-16-ai-studio-2024.jpg", "msi-stealth-16-ai-studio-2024-side.jpg", "msi-stealth-16-ai-studio-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "64GB DDR5",
@@ -2893,6 +3095,7 @@ const products = [
     description: "Massive gaming laptop with 18-inch display and desktop-level performance.",
     price: 385000,
     image: "razer-blade-18-2024.jpg",
+    images: ["razer-blade-18-2024.jpg", "razer-blade-18-2024-side.jpg", "razer-blade-18-2024-back.jpg"],
     specs: {
       cpu: "Intel Core i9-14900HX",
       ram: "64GB DDR5",
@@ -2907,6 +3110,7 @@ const products = [
     description: "Slim performance laptop with AMOLED display and AI features.",
     price: 195000,
     image: "samsung-galaxy-book4-ultra-2024.jpg",
+    images: ["samsung-galaxy-book4-ultra-2024.jpg", "samsung-galaxy-book4-ultra-2024-side.jpg", "samsung-galaxy-book4-ultra-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "32GB LPDDR5X",
@@ -2921,6 +3125,7 @@ const products = [
     description: "Ultra-light 16-inch laptop with 4K OLED display and AMD processors.",
     price: 125000,
     image: "acer-swift-edge-16-2024.jpg",
+    images: ["acer-swift-edge-16-2024.jpg", "acer-swift-edge-16-2024-side.jpg", "acer-swift-edge-16-2024-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 8840HS",
       ram: "32GB LPDDR5",
@@ -2935,6 +3140,7 @@ const products = [
     description: "Extremely lightweight 17-inch laptop with all-day battery life.",
     price: 145000,
     image: "lg-gram-17-2024.jpg",
+    images: ["lg-gram-17-2024.jpg", "lg-gram-17-2024-side.jpg", "lg-gram-17-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 7 155H",
       ram: "32GB LPDDR5X",
@@ -2949,6 +3155,7 @@ const products = [
     description: "Modular gaming laptop with upgradeable graphics and expansion cards.",
     price: 165000,
     image: "framework-laptop-16-2024.jpg",
+    images: ["framework-laptop-16-2024.jpg", "framework-laptop-16-2024-side.jpg", "framework-laptop-16-2024-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 8945HS",
       ram: "32GB DDR5",
@@ -2963,6 +3170,7 @@ const products = [
     description: "Creative workstation with dynamic woven hinge and haptic touchpad.",
     price: 245000,
     image: "surface-laptop-studio-2-2024.jpg",
+    images: ["surface-laptop-studio-2-2024.jpg", "surface-laptop-studio-2-2024-side.jpg", "surface-laptop-studio-2-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "64GB LPDDR5X",
@@ -2977,6 +3185,7 @@ const products = [
     description: "Gaming laptop with advanced cooling and Mini-LED display.",
     price: 235000,
     image: "lenovo-legion-pro-7i-2024.jpg",
+    images: ["lenovo-legion-pro-7i-2024.jpg", "lenovo-legion-pro-7i-2024-side.jpg", "lenovo-legion-pro-7i-2024-back.jpg"],
     specs: {
       cpu: "Intel Core i9-14900HX",
       ram: "32GB DDR5",
@@ -2991,6 +3200,7 @@ const products = [
     description: "Slim gaming laptop with RGB lighting and premium build.",
     price: 185000,
     image: "hp-omen-transcend-16-2024.jpg",
+    images: ["hp-omen-transcend-16-2024.jpg", "hp-omen-transcend-16-2024-side.jpg", "hp-omen-transcend-16-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "32GB DDR5",
@@ -3005,6 +3215,7 @@ const products = [
     description: "Dual-screen laptop with 4K OLED main display and ScreenPad Plus.",
     price: 225000,
     image: "asus-zenbook-pro-14-duo-2024.jpg",
+    images: ["asus-zenbook-pro-14-duo-2024.jpg", "asus-zenbook-pro-14-duo-2024-side.jpg", "asus-zenbook-pro-14-duo-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "64GB LPDDR5X",
@@ -3019,6 +3230,7 @@ const products = [
     description: "Premium gaming laptop with AlienFX lighting and vapor chamber cooling.",
     price: 285000,
     image: "alienware-x16-r2-2024.jpg",
+    images: ["alienware-x16-r2-2024.jpg", "alienware-x16-r2-2024-side.jpg", "alienware-x16-r2-2024-back.jpg"],
     specs: {
       cpu: "Intel Core i9-14900HX",
       ram: "64GB DDR5",
@@ -3033,6 +3245,7 @@ const products = [
     description: "Large gaming laptop with mechanical keyboard and advanced thermal solution.",
     price: 215000,
     image: "acer-predator-helios-18-2024.jpg",
+    images: ["acer-predator-helios-18-2024.jpg", "acer-predator-helios-18-2024-side.jpg", "acer-predator-helios-18-2024-back.jpg"],
     specs: {
       cpu: "Intel Core i9-14900HX",
       ram: "32GB DDR5",
@@ -3047,6 +3260,7 @@ const products = [
     description: "Content creation laptop with 100% DCI-P3 coverage and creator-centric features.",
     price: 245000,
     image: "msi-creator-z17-2024.jpg",
+    images: ["msi-creator-z17-2024.jpg", "msi-creator-z17-2024-side.jpg", "msi-creator-z17-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 9 185H",
       ram: "64GB DDR5",
@@ -3061,6 +3275,7 @@ const products = [
     description: "Premium convertible with rotating soundbar and OLED display.",
     price: 145000,
     image: "lenovo-yoga-9i-2024.jpg",
+    images: ["lenovo-yoga-9i-2024.jpg", "lenovo-yoga-9i-2024-side.jpg", "lenovo-yoga-9i-2024-back.jpg"],
     specs: {
       cpu: "Intel Core Ultra 7 155H",
       ram: "32GB LPDDR5X",
@@ -3075,6 +3290,7 @@ const products = [
     description: "Premium Chromebook with Tensor G3 processor and AI features.",
     price: 95000,
     image: "google-pixelbook-2024.jpg",
+    images: ["google-pixelbook-2024.jpg", "google-pixelbook-2024-side.jpg", "google-pixelbook-2024-back.jpg"],
     specs: {
       cpu: "Google Tensor G3",
       ram: "16GB LPDDR5",
@@ -3083,14 +3299,13 @@ const products = [
       gpu: "ARM Mali-G710",
     },
   },
-
-  // 2025 Laptops
   {
     id: 221,
     name: "Apple MacBook Pro 16 M4 Extreme (2025)",
     description: "Revolutionary laptop with M4 Extreme chip and neural processing unit.",
     price: 425000,
     image: "macbook-pro-16-m4-extreme-2025.jpg",
+    images: ["macbook-pro-16-m4-extreme-2025.jpg", "macbook-pro-16-m4-extreme-2025-side.jpg", "macbook-pro-16-m4-extreme-2025-back.jpg"],
     specs: {
       cpu: "Apple M4 Extreme 20-core CPU",
       ram: "64GB Unified Memory",
@@ -3105,6 +3320,7 @@ const products = [
     description: "Innovative 18-inch laptop with flexible display and modular components.",
     price: 225000,
     image: "dell-xps-18-2025.jpg",
+    images: ["dell-xps-18-2025.jpg", "dell-xps-18-2025-side.jpg", "dell-xps-18-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 11 195H",
       ram: "64GB LPDDR6",
@@ -3119,6 +3335,7 @@ const products = [
     description: "Next-generation gaming laptop with holographic display and AI-powered cooling.",
     price: 285000,
     image: "asus-rog-zephyrus-nx-2025.jpg",
+    images: ["asus-rog-zephyrus-nx-2025.jpg", "asus-rog-zephyrus-nx-2025-side.jpg", "asus-rog-zephyrus-nx-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 9950X3D",
       ram: "64GB DDR6",
@@ -3133,6 +3350,7 @@ const products = [
     description: "Ultra-light business laptop with carbon fiber chassis and 5G Advanced.",
     price: 185000,
     image: "thinkpad-x1-nano-gen4-2025.jpg",
+    images: ["thinkpad-x1-nano-gen4-2025.jpg", "thinkpad-x1-nano-gen4-2025-side.jpg", "thinkpad-x1-nano-gen4-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 175U",
       ram: "32GB LPDDR6",
@@ -3147,6 +3365,7 @@ const products = [
     description: "Enterprise laptop with built-in AI assistant and advanced security features.",
     price: 195000,
     image: "hp-dragonfly-g6-2025.jpg",
+    images: ["hp-dragonfly-g6-2025.jpg", "hp-dragonfly-g6-2025-side.jpg", "hp-dragonfly-g6-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 9 185U",
       ram: "64GB LPDDR6",
@@ -3161,6 +3380,7 @@ const products = [
     description: "2-in-1 tablet with ARM processor and all-day battery life.",
     price: 135000,
     image: "surface-pro-10-2025.jpg",
+    images: ["surface-pro-10-2025.jpg", "surface-pro-10-2025-side.jpg", "surface-pro-10-2025-back.jpg"],
     specs: {
       cpu: "Snapdragon X Elite Plus",
       ram: "32GB LPDDR5X",
@@ -3175,6 +3395,7 @@ const products = [
     description: "Gaming laptop with switchable display technology and advanced cooling.",
     price: 325000,
     image: "razer-blade-16-2025.jpg",
+    images: ["razer-blade-16-2025.jpg", "razer-blade-16-2025-side.jpg", "razer-blade-16-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 9 195H",
       ram: "64GB DDR6",
@@ -3189,6 +3410,7 @@ const products = [
     description: "AI-powered laptop with neural processing unit and foldable display.",
     price: 225000,
     image: "samsung-galaxy-book5-ultra-2025.jpg",
+    images: ["samsung-galaxy-book5-ultra-2025.jpg", "samsung-galaxy-book5-ultra-2025-side.jpg", "samsung-galaxy-book5-ultra-2025-back.jpg"],
     specs: {
       cpu: "Samsung Exynos AI Processor",
       ram: "48GB LPDDR6",
@@ -3203,6 +3425,7 @@ const products = [
     description: "Professional creative workstation with color-accurate display.",
     price: 265000,
     image: "acer-conceptd-7-2025.jpg",
+    images: ["acer-conceptd-7-2025.jpg", "acer-conceptd-7-2025-side.jpg", "acer-conceptd-7-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 9 195H",
       ram: "64GB DDR6",
@@ -3217,6 +3440,7 @@ const products = [
     description: "Fashion-forward laptop with hidden-until-lit keyboard and ultra-slim design.",
     price: 165000,
     image: "lg-gram-style-2025.jpg",
+    images: ["lg-gram-style-2025.jpg", "lg-gram-style-2025-side.jpg", "lg-gram-style-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 175H",
       ram: "32GB LPDDR6",
@@ -3231,6 +3455,7 @@ const products = [
     description: "Modular laptop with swappable ports and upgradeable mainboard.",
     price: 125000,
     image: "framework-laptop-13-2025.jpg",
+    images: ["framework-laptop-13-2025.jpg", "framework-laptop-13-2025-side.jpg", "framework-laptop-13-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 8850U",
       ram: "32GB LPDDR5X",
@@ -3245,6 +3470,7 @@ const products = [
     description: "Esports-focused gaming laptop with high refresh rate and low latency.",
     price: 195000,
     image: "msi-vector-17-2025.jpg",
+    images: ["msi-vector-17-2025.jpg", "msi-vector-17-2025-side.jpg", "msi-vector-17-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 9 195H",
       ram: "32GB DDR6",
@@ -3259,6 +3485,7 @@ const products = [
     description: "Flagship gaming laptop with liquid cooling and per-key RGB lighting.",
     price: 345000,
     image: "lenovo-legion-9i-2025.jpg",
+    images: ["lenovo-legion-9i-2025.jpg", "lenovo-legion-9i-2025-side.jpg", "lenovo-legion-9i-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 9 9950X",
       ram: "64GB DDR6",
@@ -3273,6 +3500,7 @@ const products = [
     description: "Luxury laptop with genuine leather finish and sustainable materials.",
     price: 185000,
     image: "hp-spectre-folio-2025.jpg",
+    images: ["hp-spectre-folio-2025.jpg", "hp-spectre-folio-2025-side.jpg", "hp-spectre-folio-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 175U",
       ram: "32GB LPDDR6",
@@ -3287,6 +3515,7 @@ const products = [
     description: "Professional creative workstation with color calibration and creator dial.",
     price: 285000,
     image: "asus-proart-studiobook-16-2025.jpg",
+    images: ["asus-proart-studiobook-16-2025.jpg", "asus-proart-studiobook-16-2025-side.jpg", "asus-proart-studiobook-16-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 9 195H",
       ram: "128GB DDR6",
@@ -3301,6 +3530,7 @@ const products = [
     description: "Mobile workstation with ISV certifications and professional graphics.",
     price: 325000,
     image: "dell-precision-7780-2025.jpg",
+    images: ["dell-precision-7780-2025.jpg", "dell-precision-7780-2025-side.jpg", "dell-precision-7780-2025-back.jpg"],
     specs: {
       cpu: "Intel Xeon W-2500 Series",
       ram: "128GB DDR6 ECC",
@@ -3315,6 +3545,7 @@ const products = [
     description: "Large-screen ultrabook with next-generation M4 chip and improved efficiency.",
     price: 165000,
     image: "macbook-air-15-m4-2025.jpg",
+    images: ["macbook-air-15-m4-2025.jpg", "macbook-air-15-m4-2025-side.jpg", "macbook-air-15-m4-2025-back.jpg"],
     specs: {
       cpu: "Apple M4 10-core CPU",
       ram: "16GB Unified Memory",
@@ -3329,6 +3560,7 @@ const products = [
     description: "Premium laptop with AI copilot and advanced productivity features.",
     price: 155000,
     image: "surface-laptop-6-2025.jpg",
+    images: ["surface-laptop-6-2025.jpg", "surface-laptop-6-2025-side.jpg", "surface-laptop-6-2025-back.jpg"],
     specs: {
       cpu: "Snapdragon X Elite Pro",
       ram: "32GB LPDDR5X",
@@ -3343,6 +3575,7 @@ const products = [
     description: "AI-enhanced ultrabook with neural processing and adaptive performance.",
     price: 115000,
     image: "acer-swift-14-2025.jpg",
+    images: ["acer-swift-14-2025.jpg", "acer-swift-14-2025-side.jpg", "acer-swift-14-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 165U",
       ram: "32GB LPDDR6",
@@ -3357,6 +3590,7 @@ const products = [
     description: "Premium Chromebook with Tensor G4 processor and advanced AI features.",
     price: 85000,
     image: "chromebook-pixel-2025.jpg",
+    images: ["chromebook-pixel-2025.jpg", "chromebook-pixel-2025-side.jpg", "chromebook-pixel-2025-back.jpg"],
     specs: {
       cpu: "Google Tensor G4",
       ram: "16GB LPDDR5X",
@@ -3371,6 +3605,7 @@ const products = [
     description: "Dual-screen laptop with e-ink display on lid for enhanced productivity.",
     price: 145000,
     image: "thinkbook-plus-2025.jpg",
+    images: ["thinkbook-plus-2025.jpg", "thinkbook-plus-2025-side.jpg", "thinkbook-plus-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 175U",
       ram: "32GB LPDDR6",
@@ -3385,6 +3620,7 @@ const products = [
     description: "Durable gaming laptop with military-grade construction and AMD advantage.",
     price: 135000,
     image: "asus-tuf-gaming-a16-2025.jpg",
+    images: ["asus-tuf-gaming-a16-2025.jpg", "asus-tuf-gaming-a16-2025-side.jpg", "asus-tuf-gaming-a16-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 8850H",
       ram: "32GB DDR5",
@@ -3399,6 +3635,7 @@ const products = [
     description: "Budget gaming laptop with latest AMD processors and high refresh rate.",
     price: 95000,
     image: "hp-victus-16-2025.jpg",
+    images: ["hp-victus-16-2025.jpg", "hp-victus-16-2025-side.jpg", "hp-victus-16-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 8650H",
       ram: "16GB DDR5",
@@ -3413,6 +3650,7 @@ const products = [
     description: "Consumer laptop with powerful specs for content creation and gaming.",
     price: 115000,
     image: "dell-inspiron-16-plus-2025.jpg",
+    images: ["dell-inspiron-16-plus-2025.jpg", "dell-inspiron-16-plus-2025-side.jpg", "dell-inspiron-16-plus-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 7 175H",
       ram: "32GB LPDDR6",
@@ -3427,6 +3665,7 @@ const products = [
     description: "Business laptop with minimalist design and AI-powered performance.",
     price: 85000,
     image: "msi-modern-15-2025.jpg",
+    images: ["msi-modern-15-2025.jpg", "msi-modern-15-2025-side.jpg", "msi-modern-15-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 5 155U",
       ram: "16GB LPDDR6",
@@ -3441,6 +3680,7 @@ const products = [
     description: "2-in-1 convertible with S Pen and wireless charging capability.",
     price: 135000,
     image: "samsung-galaxy-book-flex-2025.jpg",
+    images: ["samsung-galaxy-book-flex-2025.jpg", "samsung-galaxy-book-flex-2025-side.jpg", "samsung-galaxy-book-flex-2025-back.jpg"],
     specs: {
       cpu: "Samsung Exynos AI Processor",
       ram: "16GB LPDDR6",
@@ -3455,6 +3695,7 @@ const products = [
     description: "Mainstream laptop with premium features and excellent value.",
     price: 75000,
     image: "lenovo-ideapad-5-pro-2025.jpg",
+    images: ["lenovo-ideapad-5-pro-2025.jpg", "lenovo-ideapad-5-pro-2025-side.jpg", "lenovo-ideapad-5-pro-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 7 8840U",
       ram: "16GB LPDDR5X",
@@ -3469,6 +3710,7 @@ const products = [
     description: "Budget all-rounder with modern design and solid performance.",
     price: 55000,
     image: "acer-aspire-5-2025.jpg",
+    images: ["acer-aspire-5-2025.jpg", "acer-aspire-5-2025-side.jpg", "acer-aspire-5-2025-back.jpg"],
     specs: {
       cpu: "AMD Ryzen 5 8640U",
       ram: "16GB DDR5",
@@ -3483,6 +3725,7 @@ const products = [
     description: "Style-focused laptop with colorful options and decent performance.",
     price: 65000,
     image: "asus-vivobook-s15-2025.jpg",
+    images: ["asus-vivobook-s15-2025.jpg", "asus-vivobook-s15-2025-side.jpg", "asus-vivobook-s15-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 5 155U",
       ram: "16GB LPDDR6",
@@ -3497,6 +3740,7 @@ const products = [
     description: "Sleek consumer laptop with OLED display and modern connectivity.",
     price: 85000,
     image: "hp-pavilion-plus-14-2025.jpg",
+    images: ["hp-pavilion-plus-14-2025.jpg", "hp-pavilion-plus-14-2025-side.jpg", "hp-pavilion-plus-14-2025-back.jpg"],
     specs: {
       cpu: "Intel Lunar Lake Core Ultra 5 155U",
       ram: "16GB LPDDR6",
@@ -3506,4 +3750,5 @@ const products = [
     },
   }
 ];
+
 export default products;
