@@ -1,0 +1,275 @@
+/* ============================
+   NotFound.css - Clean & Pro Style
+============================ */
+
+/* === Root Theme Variables === */
+:root {
+  --color-bg-dark: #0f172a;
+  --color-bg-gradient: linear-gradient(135deg, #1e293b 0%, var(--color-bg-dark) 100%);
+  --color-white: #ffffff;
+  --color-gray-100: #f8fafc;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #e2e8f0;
+  --color-gray-400: #cbd5e1;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #374151;
+  --color-text-dark: #1f2937;
+
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+
+  --font-size-base: 0.9rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 2rem;
+
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  --shadow-sm: 0 4px 12px rgba(59, 130, 246, 0.3);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* === Base Layout === */
+.not-found-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-gradient);
+  padding: 1rem;
+}
+
+.not-found-content {
+  text-align: center;
+  background: var(--color-white);
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 480px;
+  width: 100%;
+}
+
+/* === Icon === */
+.not-found-icon {
+  font-size: 4.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === Text === */
+.not-found-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+.not-found-description {
+  color: var(--color-gray-500);
+  line-height: 1.5;
+  font-size: var(--font-size-sm);
+  margin-bottom: 1.5rem;
+}
+
+/* === Actions === */
+.not-found-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.not-found-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.not-found-button.primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  grid-column: 1 / -1;
+}
+
+.not-found-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.not-found-button.secondary {
+  background: var(--color-white);
+  color: var(--color-gray-500);
+  border: 1.5px solid var(--color-gray-200);
+}
+
+.not-found-button.secondary:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.not-found-button.tertiary {
+  background: var(--color-gray-100);
+  color: var(--color-gray-500);
+  border: 1px solid var(--color-gray-300);
+}
+
+.not-found-button.tertiary:hover {
+  background: var(--color-gray-200);
+  color: var(--color-gray-600);
+}
+
+/* === Search Section === */
+.not-found-search {
+  border-top: 1px solid var(--color-gray-200);
+  padding-top: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.not-found-search p {
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+/* === Search Form === */
+.search-container {
+  width: 100%;
+}
+
+.search-form {
+  width: 100%;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--color-white);
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-height: 42px;
+}
+
+.search-input-wrapper.focused {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-sm);
+  background: transparent;
+  color: var(--color-gray-700);
+  min-height: 42px;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-button {
+  padding: 0.625rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  min-width: 42px;
+  transition: all 0.2s ease;
+}
+
+.search-button:hover,
+.search-button:focus {
+  background-color: var(--color-gray-100);
+}
+
+.search-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.search-button:hover .search-icon,
+.search-button:focus .search-icon {
+  color: var(--color-primary);
+}
+
+/* === Media Queries === */
+@media (min-width: 640px) {
+  .not-found-content {
+    padding: 2.5rem 2rem;
+    max-width: 500px;
+  }
+
+  .not-found-icon { font-size: 5.5rem; margin-bottom: 1rem; }
+  .not-found-title { font-size: 1.75rem; }
+  .not-found-description { font-size: var(--font-size-md); margin-bottom: 2rem; }
+  .not-found-actions { gap: 1rem; margin-bottom: 2rem; }
+  .not-found-button { padding: 0.875rem 1.5rem; font-size: var(--font-size-md); }
+  .search-input-wrapper { min-height: 44px; }
+  .search-input, .search-button { min-height: 44px; font-size: var(--font-size-md); }
+}
+
+@media (min-width: 1024px) {
+  .not-found-icon { font-size: var(--font-size-xl); }
+  .not-found-title { font-size: 2rem; }
+}
+
+@media (max-width: 480px) {
+  .not-found-content { padding: 1.75rem 1.25rem; }
+  .not-found-icon { font-size: 4rem; }
+  .not-found-title { font-size: 1.35rem; }
+  .not-found-description { font-size: 0.85rem; }
+  .not-found-actions {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+  .not-found-button {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+  .not-found-button.primary { grid-column: auto; }
+}
+
+/* === Accessibility Enhancements === */
+@media (hover: none) and (pointer: coarse) {
+  .not-found-button:active {
+    transform: scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
