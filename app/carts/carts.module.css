@@ -1,0 +1,92 @@
+.adminPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4ff, #e0e7ff);
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(90deg, #6b5bff, #a855f7);
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 2rem;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.loader {
+  border: 5px solid #e0e0e0;
+  border-top: 5px solid #6b5bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyMessage {
+  text-align: center;
+  font-size: 1.3rem;
+  color: #777;
+  margin-top: 5rem;
+}
+
+.cartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.cartCard {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cartCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cartTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.cartDescription {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+
+.cartDate,
+.cartCategory {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 0.3rem;
+}

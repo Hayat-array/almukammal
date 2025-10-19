@@ -3,7 +3,7 @@ const products = [
     id: 1,
     name: "Gaming Beast X1",
     description: "High-performance laptop with RTX graphics and 144Hz display.",
-    price: 95000,
+    price: 5000,
     image: "1.jpg",
     images: ["1.jpg", "1-side.jpg", "1-back.jpg"],
     specs: {

@@ -1,41 +1,18 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function SearchBar() {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Added for efficiency
   const router = useRouter();
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!search.trim()) return;
-
-    try {
-      const response = await fetch(`/api/search?search=${encodeURIComponent(search)}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data.results);
-        setShowResults(true);
-        
-        // Always redirect to products page with search query
-        router.push(`/products?search=${encodeURIComponent(search)}`);
-        setShowResults(false);
-        setSearch('');
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-      // Still redirect to products page even if API fails
-      router.push(`/products?search=${encodeURIComponent(search)}`);
-      setShowResults(false);
-      setSearch('');
-    }
-  };
-
-  const handleInputChange = (e) => {
+  // Memoize handlers to prevent re-renders
+  const handleInputChange = useCallback((e) => {
     const value = e.target.value;
     setSearch(value);
     
@@ -43,7 +20,44 @@ export default function SearchBar() {
       setShowResults(false);
       setResults([]);
     }
-  };
+  }, []);
+
+  const handleSearch = useCallback(async (e) => {
+    e.preventDefault();
+    const query = search.trim();
+    if (!query) return;
+
+    setIsLoading(true);
+    setShowResults(true);
+
+    try {
+      const response = await fetch(`/api/search?search=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data.results || []);
+      } else {
+        setResults([]);
+      }
+
+      // Redirect after brief show
+      setTimeout(() => {
+        router.push(`/products?search=${encodeURIComponent(query)}`);
+        setShowResults(false);
+        setSearch('');
+      }, 500); // Brief delay for UX
+
+    } catch (error) {
+      console.error('Search error:', error);
+      setResults([]);
+      // Redirect anyway
+      router.push(`/products?search=${encodeURIComponent(query)}`);
+      setShowResults(false);
+      setSearch('');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, router]);
 
   return (
     <div className="search-container">
@@ -55,18 +69,19 @@ export default function SearchBar() {
             value={search}
             onChange={handleInputChange}
             className="search-input"
+            disabled={isLoading}
           />
-          <button type="submit" className="search-button">
-            Search
+          <button type="submit" className="search-button" disabled={isLoading || !search.trim()}>
+            {isLoading ? 'Searching...' : 'Search'}
           </button>
         </div>
       </form>
 
       {showResults && results.length > 0 && (
         <div className="search-results">
-          {results.map((product) => (
-            <div key={product.id} className="result-item">
-              {product.name} - ₹{product.price?.toLocaleString()}
+          {results.map((product, index) => (
+            <div key={product.id || index} className="result-item">
+              {product.name} - AED {product.price?.toLocaleString()}
             </div>
           ))}
         </div>
