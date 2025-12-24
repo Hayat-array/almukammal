@@ -7,9 +7,9 @@ import { verifyAdmin } from '@/lib/auth';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    
+
     if (!token) return NextResponse.json({ error: 'No token' }, { status: 401 });
 
     // YOUR EXISTING ADMIN CHECK!
@@ -29,8 +29,8 @@ export async function GET(request, { params }) {
 
     console.log(`👤 Loaded: ${customer.name} (${orders.length} orders)`);
 
-    return NextResponse.json({ 
-      customer, 
+    return NextResponse.json({
+      customer,
       orders,
       totalSpent: orders.reduce((sum, o) => sum + o.totalAmount, 0)
     });

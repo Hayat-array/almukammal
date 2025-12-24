@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import ClientLayout from '@/app/ClientLayout';
 import Link from 'next/link';
+import { allCountries, countriesData } from '@/data/countries';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -15,6 +16,7 @@ export default function ProfilePage() {
     address: '',
     city: '',
     country: 'UAE',
+    state: '',
     postalCode: ''
   });
   const [passwordData, setPasswordData] = useState({
@@ -30,6 +32,15 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
   const [initialLoad, setInitialLoad] = useState(true);
+
+  // Delete account modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteDOB, setDeleteDOB] = useState('');
+
+  // Custom location state
+  const [isCustomLocation, setIsCustomLocation] = useState(false);
+
   const { user: authUser, token, updateUser, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -56,7 +67,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!authLoading) {
       setInitialLoad(false);
-      
+
       if (!authUser) {
         router.push('/auth/login');
         return;
@@ -64,11 +75,11 @@ export default function ProfilePage() {
 
       // 🚨 CRITICAL FIX: Use AUTHENTICATED USER DATA FIRST
       let profileData = { ...authUser }; // Start with REAL auth user
-      
+
       // Only use localStorage if it matches the current user email
       const savedProfile = localStorage.getItem('userProfile');
       const currentUserEmail = authUser.email;
-      
+
       if (savedProfile) {
         try {
           const parsedProfile = JSON.parse(savedProfile);
@@ -137,7 +148,7 @@ export default function ProfilePage() {
       reader.onloadend = () => {
         const imageData = reader.result;
         setPreviewImage(imageData);
-        
+
         const imageSaved = safeLocalStorageSet('userProfileImage', imageData);
         if (!imageSaved) {
           showMessage('Image saved temporarily (storage full)', 'warning');
@@ -146,7 +157,7 @@ export default function ProfilePage() {
         if (user) {
           const updatedUser = { ...user, profileImage: imageData };
           setUser(updatedUser);
-          
+
           const profileSaved = safeLocalStorageSet('userProfile', JSON.stringify(updatedUser));
           if (!profileSaved) {
             showMessage('Profile updated temporarily (storage full)', 'warning');
@@ -176,8 +187,8 @@ export default function ProfilePage() {
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorMessage;
-        } catch (e) {}
-        
+        } catch (e) { }
+
         if (response.status === 401) {
           showMessage('Session expired. Please login again.', 'error');
           setTimeout(() => router.push('/auth/login'), 2000);
@@ -188,15 +199,15 @@ export default function ProfilePage() {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-        
+
         const updatedUser = {
           ...user,
           ...formData,
           profileImage: previewImage
         };
-        
+
         setUser(updatedUser);
-        
+
         const profileSaved = safeLocalStorageSet('userProfile', JSON.stringify(updatedUser));
         if (previewImage) {
           const imageSaved = safeLocalStorageSet('userProfileImage', previewImage);
@@ -207,17 +218,17 @@ export default function ProfilePage() {
         if (!profileSaved) {
           showMessage('Profile updated temporarily (storage full)', 'warning');
         }
-        
+
         if (typeof updateUser === 'function') {
           updateUser(updatedUser);
         }
-        
+
         setEditing(false);
         showMessage('Profile updated successfully!', 'success');
       } else {
         const updatedUser = { ...user, ...formData, profileImage: previewImage };
         setUser(updatedUser);
-        
+
         const profileSaved = safeLocalStorageSet('userProfile', JSON.stringify(updatedUser));
         if (previewImage) {
           const imageSaved = safeLocalStorageSet('userProfileImage', previewImage);
@@ -228,21 +239,21 @@ export default function ProfilePage() {
         if (!profileSaved) {
           showMessage('Profile updated temporarily (storage full)', 'warning');
         }
-        
+
         if (typeof updateUser === 'function') {
           try {
             updateUser(updatedUser);
-          } catch (updateErr) {}
+          } catch (updateErr) { }
         }
-        
+
         setEditing(false);
         showMessage('Profile updated successfully! (Offline mode)', 'success');
       }
-      
+
     } catch (err) {
       const updatedUser = { ...user, ...formData, profileImage: previewImage };
       setUser(updatedUser);
-      
+
       const profileSaved = safeLocalStorageSet('userProfile', JSON.stringify(updatedUser));
       if (previewImage) {
         const imageSaved = safeLocalStorageSet('userProfileImage', previewImage);
@@ -253,13 +264,13 @@ export default function ProfilePage() {
       if (!profileSaved) {
         showMessage('Profile updated temporarily (storage full)', 'warning');
       }
-      
+
       if (typeof updateUser === 'function') {
         try {
           updateUser(updatedUser);
-        } catch (updateErr) {}
+        } catch (updateErr) { }
       }
-      
+
       setEditing(false);
       showMessage('Profile updated successfully! (Offline mode)', 'success');
     } finally {
@@ -269,7 +280,7 @@ export default function ProfilePage() {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showMessage('New passwords do not match', 'error');
       return;
@@ -326,28 +337,19 @@ export default function ProfilePage() {
         confirmPassword: ''
       });
       showMessage('Password changed successfully! (Demo mode)', 'success');
-    } finally {
       setLoading(false);
     }
   };
 
-  // 🚨 NEW: REAL DELETE FUNCTION
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      `⚠️ PERMANENT DELETION\n\nAre you absolutely sure you want to delete your account?\n\nThis will:
-• Remove all your personal data
-• Delete all your orders
-• Cancel all active subscriptions
-• You will NOT be able to recover this account
-  
-Type "DELETE" to confirm:`
-    );
-    
-    if (confirmDelete !== true) return;
-    
-    const typedConfirm = window.prompt('Type "DELETE" to confirm account deletion:');
-    if (typedConfirm !== 'DELETE') {
-      showMessage('Account deletion cancelled', 'warning');
+  // Open delete modal
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+  };
+
+  // Actual delete with password + DOB verification
+  const confirmDeleteAccount = async () => {
+    if (!deletePassword || !deleteDOB) {
+      showMessage('Please enter both password and date of birth', 'error');
       return;
     }
 
@@ -358,18 +360,22 @@ Type "DELETE" to confirm:`
         headers: {
           'Authorization': `Bearer ${token || 'demo-token'}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          password: deletePassword,
+          dateOfBirth: deleteDOB
+        })
       });
 
       if (response.ok) {
         // Clear everything
         localStorage.clear();
         sessionStorage.clear();
-        
+
         if (typeof updateUser === 'function') {
           updateUser(null);
         }
-        
+
         showMessage('Account deleted successfully. Redirecting to login...', 'success');
         setTimeout(() => {
           router.push('/auth/login');
@@ -411,10 +417,10 @@ Type "DELETE" to confirm:`
   if (initialLoad || authLoading) {
     return (
       <ClientLayout>
-        <div style={{ 
-          minHeight: '80vh', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          minHeight: '80vh',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
         }}>
@@ -445,194 +451,7 @@ Type "DELETE" to confirm:`
     return null;
   }
 
-  // Admin view
-  if (user.role === 'admin') {
-    return (
-      <ClientLayout>
-        <div style={{
-          minHeight: '80vh',
-          padding: '2rem 1rem',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-        }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            background: 'white',
-            borderRadius: '1.5rem',
-            padding: '2rem',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-          }}>
-            <Link href="/" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: '#f3f4f6',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.75rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              color: '#374151',
-              textDecoration: 'none',
-              marginBottom: '1.5rem',
-              transition: 'all 0.2s'
-            }}>
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Home
-            </Link>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                width: '4rem',
-                height: '4rem',
-                borderRadius: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                boxShadow: '0 8px 20px rgba(102, 126, 234, 0.4)'
-              }}>
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h1 style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: '#1f2937',
-                  margin: '0 0 0.5rem 0'
-                }}>System Administration</h1>
-                <p style={{ color: '#6b7280', margin: 0 }}>Manage system settings and user accounts</p>
-              </div>
-            </div>
-
-            {message.text && (
-              <div style={{
-                padding: '1rem 1.25rem',
-                borderRadius: '0.75rem',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                background: message.type === 'success' ? '#d1fae5' : 
-                              message.type === 'warning' ? '#fef3c7' : '#fee2e2',
-                border: `1px solid ${message.type === 'success' ? '#10b981' : 
-                                 message.type === 'warning' ? '#f59e0b' : '#ef4444'}`,
-                color: message.type === 'success' ? '#065f46' : 
-                       message.type === 'warning' ? '#92400e' : '#991b1b'
-              }}>
-                <span style={{ fontWeight: '500' }}>{message.text}</span>
-                <button onClick={() => setMessage({ text: '', type: '' })} style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: 'inherit'
-                }}>×</button>
-              </div>
-            )}
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '2rem'
-            }}>
-              <div onClick={() => router.push('/auth/admin')} style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                padding: '2rem',
-                borderRadius: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>User Management</h3>
-                <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>Manage user accounts and permissions</p>
-              </div>
-
-              <div onClick={() => router.push('/orders')} style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                color: 'white',
-                padding: '2rem',
-                borderRadius: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Order Management</h3>
-                <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>View and manage customer orders</p>
-              </div>
-
-              <div style={{
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                color: 'white',
-                padding: '2rem',
-                borderRadius: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Product Management</h3>
-                <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>Manage product inventory</p>
-              </div>
-
-              <div style={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                color: 'white',
-                padding: '2rem',
-                borderRadius: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>System Settings</h3>
-                <p style={{ fontSize: '0.875rem', opacity: 0.9 }}>Configure system preferences</p>
-              </div>
-            </div>
-
-            <div style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '1rem',
-              padding: '1.5rem'
-            }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
-                Administrator Profile
-              </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '1rem'
-              }}>
-                <div><strong>Name:</strong> {user.name}</div>
-                <div><strong>Email:</strong> {user.email}</div>
-                <div>
-                  <strong>Role:</strong>
-                  <span style={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    marginLeft: '0.5rem'
-                  }}>{user.role}</span>
-                </div>
-                <div><strong>Phone:</strong> {user.phone || 'Not provided'}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ClientLayout>
-    );
-  }
-
-  // Regular user view
+  // Regular user view (also for admins now)
   return (
     <ClientLayout>
       <div style={{
@@ -699,7 +518,7 @@ Type "DELETE" to confirm:`
                   </div>
                 )}
                 {editing && (
-                  <button 
+                  <button
                     onClick={() => fileInputRef.current.click()}
                     style={{
                       position: 'absolute',
@@ -752,12 +571,12 @@ Type "DELETE" to confirm:`
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: message.type === 'success' ? '#d1fae5' : 
-                            message.type === 'warning' ? '#fef3c7' : '#fee2e2',
-              border: `2px solid ${message.type === 'success' ? '#10b981' : 
-                               message.type === 'warning' ? '#f59e0b' : '#ef4444'}`,
-              color: message.type === 'success' ? '#065f46' : 
-                     message.type === 'warning' ? '#92400e' : '#991b1b',
+              background: message.type === 'success' ? '#d1fae5' :
+                message.type === 'warning' ? '#fef3c7' : '#fee2e2',
+              border: `2px solid ${message.type === 'success' ? '#10b981' :
+                message.type === 'warning' ? '#f59e0b' : '#ef4444'}`,
+              color: message.type === 'success' ? '#065f46' :
+                message.type === 'warning' ? '#92400e' : '#991b1b',
               animation: 'slideIn 0.3s ease-out'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -797,7 +616,7 @@ Type "DELETE" to confirm:`
             borderRadius: '1rem',
             marginBottom: '1.5rem'
           }}>
-            <button 
+            <button
               onClick={() => setActiveTab('profile')}
               style={{
                 flex: 1,
@@ -822,7 +641,7 @@ Type "DELETE" to confirm:`
               </svg>
               Profile Info
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('security')}
               style={{
                 flex: 1,
@@ -867,7 +686,7 @@ Type "DELETE" to confirm:`
                   </p>
                 </div>
                 {!editing && (
-                  <button 
+                  <button
                     onClick={() => setEditing(true)}
                     style={{
                       display: 'flex',
@@ -912,7 +731,7 @@ Type "DELETE" to confirm:`
                         type="text"
                         name="name"
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
                         style={{
                           width: '100%',
@@ -936,7 +755,7 @@ Type "DELETE" to confirm:`
                         type="email"
                         name="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
                         style={{
                           width: '100%',
@@ -960,7 +779,7 @@ Type "DELETE" to confirm:`
                         type="tel"
                         name="phone"
                         value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         style={{
                           width: '100%',
                           padding: '0.75rem 1rem',
@@ -971,6 +790,15 @@ Type "DELETE" to confirm:`
                         }}
                       />
                     </div>
+
+                    {/* Location Section */}
+                    <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                      <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+                        Location Information
+                      </h3>
+                    </div>
+
+                    {/* Country Selector */}
                     <div>
                       <label style={{
                         display: 'block',
@@ -982,7 +810,11 @@ Type "DELETE" to confirm:`
                       <select
                         name="country"
                         value={formData.country}
-                        onChange={(e) => setFormData({...formData, country: e.target.value})}
+                        onChange={(e) => {
+                          const newCountry = e.target.value;
+                          setFormData({ ...formData, country: newCountry, state: '' });
+                          setIsCustomLocation(newCountry === 'Other');
+                        }}
                         style={{
                           width: '100%',
                           padding: '0.75rem 1rem',
@@ -992,15 +824,71 @@ Type "DELETE" to confirm:`
                           transition: 'all 0.2s'
                         }}
                       >
-                        <option value="UAE">UAE</option>
-                        <option value="Saudi Arabia">Saudi Arabia</option>
-                        <option value="Qatar">Qatar</option>
-                        <option value="Kuwait">Kuwait</option>
-                        <option value="Oman">Oman</option>
-                        <option value="Bahrain">Bahrain</option>
-                        <option value="India">India</option>
+                        {allCountries.map(country => (
+                          <option key={country} value={country}>{country}</option>
+                        ))}
                       </select>
                     </div>
+
+                    {/* State/District Selector - Show if country has states or if custom */}
+                    {(countriesData[formData.country] || isCustomLocation) && (
+                      <div>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          color: '#374151',
+                          marginBottom: '0.5rem'
+                        }}>State/District</label>
+                        {countriesData[formData.country] && !isCustomLocation ? (
+                          <select
+                            name="state"
+                            value={formData.state}
+                            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem 1rem',
+                              border: '2px solid #e5e7eb',
+                              borderRadius: '0.75rem',
+                              fontSize: '1rem',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <option value="">Select State/District</option>
+                            {countriesData[formData.country].states.map(state => (
+                              <option key={state} value={state}>{state}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            name="state"
+                            value={formData.state}
+                            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                            placeholder="Enter your state/district"
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem 1rem',
+                              border: '2px solid #e5e7eb',
+                              borderRadius: '0.75rem',
+                              fontSize: '1rem',
+                              transition: 'all 0.2s'
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Custom Location Fields - Show when "Other" is selected */}
+                    {isCustomLocation && (
+                      <div style={{ gridColumn: '1 / -1', background: '#fef3c7', padding: '1rem', borderRadius: '0.75rem', border: '2px solid #f59e0b' }}>
+                        <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem', fontWeight: '600' }}>
+                          ℹ️ Custom Location - Please provide your location details
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Street Address */}
                     <div style={{ gridColumn: '1 / -1' }}>
                       <label style={{
                         display: 'block',
@@ -1013,7 +901,8 @@ Type "DELETE" to confirm:`
                         type="text"
                         name="address"
                         value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Enter your street address"
                         style={{
                           width: '100%',
                           padding: '0.75rem 1rem',
@@ -1024,6 +913,8 @@ Type "DELETE" to confirm:`
                         }}
                       />
                     </div>
+
+                    {/* City */}
                     <div>
                       <label style={{
                         display: 'block',
@@ -1036,7 +927,8 @@ Type "DELETE" to confirm:`
                         type="text"
                         name="city"
                         value={formData.city}
-                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        placeholder="Enter your city"
                         style={{
                           width: '100%',
                           padding: '0.75rem 1rem',
@@ -1047,6 +939,8 @@ Type "DELETE" to confirm:`
                         }}
                       />
                     </div>
+
+                    {/* Postal Code */}
                     <div>
                       <label style={{
                         display: 'block',
@@ -1059,7 +953,8 @@ Type "DELETE" to confirm:`
                         type="text"
                         name="postalCode"
                         value={formData.postalCode}
-                        onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                        placeholder="Enter postal code"
                         style={{
                           width: '100%',
                           padding: '0.75rem 1rem',
@@ -1072,8 +967,8 @@ Type "DELETE" to confirm:`
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleCancel}
                       style={{
                         padding: '0.75rem 1.5rem',
@@ -1089,7 +984,7 @@ Type "DELETE" to confirm:`
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={handleProfileUpdate}
                       disabled={loading}
                       style={{
@@ -1192,6 +1087,144 @@ Type "DELETE" to confirm:`
                       {user.country || 'UAE'}
                     </p>
                   </div>
+
+                  {/* State/District */}
+                  {user.state && (
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>State/District</label>
+                      <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                        {user.state}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* City */}
+                  {user.city && (
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>City</label>
+                      <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                        {user.city}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Postal Code */}
+                  {user.postalCode && (
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>Postal Code</label>
+                      <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                        {user.postalCode}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Date of Birth */}
+                  {user.dob && (
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>Date of Birth</label>
+                      <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                        {new Date(user.dob).toLocaleDateString('en-GB')}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Account Role */}
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: '#6b7280',
+                      marginBottom: '0.5rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Account Type</label>
+                    <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '9999px',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        background: user.role === 'admin' ? '#fee2e2' : '#dbeafe',
+                        color: user.role === 'admin' ? '#991b1b' : '#1e40af'
+                      }}>
+                        {user.role === 'admin' ? '👑 Administrator' : '👤 Customer'}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Password (Masked) */}
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: '#6b7280',
+                      marginBottom: '0.5rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Password</label>
+                    <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                      ••••••••••••
+                    </p>
+                  </div>
+
+                  {/* Account Created */}
+                  {user.createdAt && (
+                    <div>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>Member Since</label>
+                      <p style={{ fontSize: '1rem', color: '#1f2937', margin: 0 }}>
+                        {new Date(user.createdAt).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  )}
+
+
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label style={{
                       display: 'block',
@@ -1240,6 +1273,24 @@ Type "DELETE" to confirm:`
                 </p>
               </div>
 
+              {/* Message Display */}
+              {message.text && (
+                <div style={{
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  marginBottom: '1.5rem',
+                  background: message.type === 'success' ? '#d1fae5' : '#fee2e2',
+                  border: `2px solid ${message.type === 'success' ? '#10b981' : '#dc2626'}`,
+                  color: message.type === 'success' ? '#065f46' : '#991b1b',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  {message.type === 'success' ? '✅' : '❌'} {message.text}
+                </div>
+              )}
+
               <div style={{
                 display: 'grid',
                 gap: '1.25rem',
@@ -1256,7 +1307,7 @@ Type "DELETE" to confirm:`
                   <input
                     type="password"
                     value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     placeholder="Enter current password"
                     style={{
                       width: '100%',
@@ -1279,7 +1330,7 @@ Type "DELETE" to confirm:`
                   <input
                     type="password"
                     value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     placeholder="Enter new password (min. 8 characters)"
                     style={{
                       width: '100%',
@@ -1302,7 +1353,7 @@ Type "DELETE" to confirm:`
                   <input
                     type="password"
                     value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     placeholder="Confirm your new password"
                     style={{
                       width: '100%',
@@ -1316,7 +1367,7 @@ Type "DELETE" to confirm:`
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handlePasswordChange}
                 disabled={loading}
                 style={{
@@ -1358,6 +1409,53 @@ Type "DELETE" to confirm:`
                 )}
               </button>
 
+              {/* Forgot Password Section */}
+              <div style={{
+                marginTop: '2rem',
+                paddingTop: '2rem',
+                borderTop: '2px solid #e5e7eb'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#1f2937',
+                  marginBottom: '0.5rem'
+                }}>Forgot Your Password?</h3>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                  If you've forgotten your password, you can reset it using the forgot password page.
+                </p>
+                <a
+                  href="/auth/forgot-password"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '0.75rem',
+                    fontSize: '0.9375rem',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = '#e5e7eb';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = '#f3f4f6';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                  }}
+                >
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  Reset Password via Email
+                </a>
+              </div>
+
               {/* 🚨 FIXED: REAL DANGER ZONE */}
               <div style={{
                 marginTop: '2rem',
@@ -1389,7 +1487,7 @@ Type "DELETE" to confirm:`
                       Once deleted, all your data will be permanently removed. This action <strong>cannot be undone</strong>.
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={handleDeleteAccount}
                     disabled={loading}
                     style={{
@@ -1447,6 +1545,114 @@ Type "DELETE" to confirm:`
           }
         }
       `}</style>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '2rem',
+            maxWidth: '500px',
+            width: '100%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc2626', marginBottom: '1rem' }}>
+              ⚠️ Delete Account
+            </h2>
+            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+              This action is <strong>IRREVERSIBLE</strong>. All your data will be permanently deleted.
+            </p>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Enter your password"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                value={deleteDOB}
+                onChange={(e) => setDeleteDOB(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                onClick={confirmDeleteAccount}
+                disabled={loading || !deletePassword || !deleteDOB}
+                style={{
+                  flex: 1,
+                  background: loading || !deletePassword || !deleteDOB ? '#9ca3af' : '#dc2626',
+                  color: 'white',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '700',
+                  cursor: loading || !deletePassword || !deleteDOB ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? '⏳ Deleting...' : '🗑️ Delete Account'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletePassword('');
+                  setDeleteDOB('');
+                }}
+                style={{
+                  flex: 1,
+                  background: '#f3f4f6',
+                  color: '#374151',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ClientLayout>
   );
 }

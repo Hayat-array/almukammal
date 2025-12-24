@@ -6,27 +6,27 @@ import Order from '@/models/Order';
 // ✅ USER UPDATE OWN ORDER STATUS
 export async function PATCH(request, { params }) {
   try {
-    const { orderId } = params;
+    const { orderId } = await params;
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     const { status } = await request.json();
 
     if (!token || !orderId || !status) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' }, 
+        { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const decoded = verifyToken(token);
+    const decoded = await verifyToken(token);
     if (!decoded) {
       return NextResponse.json(
-        { success: false, error: 'Invalid token' }, 
+        { success: false, error: 'Invalid token' },
         { status: 401 }
       );
     }
 
     await dbConnect();
-    
+
     // ✅ USER CAN ONLY UPDATE OWN ORDERS
     const order = await Order.findOneAndUpdate(
       { _id: orderId, 'customer.email': decoded.email },
@@ -36,7 +36,7 @@ export async function PATCH(request, { params }) {
 
     if (!order) {
       return NextResponse.json(
-        { success: false, error: 'Order not found' }, 
+        { success: false, error: 'Order not found' },
         { status: 404 }
       );
     }
@@ -47,7 +47,7 @@ export async function PATCH(request, { params }) {
   } catch (error) {
     console.error('❌ Update Order Error:', error);
     return NextResponse.json(
-      { success: false, error: 'Server error' }, 
+      { success: false, error: 'Server error' },
       { status: 500 }
     );
   }

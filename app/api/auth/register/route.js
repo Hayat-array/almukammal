@@ -10,27 +10,27 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export async function POST(request) {
   try {
     console.log('Starting registration process...');
-    
+
     await dbConnect();
     console.log('Database connected successfully');
 
     const body = await request.json();
-    console.log('Request body received:', { 
-      name: body.name, 
-      email: body.email, 
-      password: '[HIDDEN]', 
-      phone: body.phone 
+    console.log('Request body received:', {
+      name: body.name,
+      email: body.email,
+      password: '[HIDDEN]',
+      phone: body.phone
     });
 
-    const { name, email, password, phone, address } = body;
+    const { name, email, password, phone, address, dob } = body;
 
     // Validate required fields
     if (!name || !email || !password || !phone) {
       console.log('Missing required fields');
       return NextResponse.json(
-        { 
+        {
           success: false,
-          message: 'All fields are required' 
+          message: 'All fields are required'
         },
         { status: 400 }
       );
@@ -38,9 +38,9 @@ export async function POST(request) {
 
     if (password.length < 6) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          message: 'Password must be at least 6 characters' 
+          message: 'Password must be at least 6 characters'
         },
         { status: 400 }
       );
@@ -52,9 +52,9 @@ export async function POST(request) {
     if (existingUser) {
       console.log('User already exists with email:', email);
       return NextResponse.json(
-        { 
+        {
           success: false,
-          message: 'User already exists with this email' 
+          message: 'User already exists with this email'
         },
         { status: 409 }
       );
@@ -73,16 +73,17 @@ export async function POST(request) {
       password: hashedPassword,
       phone,
       address: address || '',
+      dob: dob || null,
       role: 'user',
     });
     console.log('User created successfully:', user._id);
 
     // Create token
     const token = jwt.sign(
-      { 
-        userId: user._id, 
+      {
+        userId: user._id,
         email: user.email,
-        role: user.role 
+        role: user.role
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -96,10 +97,17 @@ export async function POST(request) {
       role: user.role,
       phone: user.phone,
       address: user.address,
+      city: user.city,
+      state: user.state,
+      country: user.country,
+      postalCode: user.postalCode,
+      dob: user.dob,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
     };
 
     console.log('Registration successful for user:', user.email);
-    
+
     return NextResponse.json({
       success: true,
       message: 'User registered successfully',
@@ -109,9 +117,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Registration error details:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         message: 'Internal server error',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined

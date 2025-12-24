@@ -1,42 +1,61 @@
-
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import Order from '@/models/Order'; // ADD THIS MODEL!
-import { verifyAdmin } from '@/lib/auth';
+import User from '@/models/User';
+import jwt from 'jsonwebtoken';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// Helper function to verify admin token
+function verifyAdmin(request) {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.substring(7);
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'admin') {
+      return null;
+    }
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+}
+
+// GET - Fetch all customers (users with role 'user')
 export async function GET(request) {
+  const admin = verifyAdmin(request);
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await dbConnect();
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (!token) return NextResponse.json({ error: 'No token' }, { status: 401 });
 
-    // YOUR EXISTING ADMIN CHECK!
-    const decoded = await verifyAdmin(request);
-    if (!decoded) return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    // Fetch all users with role 'user'
+    const customers = await User.find({ role: 'user' })
+      .select('-password')
+      .sort({ createdAt: -1 });
 
-    // 🔥 YOUR REAL CUSTOMERS FROM ORDERS!
-    const customers = await Order.aggregate([
-      {
-        $group: {
-          _id: '$customer._id',
-          name: { $first: '$customer.name' },
-          email: { $first: '$customer.email' },
-          phone: { $first: '$customer.phone' },
-          address: { $first: '$customer.address' },
-          city: { $first: '$customer.city' },
-          country: { $first: '$customer.country' },
-          postalCode: { $first: '$customer.postalCode' },
-          orderCount: { $sum: 1 },
-          totalSpent: { $sum: '$totalAmount' }
-        }
-      },
-      { $sort: { totalSpent: -1 } }
-    ]);
+    console.log(`👥 Loaded ${customers.length} customers from database`);
 
-    console.log(`👥 Loaded ${customers.length} REAL customers from database`);
-
-    return NextResponse.json({ customers, total: customers.length });
+    return NextResponse.json({
+      success: true,
+      customers: customers.map(customer => ({
+        _id: customer._id.toString(),
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone || '',
+        address: customer.address ? [customer.address.street, customer.address.city, customer.address.country].filter(Boolean).join(', ') || 'N/A' : 'N/A',
+        city: customer.address?.city || '',
+        country: customer.address?.country || 'UAE',
+        createdAt: customer.createdAt,
+        emailVerified: customer.emailVerified || false
+      })),
+      total: customers.length
+    });
 
   } catch (error) {
     console.error('Customers Error:', error);

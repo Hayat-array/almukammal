@@ -1,31 +1,78 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth'; // Your auth utility
+import dbConnect from '@/lib/mongodb';
+import UserModel from '@/models/User';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
+// Verify user authentication
+async function verifyUser(request) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
+// DELETE - Delete user account with password and DOB verification
 export async function DELETE(request) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return NextResponse.json({ error: 'No token provided' }, { status: 401 });
-    }
-
-    const user = await verifyToken(token);
+    const user = await verifyUser(request);
     if (!user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Delete user from database (replace with your DB logic)
-    // await prisma.user.delete({ where: { id: user.id } });
-    
-    // For demo - simulate deletion
-    console.log(`🗑️ DELETED USER: ${user.email}`);
+    await dbConnect();
 
-    return NextResponse.json({ 
-      message: 'Account deleted successfully',
-      deletedUser: user.email 
+    const { password, dateOfBirth } = await request.json();
+
+    if (!password || !dateOfBirth) {
+      return NextResponse.json({
+        error: 'Password and date of birth are required'
+      }, { status: 400 });
+    }
+
+    // Get user with password
+    const dbUser = await UserModel.findById(user.userId);
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, dbUser.password);
+    if (!isPasswordValid) {
+      return NextResponse.json({ error: 'Invalid password' }, { status: 403 });
+    }
+
+    // Verify date of birth
+    if (dbUser.dob) {
+      const userDOB = new Date(dbUser.dob).toISOString().split('T')[0];
+      const providedDOB = new Date(dateOfBirth).toISOString().split('T')[0];
+
+      if (userDOB !== providedDOB) {
+        return NextResponse.json({ error: 'Invalid date of birth' }, { status: 403 });
+      }
+    }
+
+    // Delete user
+    await UserModel.findByIdAndDelete(user.userId);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Account deleted successfully'
     });
+
   } catch (error) {
-    console.error('Delete error:', error);
-    return NextResponse.json({ error: 'Failed to delete account' }, { status: 500 });
+    console.error('Account deletion error:', error);
+    return NextResponse.json({
+      error: 'Failed to delete account',
+      details: error.message
+    }, { status: 500 });
   }
 }

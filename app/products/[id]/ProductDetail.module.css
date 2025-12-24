@@ -9,33 +9,97 @@
   min-height: 100vh;
 }
 
+/* ===== PREMIUM BREADCRUMBS ===== */
 .breadcrumb {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
   color: #6b7280;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+
+  /* Glass Container */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  /* Pill shape */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+  /* Animation */
+  animation: slideDown 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .breadcrumb a {
   color: #6b7280;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .breadcrumb a:hover {
   color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.breadcrumb a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.breadcrumb a:hover::after {
+  width: 100%;
 }
 
 .separator {
-  color: #9ca3af;
+  color: #d1d5db;
+  font-size: 0.8rem;
 }
 
 .current {
-  color: #111827;
-  font-weight: 500;
+  color: #3b82f6;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 10px;
+  border-radius: 12px;
+  animation: fadeInRight 0.5s ease 0.2s backwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* ===== MAIN GRID LAYOUT ===== */
@@ -145,6 +209,94 @@
   border-color: #4f46e5;
   opacity: 1;
   transform: scale(1.05);
+}
+
+/* ===== ENHANCED COLOR SELECTION ===== */
+.colorSelectorSection {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.colorSelectorTitle {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.colorChip {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.colorChip:hover:not(.unavailable) {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.colorChip.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.colorChip.unavailable {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  filter: grayscale(0.5);
+}
+
+/* The diagonal cross line */
+.colorChip.unavailable::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 120%;
+  height: 1.5px;
+  background-color: #94a3b8;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.colorPreview {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* ===== PRODUCT INFO SECTION ===== */
@@ -407,12 +559,14 @@
   overflow: hidden;
   letter-spacing: 0.3px;
 }
+
 .actions {
   display: flex;
   gap: 12px;
   justify-content: center;
   align-items: center;
 }
+
 /* 
 .primary {
   display: flex;
@@ -926,7 +1080,9 @@
 
 /* ===== ANIMATIONS ===== */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes slideIn {
@@ -934,6 +1090,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -953,6 +1110,7 @@
 
 /* ===== REDUCED MOTION SUPPORT ===== */
 @media (prefers-reduced-motion: reduce) {
+
   .mainImage,
   .thumb,
   .specCard,
@@ -963,7 +1121,7 @@
   .backToTop {
     transition: none;
   }
-  
+
   .btn:hover,
   .relatedCard:hover,
   .linkButton:hover,
@@ -979,45 +1137,45 @@
   .container {
     padding: 0.5rem;
   }
-  
+
   .gallery,
   .info {
     padding: 1rem;
     border-radius: 0.75rem;
   }
-  
+
   .title {
     font-size: 1.25rem;
   }
-  
+
   .price {
     font-size: 1.5rem;
     padding: 0.75rem;
   }
-  
+
   .actions {
     grid-template-columns: 1fr;
   }
-  
+
   .btn {
     padding: 0.875rem 1rem;
     font-size: 0.9rem;
   }
-  
+
   .relatedGrid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
-  
+
   .specsGrid {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-  
+
   .thumbs {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .metaRow {
     grid-template-columns: 1fr;
   }
@@ -1028,21 +1186,21 @@
   .container {
     padding: 1rem;
   }
-  
+
   .actions {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .quantitySelector {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
   }
-  
+
   .metaRow {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .relatedGrid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1053,42 +1211,42 @@
   .container {
     padding: 1.5rem 1rem;
   }
-  
+
   .topGrid {
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
-  
+
   .gallery {
     padding: 1.5rem;
   }
-  
+
   .info {
     padding: 2rem;
     gap: 1.5rem;
   }
-  
+
   .title {
     font-size: 1.875rem;
   }
-  
+
   .price {
     font-size: 2rem;
   }
-  
+
   .mainImageContainer {
     aspect-ratio: 16/9;
   }
-  
+
   .actions {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .relatedGrid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
-  
+
   .details {
     padding: 2rem;
     margin-bottom: 3rem;
@@ -1100,21 +1258,21 @@
   .container {
     padding: 2rem 1rem;
   }
-  
+
   .topGrid {
     gap: 3rem;
   }
-  
+
   .gallery {
     position: sticky;
     top: 2rem;
     align-self: start;
   }
-  
+
   .relatedGrid {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .notFound {
     margin: 4rem auto;
     padding: 3rem;
@@ -1127,15 +1285,15 @@
     max-width: 1400px;
     padding: 2.5rem 1.5rem;
   }
-  
+
   .topGrid {
     gap: 4rem;
   }
-  
+
   .gallery {
     padding: 2rem;
   }
-  
+
   .info {
     padding: 2.5rem;
   }
@@ -1147,11 +1305,11 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .gallery {
     position: static;
   }
-  
+
   .mainImageContainer {
     aspect-ratio: 4/3;
   }
@@ -1162,16 +1320,16 @@
   .container {
     padding: 0.75rem 0.5rem;
   }
-  
+
   .mainImageContainer {
     aspect-ratio: 16/9;
   }
-  
+
   .relatedGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
-  
+
   .gallery,
   .info {
     padding: 1rem;
@@ -1179,7 +1337,9 @@
 }
 
 /* High DPI Screens */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
   .mainImage,
   .thumb,
   .relatedImg {
@@ -1187,6 +1347,7 @@
     image-rendering: crisp-edges;
   }
 }
+
 /* ===== PERFECT BUTTON ANIMATIONS - SMOOTH & AMAZING! ===== */
 .actions {
   display: flex;
@@ -1306,6 +1467,7 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
 }
+
 /* Modal Styles */
 .modalOverlay {
   position: fixed;
@@ -1335,6 +1497,7 @@
     opacity: 0;
     transform: translateY(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1497,6 +1660,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1524,8 +1688,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .btnSpinner {
@@ -1537,4 +1706,3 @@
   animation: spin 1s linear infinite;
   margin-right: 0.5rem;
 }
-

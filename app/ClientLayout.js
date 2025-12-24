@@ -103,10 +103,10 @@ export default function ClientLayout({ children }) {
                 AL MUKAMMAL COMPUTER TRADING LLC
               </span>
             </Link>
-            
+
             {/* Mobile Menu Button */}
-            <button 
-              className="mobile-menu-button" 
+            <button
+              className="mobile-menu-button"
               onClick={toggleMobileMenu}
               aria-label="Toggle menu"
             >
@@ -118,7 +118,7 @@ export default function ClientLayout({ children }) {
                 )}
               </svg>
             </button>
-            
+
             {/* Search Bar */}
             <div className="search-container">
               <form onSubmit={handleSearch} className="search-form">
@@ -151,7 +151,7 @@ export default function ClientLayout({ children }) {
 
               {/* Profile Avatar with Dropdown */}
               <div className="profile-container" ref={profileRef}>
-                <button 
+                <button
                   className={`profile-avatar ${user ? 'logged-in' : 'logged-out'}`}
                   onClick={toggleProfile}
                   style={{
@@ -161,7 +161,7 @@ export default function ClientLayout({ children }) {
                 >
                   {getInitial()}
                 </button>
-                
+
                 {/* Profile Dropdown */}
                 {isProfileOpen && (
                   <div className="profile-dropdown">
@@ -172,10 +172,10 @@ export default function ClientLayout({ children }) {
                           <div className="dropdown-title">Welcome!</div>
                           <div className="dropdown-subtitle">Sign in to access your account</div>
                         </div>
-                        
+
                         <div className="dropdown-divider"></div>
-                        
-                        <button 
+
+                        <button
                           className="dropdown-item"
                           onClick={() => handleNavigation('/auth/login')}
                         >
@@ -184,8 +184,8 @@ export default function ClientLayout({ children }) {
                           </svg>
                           User Login
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="dropdown-item admin-item"
                           onClick={() => handleNavigation('/auth/admin/main')}
                         >
@@ -195,8 +195,8 @@ export default function ClientLayout({ children }) {
                           </svg>
                           Admin Login
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="dropdown-item"
                           onClick={() => handleNavigation('/auth/register')}
                         >
@@ -211,7 +211,7 @@ export default function ClientLayout({ children }) {
                       <div className="profile-dropdown-user">
                         {/* User Info */}
                         <div className="profile-header">
-                          <div 
+                          <div
                             className="profile-dropdown-avatar"
                             style={{
                               background: user.role === 'admin' ? '#dc2626' : '#3b82f6'
@@ -231,31 +231,25 @@ export default function ClientLayout({ children }) {
                         </div>
 
                         <div className="dropdown-divider"></div>
-                        
-                        {/* Cart */}
-                        <button
-                          className="dropdown-item"
-                          onClick={() => {
-                            if (user?.role === 'admin') {
-                              handleNavigation('/carts');
-                            } else if (user) {
-                              handleNavigation('/cart');
-                            } else {
-                              handleNavigation('/auth/login');
-                            }
-                          }}
-                        >
-                          <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                          My Cart
-                          {cartCount > 0 && (
-                            <span className="cart-badge-dropdown">{cartCount}</span>
-                          )}
-                        </button>
-                        
+
+                        {/* Cart - Only show for regular users */}
+                        {user.role !== 'admin' && (
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleNavigation('/cart')}
+                          >
+                            <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            My Cart
+                            {cartCount > 0 && (
+                              <span className="cart-badge-dropdown">{cartCount}</span>
+                            )}
+                          </button>
+                        )}
+
                         {/* Menu Items */}
-                        <button 
+                        <button
                           className="dropdown-item"
                           onClick={() => handleNavigation('/profile')}
                         >
@@ -265,9 +259,9 @@ export default function ClientLayout({ children }) {
                           {user.role === 'admin' ? '👨‍💻 System Admin' : '👤 My Profile'}
                         </button>
 
-                        <button 
+                        <button
                           className="dropdown-item"
-                          onClick={() => handleNavigation(user.role === 'admin' ? '/order' : '/orders')}
+                          onClick={() => handleNavigation(user.role === 'admin' ? '/admin' : '/orders')}
                         >
                           <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -277,7 +271,7 @@ export default function ClientLayout({ children }) {
 
                         {/* 🔥 NEW ADMIN CUSTOMER MANAGEMENT */}
                         {user.role === 'admin' && (
-                          <button 
+                          <button
                             className="dropdown-item admin-item"
                             onClick={() => handleNavigation('/admin/customers')}
                           >
@@ -289,7 +283,7 @@ export default function ClientLayout({ children }) {
                         )}
 
                         {user.role === 'admin' && (
-                          <button 
+                          <button
                             className="dropdown-item admin-item"
                             onClick={() => handleNavigation('/auth/admin/main')}
                           >
@@ -301,10 +295,22 @@ export default function ClientLayout({ children }) {
                           </button>
                         )}
 
+                        {user.role === 'admin' && (
+                          <button
+                            className="dropdown-item admin-item"
+                            onClick={() => handleNavigation('/admin')}
+                          >
+                            <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                            Admin Administrator
+                          </button>
+                        )}
+
                         <div className="dropdown-divider"></div>
 
                         {/* Logout */}
-                        <button 
+                        <button
                           className="dropdown-item logout-item"
                           onClick={handleLogout}
                         >
@@ -332,7 +338,7 @@ export default function ClientLayout({ children }) {
           <div className="footer-content">
             <h3 className="footer-title">AL MUKAMMAL COMPUTER TRADING LLC</h3>
             <p className="footer-description">
-              Your trusted partner for premium laptops and computing solutions. 
+              Your trusted partner for premium laptops and computing solutions.
               We bring you the latest technology with exceptional service.
             </p>
             <div className="footer-contact">

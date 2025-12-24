@@ -6,9 +6,9 @@ import { verifyToken } from '@/lib/auth';
 // ✅ ADMIN UPDATE ORDER STATUS
 export async function PATCH(request, { params }) {
   try {
-    const { orderId } = params;
+    const { orderId } = await params;
     const authHeader = request.headers.get('authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
         { success: false, error: 'Admin token required' },
@@ -40,7 +40,7 @@ export async function PATCH(request, { params }) {
     // Update order (admin can update any order)
     const order = await Order.findByIdAndUpdate(
       orderId,
-      { 
+      {
         status,
         updatedAt: new Date()
       },
@@ -55,7 +55,7 @@ export async function PATCH(request, { params }) {
     }
 
     console.log(`✅ ADMIN: Updated order ${orderId} to ${status}`);
-    
+
     return NextResponse.json({
       success: true,
       order: {

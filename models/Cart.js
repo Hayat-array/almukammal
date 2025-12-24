@@ -45,14 +45,13 @@ const CartSchema = new mongoose.Schema({
 });
 
 // Calculate totals before saving
-CartSchema.pre('save', function(next) {
+CartSchema.pre('save', function (next) {
   this.totalItems = this.items.reduce((sum, item) => sum + item.quantity, 0);
   this.totalPrice = this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   next();
 });
 
 // Index for better query performance
-CartSchema.index({ userId: 1 });
 CartSchema.index({ updatedAt: -1 });
 
 export default mongoose.models.Cart || mongoose.model('Cart', CartSchema);

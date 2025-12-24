@@ -1,15 +1,27 @@
-
 'use client';
 
-import { useState, use, useMemo, useCallback, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import products from '../../../data/products';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './ProductDetail.module.css';
 
-export default function ProductDetail({ params }) {
+const MASTER_COLORS = [
+  { name: 'Space Grey', hex: '#53565a' },
+  { name: 'Silver', hex: '#c0c0c0' },
+  { name: 'Midnight', hex: '#191970' },
+  { name: 'Starlight', hex: '#f0ead6' },
+  { name: 'Gold', hex: '#ffd700' },
+  { name: 'Rose Gold', hex: '#b76e79' },
+  { name: 'Graphite', hex: '#41424c' },
+  { name: 'Black', hex: '#1c1c1c' },
+  { name: 'White', hex: '#f5f5f7' },
+  { name: 'Blue', hex: '#007aff' }
+];
+
+export default function ProductDetail() {
+  const params = useParams();
+  const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -21,56 +33,95 @@ export default function ProductDetail({ params }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [thumbsLoaded, setThumbsLoaded] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('');
   const mainImageRef = useRef(null);
 
   const router = useRouter();
   const { user, token, loading: authLoading } = useAuth();
-  
-  // Compute isAuthenticated based on user and token
+
   const isAuthenticated = !!(user && token);
+  const id = params?.id;
 
-  // Unwrap params using React.use() for Next.js 15
-  const resolvedParams = use(params);
-  const id = resolvedParams?.id;
+  // Fetch product from MongoDB
+  useEffect(() => {
+    async function fetchProduct() {
+      if (!id) return;
 
-  // Memoize product lookup
-  const product = useMemo(() => {
-    return (Array.isArray(products) ? products : [])
-      .find(p => String(p.id) === String(id));
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        const data = await response.json();
+        console.log('Product API Response:', { status: response.status, hasProduct: !!data.product, data });
+
+        if (response.ok && data.product) {
+          setProduct(data.product);
+          if (data.product.colors && Array.isArray(data.product.colors) && data.product.colors.length > 0) {
+            setSelectedColor(data.product.colors[0]);
+          } else if (data.product.colors && typeof data.product.colors === 'string') {
+            // Handle case where colors might come as string
+            const cols = data.product.colors.split(',').map(c => c.trim()).filter(Boolean);
+            if (cols.length > 0) setSelectedColor(cols[0]);
+          }
+          console.log('Processed colors:', data.product.colors, 'Initial selected:', selectedColor);
+        } else {
+          console.error('Product not found:', data.error || 'No product in response');
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProduct();
   }, [id]);
 
-  // Memoize image gallery
+  // Reset image selection when color changes
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [selectedColor]);
+
+  // Memoize image gallery - filter by selected color if applicable
   const gallery = useMemo(() => {
     if (!product) return [];
-    const imageBasePath = "/images/products/";
-    return [product.image, ...(product.images || [])]
-      .filter(Boolean)
-      .map(img => `${imageBasePath}${img}`)
-      .slice(0, 4);
-  }, [product]);
 
-  // Memoize related products
-  const related = useMemo(() => {
-    if (!product) return [];
-    return (Array.isArray(products) ? products : [])
-      .filter(p => String(p.category) === String(product.category) && String(p.id) !== String(product.id))
-      .slice(0, 4);
-  }, [product]);
-
-  // Set loading state
-  useEffect(() => {
-    if (product) {
-      setIsLoading(false);
+    const uniqueImages = new Set();
+    // Combine main image and images array
+    const allImages = [];
+    if (product.image) allImages.push(product.image);
+    if (product.images && Array.isArray(product.images)) {
+      product.images.forEach(img => {
+        if (img && !allImages.includes(img)) allImages.push(img);
+      });
     }
-  }, [product]);
 
-  // Show notification function with better UX
+    const colorMap = product.imageColorMap || [];
+
+    allImages.forEach((img) => {
+      const mapping = colorMap.find(m => m.url === img);
+
+      // If a color is selected, hide images mapped to OTHER colors
+      if (selectedColor && mapping && mapping.color && mapping.color !== 'All') {
+        if (mapping.color.toLowerCase() !== selectedColor.toLowerCase()) {
+          return; // Skip this image
+        }
+      }
+
+      uniqueImages.add(img);
+    });
+
+    const result = Array.from(uniqueImages)
+      .map(img => img.startsWith('/') || img.startsWith('http') ? img : `/${img}`);
+
+    return result.length > 0 ? result : (product.image ? [product.image.startsWith('/') || product.image.startsWith('http') ? product.image : `/${product.image}`] : []);
+  }, [product, selectedColor]);
+
+  // Show notification
   const showNotification = useCallback((message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
   }, []);
 
-  // Check authentication and show login modal if not authenticated
+  // Require authentication
   const requireAuth = useCallback((actionCallback) => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
@@ -79,57 +130,46 @@ export default function ProductDetail({ params }) {
     return actionCallback();
   }, [isAuthenticated]);
 
-  // Handle Add to Cart with authentication
+  // Handle Add to Cart
   const handleAddToCart = useCallback(async () => {
     return requireAuth(async () => {
       if (isAddingToCart) return;
-      
+
       setIsAddingToCart(true);
-      
+
       try {
-        // Get cart from localStorage, ensure it's a valid array
         let cart = [];
         const cartKey = user?.id ? `cart_${user.id}` : 'cart';
         const storedCart = localStorage.getItem(cartKey);
-        
+
         if (storedCart && storedCart !== 'null' && storedCart !== 'undefined') {
           try {
             cart = JSON.parse(storedCart);
-            // Ensure cart is an array
-            if (!Array.isArray(cart)) {
-              cart = [];
-            }
+            if (!Array.isArray(cart)) cart = [];
           } catch (e) {
-            console.error('Error parsing cart:', e);
             cart = [];
           }
         }
-        
-        // Find existing item
-        const existingItemIndex = cart.findIndex(item => item.id === product.id);
-        
+
+        const existingItemIndex = cart.findIndex(item => item.id === product.id || item.id === product._id);
+
         if (existingItemIndex !== -1) {
-          // Update existing item quantity
           cart[existingItemIndex].quantity += quantity;
         } else {
-          // Add new item to cart
           cart.push({
-            id: product.id,
+            id: product.id || product._id,
             name: product.name,
             price: product.price,
             image: gallery[0],
             quantity: quantity,
-            userId: user?.id // Associate with user
+            color: selectedColor,
+            userId: user?.id
           });
         }
-        
-        // Save to localStorage with user-specific key if available
+
         localStorage.setItem(cartKey, JSON.stringify(cart));
-        
-        // Dispatch custom event to update cart count
         window.dispatchEvent(new Event('cartUpdated'));
-        
-        // Show notification instead of alert
+
         showNotification(`${product.name} added to cart!`);
       } catch (error) {
         console.error('Error adding to cart:', error);
@@ -140,7 +180,7 @@ export default function ProductDetail({ params }) {
     });
   }, [product, quantity, gallery, showNotification, isAddingToCart, user, requireAuth]);
 
-  // Handle Buy Now with authentication
+  // Handle Buy Now
   const handleBuyNow = useCallback(async () => {
     return requireAuth(async () => {
       await handleAddToCart();
@@ -148,34 +188,19 @@ export default function ProductDetail({ params }) {
     });
   }, [handleAddToCart, router, requireAuth]);
 
-  // Handle mouse move for zoom effect
+  // Handle mouse move for zoom
   const handleMouseMove = useCallback((e) => {
     if (!mainImageRef.current) return;
-    
+
     const rect = mainImageRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setMousePosition({ x, y });
   }, []);
 
-  // Generate WhatsApp message
-  const getWhatsAppLink = useCallback(() => {
-    if (!product) return '#';
-    const message = `Hi, I'm interested in *${product.name}*\nPrice: AED ${product.price || ''}\n\nPlease provide more details.`;
-    return `https://wa.me/971509550121?text=${encodeURIComponent(message)}`;
-  }, [product]);
-
-  // Generate Email link
-  const getEmailLink = useCallback(() => {
-    if (!product) return '#';
-    const subject = `Inquiry about ${product.name}`;
-    const body = `Hello,\n\nI'm interested in ${product.name}\nPrice: AED ${product.price || ''}\n\nPlease provide more details about availability and delivery.\n\nThank you.`;
-    return `mailto:info.almukammal@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  }, [product]);
-
-  // Handle quantity change with validation
+  // Handle quantity change
   const handleQuantityChange = useCallback((newQuantity) => {
-    const maxQuantity = product.stock || 10; // Default max quantity if not specified
+    const maxQuantity = product?.stock || 10;
     const validQuantity = Math.max(1, Math.min(newQuantity, maxQuantity));
     setQuantity(validQuantity);
   }, [product]);
@@ -217,7 +242,7 @@ export default function ProductDetail({ params }) {
     );
   }
 
-  // Product not found state
+  // Product not found
   if (!product) {
     return (
       <div className={styles.notFound}>
@@ -237,14 +262,14 @@ export default function ProductDetail({ params }) {
           {notification.message}
         </div>
       )}
-      
-      {/* Enhanced Login/Signup Required Modal */}
+
+      {/* Login Modal */}
       {showLoginModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h3>Join Us to Continue</h3>
-              <button 
+              <button
                 className={styles.closeButton}
                 onClick={handleCloseLoginModal}
                 aria-label="Close modal"
@@ -255,33 +280,30 @@ export default function ProductDetail({ params }) {
             <div className={styles.modalContent}>
               <p>Please log in or create an account to add items to your cart and make purchases.</p>
               <div className={styles.modalActions}>
-                <button 
+                <button
                   className={styles.primary}
                   onClick={handleLoginRedirect}
                 >
                   Login to Your Account
                 </button>
-                <button 
+                <button
                   className={styles.primaryAlt}
                   onClick={handleSignupRedirect}
                 >
                   Create New Account
                 </button>
-                <button 
+                <button
                   className={styles.secondary}
                   onClick={handleCloseLoginModal}
                 >
                   Continue Shopping
                 </button>
               </div>
-              <div className={styles.modalFooter}>
-                <p>By continuing, you agree to our <Link href="/terms" onClick={handleCloseLoginModal}>Terms</Link> and <Link href="/privacy" onClick={handleCloseLoginModal}>Privacy Policy</Link></p>
-              </div>
             </div>
           </div>
         </div>
       )}
-      
+
       <div className={styles.container}>
         <div className={styles.breadcrumb}>
           <Link href="/">Home</Link>
@@ -290,10 +312,11 @@ export default function ProductDetail({ params }) {
           <span className={styles.separator}>/</span>
           <span className={styles.current}>{product.name}</span>
         </div>
-        
+
         <div className={styles.topGrid}>
+          {/* Image Gallery */}
           <div className={styles.gallery}>
-            <div 
+            <div
               className={styles.mainImageContainer}
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHovering(true)}
@@ -306,7 +329,7 @@ export default function ProductDetail({ params }) {
                 </div>
               )}
               <img
-                src={gallery[selectedImage] || '/placeholder-laptop.jpg'}
+                src={gallery[selectedImage] || '/placeholder.jpg'}
                 alt={`${product.name} main`}
                 loading="lazy"
                 className={`${styles.mainImage} ${imageLoaded ? styles.loaded : ''}`}
@@ -316,12 +339,12 @@ export default function ProductDetail({ params }) {
                 } : {}}
                 onLoad={handleImageLoad}
                 onError={(e) => {
-                  e.target.src = '/placeholder-laptop.jpg';
+                  e.target.src = '/placeholder.jpg';
                   setImageLoaded(true);
                 }}
               />
               {isHovering && (
-                <div 
+                <div
                   className={styles.zoomIndicator}
                   style={{
                     left: `${mousePosition.x}%`,
@@ -330,61 +353,115 @@ export default function ProductDetail({ params }) {
                 />
               )}
             </div>
-            <div className={styles.thumbs}>
-              {gallery.map((src, i) => (
-                <div
-                  key={i}
-                  className={`${styles.thumbContainer} ${selectedImage === i ? styles.thumbActive : ''}`}
-                  onClick={() => setSelectedImage(i)}
-                >
-                  {!thumbsLoaded[i] && (
-                    <div className={styles.thumbPlaceholder}></div>
-                  )}
-                  <img
-                    src={src}
-                    alt={`${product.name} ${i + 1}`}
-                    className={`${styles.thumb} ${thumbsLoaded[i] ? styles.loaded : ''}`}
-                    onLoad={() => handleThumbLoad(i)}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      setThumbsLoaded(prev => ({ ...prev, [i]: true }));
-                    }}
-                  />
-                </div>
-              ))}
+
+            {/* Thumbnails */}
+            {gallery.length > 1 && (
+              <div className={styles.thumbs}>
+                {gallery.map((src, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.thumbContainer} ${selectedImage === i ? styles.thumbActive : ''}`}
+                    onClick={() => setSelectedImage(i)}
+                  >
+                    {!thumbsLoaded[i] && (
+                      <div className={styles.thumbPlaceholder}></div>
+                    )}
+                    <img
+                      src={src}
+                      alt={`${product.name} ${i + 1}`}
+                      className={`${styles.thumb} ${thumbsLoaded[i] ? styles.loaded : ''}`}
+                      onLoad={() => handleThumbLoad(i)}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = '/placeholder.jpg';
+                        setThumbsLoaded(prev => ({ ...prev, [i]: true }));
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* RELOCATED COLOR SELECTION */}
+            <div className={styles.colorSelectorSection}>
+              <span className={styles.colorSelectorTitle}>Select Finish / Color</span>
+              <div className={styles.colorGrid}>
+                {MASTER_COLORS.map((colorObj, index) => {
+                  const isAvailable = Array.isArray(product.colors) &&
+                    product.colors.some(c => (c && typeof c === 'string' ? c.toLowerCase() : '') === colorObj.name.toLowerCase());
+
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      disabled={!isAvailable}
+                      onClick={() => isAvailable && setSelectedColor(colorObj.name)}
+                      className={`
+                        ${styles.colorChip} 
+                        ${selectedColor === colorObj.name ? styles.active : ''} 
+                        ${!isAvailable ? styles.unavailable : ''}
+                      `}
+                      title={isAvailable ? `Select ${colorObj.name}` : `${colorObj.name} not available`}
+                    >
+                      <span
+                        className={styles.colorPreview}
+                        style={{ background: colorObj.hex }}
+                      ></span>
+                      {colorObj.name}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
+          {/* Product Info */}
           <div className={styles.info}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{product.name}</h1>
-              <span className={styles.model}>{product.model || ''}</span>
+              {product.brand && <span className={styles.model}>{product.brand}</span>}
             </div>
 
             <div className={styles.rating}>
               <div className={styles.stars}>
                 {[...Array(5)].map((_, i) => (
-                  <span key={i} className={i < (product.rating || 4) ? styles.starFilled : styles.starEmpty}>★</span>
+                  <span key={i} className={i < (product.ratings?.average || 4) ? styles.starFilled : styles.starEmpty}>★</span>
                 ))}
               </div>
-              <span className={styles.reviewCount}>({product.reviews || 12} reviews)</span>
+              <span className={styles.reviewCount}>({product.ratings?.count || 12} reviews)</span>
             </div>
 
-            <p className={styles.summary}>{product.summary || product.description || ''}</p>
-
-            <div className={styles.badges}>
-              {product.isNew && <span className={styles.badge}>New</span>}
-              {product.isBestSeller && <span className={styles.badge}>Best Seller</span>}
-              {product.freeShipping && <span className={styles.badge}>Free Shipping</span>}
-              {product.discount && <span className={`${styles.badge} ${styles.discountBadge}`}>-{product.discount}%</span>}
-            </div>
+            <p className={styles.summary}>{product.description || ''}</p>
 
             <div className={styles.priceRow}>
-              <div className={styles.price}>AED {product.price?.toLocaleString() ?? product.price ?? ''}</div>
-              {product.originalPrice && (
-                <div className={styles.originalPrice}>AED {product.originalPrice.toLocaleString()}</div>
+              {product.discountBadge && (
+                <div style={{
+                  display: 'inline-block',
+                  background: '#dc2626',
+                  color: 'white',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  fontWeight: 'bold',
+                  marginBottom: '12px'
+                }}>
+                  {product.discountBadge}
+                </div>
               )}
+              <div className={styles.price}>
+                {product.discountedPrice ? (
+                  <>
+                    <span style={{ textDecoration: 'line-through', fontSize: '0.7em', opacity: 0.6, marginRight: '12px', color: '#6b7280' }}>
+                      AED {product.price?.toLocaleString()}
+                    </span>
+                    <span style={{ color: '#16a34a' }}>
+                      AED {product.discountedPrice?.toLocaleString()}
+                    </span>
+                  </>
+                ) : (
+                  `AED ${product.price?.toLocaleString() ?? product.price ?? ''}`
+                )}
+              </div>
             </div>
 
             <div className={styles.stockInfo}>
@@ -393,20 +470,24 @@ export default function ProductDetail({ params }) {
               </span>
             </div>
 
-            <div className={styles.specsGrid}>
-              {product.specs && Object.entries(product.specs).slice(0, 4).map(([k, v]) => (
-                <div key={k} className={styles.specCard}>
-                  <div className={styles.specKey}>{k}</div>
-                  <div className={styles.specVal}>{v}</div>
-                </div>
-              ))}
-            </div>
+            {/* Specs Grid */}
+            {product.specs && (
+              <div className={styles.specsGrid}>
+                {Object.entries(product.specs).slice(0, 4).map(([k, v]) => (
+                  <div key={k} className={styles.specCard}>
+                    <div className={styles.specKey}>{k}</div>
+                    <div className={styles.specVal}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
 
             {/* Quantity Selector */}
             <div className={styles.quantitySelector}>
               <label>Quantity:</label>
               <div className={styles.quantityControls}>
-                <button 
+                <button
                   onClick={() => handleQuantityChange(quantity - 1)}
                   className={styles.quantityBtn}
                   aria-label="Decrease quantity"
@@ -414,15 +495,15 @@ export default function ProductDetail({ params }) {
                 >
                   -
                 </button>
-                <input 
-                  type="number" 
-                  min="1" 
+                <input
+                  type="number"
+                  min="1"
                   max={product.stock || 10}
-                  value={quantity} 
+                  value={quantity}
                   onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                   className={styles.quantityInput}
                 />
-                <button 
+                <button
                   onClick={() => handleQuantityChange(quantity + 1)}
                   className={styles.quantityBtn}
                   aria-label="Increase quantity"
@@ -433,9 +514,10 @@ export default function ProductDetail({ params }) {
               </div>
             </div>
 
+            {/* Action Buttons */}
             <div className={styles.actions}>
-              <button 
-                className={styles.primary} 
+              <button
+                className={styles.primary}
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || product.stock <= 0 || authLoading}
               >
@@ -445,13 +527,11 @@ export default function ProductDetail({ params }) {
                     Adding...
                   </>
                 ) : (
-                  <>
-                    <b>Add to Cart</b>
-                  </>
+                  <b>Add to Cart</b>
                 )}
               </button>
-              <button 
-                className={styles.primaryAlt} 
+              <button
+                className={styles.primaryAlt}
                 onClick={handleBuyNow}
                 disabled={product.stock <= 0 || authLoading}
               >
@@ -467,54 +547,24 @@ export default function ProductDetail({ params }) {
 
             <div className={styles.metaRow}>
               <div><strong>Warranty:</strong> {product.warranty ?? '1 Year'}</div>
-              <div><strong>Delivery:</strong> {product.delivery ?? 'Free in UAE (2-5 days)'}</div>
-            </div>
-            
-            <div className={styles.features}>
-              <div className={styles.feature}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 11l3 3L22 4"/>
-                  <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                </svg>
-                <span>Authentic Product</span>
-              </div>
-              <div className={styles.feature}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="1" y="3" width="15" height="13"/>
-                  <polygon points="16,8 20,8 23,11 23,16 16,16"/>
-                  <circle cx="5.5" cy="18.5" r="2.5"/>
-                  <circle cx="18.5" cy="18.5" r="2.5"/>
-                </svg>
-                <span>Free Delivery</span>
-              </div>
-              <div className={styles.feature}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                <span>Secure Payment</span>
-              </div>
+              <div><strong>Delivery:</strong> Free in UAE (2-5 days)</div>
             </div>
           </div>
         </div>
 
+        {/* Tabs */}
         <div className={styles.tabs}>
-          <button 
+          <button
             className={`${styles.tab} ${activeTab === 'details' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('details')}
           >
             Product Details
           </button>
-          <button 
+          <button
             className={`${styles.tab} ${activeTab === 'specs' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('specs')}
           >
             Specifications
-          </button>
-          <button 
-            className={`${styles.tab} ${activeTab === 'reviews' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            Reviews
           </button>
         </div>
 
@@ -522,116 +572,27 @@ export default function ProductDetail({ params }) {
           {activeTab === 'details' && (
             <div className={styles.details}>
               <h2>Product Highlights</h2>
-              <p>{product.longDescription ?? product.description}</p>
-              {Array.isArray(product.highlights) && (
-                <ul className={styles.highlights}>
-                  {product.highlights.map((h, i) => <li key={i}>{h}</li>)}
-                </ul>
-              )}
+              <p>{product.description}</p>
               <h3>Warranty & Delivery</h3>
               <p><strong>Warranty:</strong> {product.warranty ?? '1 Year'}</p>
-              <p><strong>Delivery:</strong> {product.delivery ?? 'Free in UAE (2-5 days)'}</p>
+              <p><strong>Delivery:</strong> Free in UAE (2-5 days)</p>
             </div>
           )}
-          
-          {activeTab === 'specs' && (
+
+          {activeTab === 'specs' && product.specs && (
             <div className={styles.specifications}>
               <h2>Specifications</h2>
-              {product.specs && (
-                <div className={styles.specsTable}>
-                  {Object.entries(product.specs).map(([k, v]) => (
-                    <div key={k} className={styles.specRow}>
-                      <div className={styles.specKey}>{k}</div>
-                      <div className={styles.specVal}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeTab === 'reviews' && (
-            <div className={styles.reviews}>
-              <h2>Customer Reviews</h2>
-              <div className={styles.reviewSummary}>
-                <div className={styles.averageRating}>
-                  <div className={styles.ratingNumber}>{product.rating || 4.5}</div>
-                  <div className={styles.stars}>
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < (product.rating || 4.5) ? styles.starFilled : styles.starEmpty}>★</span>
-                    ))}
+              <div className={styles.specsTable}>
+                {Object.entries(product.specs).map(([k, v]) => (
+                  <div key={k} className={styles.specRow}>
+                    <div className={styles.specKey}>{k}</div>
+                    <div className={styles.specVal}>{v}</div>
                   </div>
-                  <div className={styles.reviewCount}>{product.reviews || 12} Reviews</div>
-                </div>
-              </div>
-              <div className={styles.reviewList}>
-                <div className={styles.review}>
-                  <div className={styles.reviewHeader}>
-                    <div className={styles.reviewerName}>John Doe</div>
-                    <div className={styles.reviewDate}>October 15, 2023</div>
-                    <div className={styles.reviewRating}>
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < 5 ? styles.starFilled : styles.starEmpty}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={styles.reviewContent}>
-                    Great product! Exactly as described and works perfectly. Highly recommend.
-                  </div>
-                </div>
-                <div className={styles.review}>
-                  <div className={styles.reviewHeader}>
-                    <div className={styles.reviewerName}>Jane Smith</div>
-                    <div className={styles.reviewDate}>September 28, 2023</div>
-                    <div className={styles.reviewRating}>
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < 4 ? styles.starFilled : styles.starEmpty}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={styles.reviewContent}>
-                    Good quality product. Fast delivery and excellent customer service.
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           )}
         </div>
-
-        {related.length > 0 && (
-          <div className={styles.relatedSection}>
-            <h3>Related Products</h3>
-            <div className={styles.relatedGrid}>
-              {related.map(r => (
-                <Link key={r.id} href={`/products/${r.id}`} className={styles.relatedCard}>
-                  <div className={styles.relatedImageContainer}>
-                    <img
-                      src={`/images/products/${r.image || 'placeholder-laptop.jpg'}`}
-                      alt={r.name}
-                      className={styles.relatedImg}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = '/placeholder-laptop.jpg';
-                      }}
-                    />
-                    {r.discount && (
-                      <div className={styles.discountBadge}>-{r.discount}%</div>
-                    )}
-                  </div>
-                  <div className={styles.relatedContent}>
-                    <div className={styles.relatedName}>{r.name}</div>
-                    <div className={styles.relatedPriceRow}>
-                      <div className={styles.relatedPrice}>AED {r.price?.toLocaleString() ?? r.price ?? ''}</div>
-                      {r.originalPrice && (
-                        <div className={styles.relatedOriginalPrice}>AED {r.originalPrice.toLocaleString()}</div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import './ProductCard.css';
 
-export default function ProductCard({ product }) {
+const ProductCard = memo(function ProductCard({ product }) {
   const [imageState, setImageState] = useState({
     src: '/placeholder-laptop.jpg',
     isLoading: true,
@@ -23,9 +23,10 @@ export default function ProductCard({ product }) {
   const isNewProduct = useMemo(() => {
     return (
       product?.year === currentYear ||
-      (product?.releaseDate && new Date(product.releaseDate).getFullYear() === currentYear)
+      (product?.releaseDate && new Date(product.releaseDate).getFullYear() === currentYear) ||
+      (product?.createdAt && new Date(product.createdAt).getFullYear() === currentYear)
     );
-  }, [product?.year, product?.releaseDate, currentYear]);
+  }, [product?.year, product?.releaseDate, product?.createdAt, currentYear]);
 
   // ✅ OPTIMIZED: Memoize formats - NO RE-CREATE!
   const supportedFormats = useMemo(
@@ -35,12 +36,12 @@ export default function ProductCard({ product }) {
 
   // ✅ OPTIMIZED: Memoize image path - 80% FASTER!
   const getImagePath = useMemo(() => {
-    if (!product?.image) return '/placeholder-laptop.jpg';
+    if (!product?.image) return '/placeholder.jpg';
+    // If image already has a path, use it
     if (product.image.startsWith('http') || product.image.startsWith('/')) return product.image;
-    return supportedFormats.some(f => product.image.toLowerCase().endsWith(f))
-      ? `/images/${product.image}`
-      : `/images/${product.image}.jpg`;
-  }, [product?.image, supportedFormats]);
+    // Otherwise, images are in public root folder
+    return `/${product.image}`;
+  }, [product?.image]);
 
   // ✅ OPTIMIZED: Image loading - NO RE-RENDER!
   useEffect(() => {
@@ -68,14 +69,14 @@ export default function ProductCard({ product }) {
         };
         img.onerror = () => {
           if (isMounted) {
-            setImageState({ src: '/placeholder-laptop.jpg', isLoading: false, hasError: true });
+            setImageState({ src: '/placeholder.jpg', isLoading: false, hasError: true });
             clearTimeout(timeoutId);
           }
         };
         img.src = imageUrl;
       } catch {
         if (isMounted) {
-          setImageState({ src: '/placeholder-laptop.jpg', isLoading: false, hasError: true });
+          setImageState({ src: '/placeholder.jpg', isLoading: false, hasError: true });
           clearTimeout(timeoutId);
         }
       }
@@ -146,16 +147,53 @@ export default function ProductCard({ product }) {
           <div className="product-image-container">
             {imageState.hasError ? (
               <div className="no-photo-found">
-                <p>No Photo</p>
+                <svg style={{ width: '3rem', height: '3rem', color: '#9ca3af', marginBottom: '0.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>No Photo Available</p>
               </div>
             ) : (
               <img
                 src={imageState.src}
                 alt={product?.name || 'Product'}
                 className="product-image"
+                loading="lazy"
+                decoding="async"
               />
             )}
-            <div className="price-badge">AED {product?.price?.toLocaleString() || '0'}</div>
+            {/* Price Badge */}
+            <div className="price-badge">
+              {product?.discountedPrice ? (
+                <>
+                  <span style={{ textDecoration: 'line-through', fontSize: '0.85em', opacity: 0.7, marginRight: '6px' }}>
+                    AED {product?.price?.toLocaleString() || '0'}
+                  </span>
+                  <span style={{ color: '#16a34a', fontWeight: 'bold' }}>
+                    AED {product?.discountedPrice?.toLocaleString()}
+                  </span>
+                </>
+              ) : (
+                `AED ${product?.price?.toLocaleString() || '0'}`
+              )}
+            </div>
+
+            {/* Badges */}
+            {product?.discountBadge && (
+              <div className="discount-badge" style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                background: '#dc2626',
+                color: 'white',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                zIndex: 2
+              }}>
+                {product.discountBadge}
+              </div>
+            )}
             {isNewProduct && <div className="new-badge">NEW</div>}
           </div>
 
@@ -173,4 +211,6 @@ export default function ProductCard({ product }) {
       </Link>
     </div>
   );
-}
+});
+
+export default ProductCard;

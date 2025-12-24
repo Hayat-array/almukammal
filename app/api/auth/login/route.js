@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, isAdminLogin } = await request.json();
 
     // Validate input
     if (!email || !password) {
@@ -23,11 +23,26 @@ export async function POST(request) {
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (!user) {
       return NextResponse.json(
         { message: 'Invalid email or password' },
         { status: 401 }
+      );
+    }
+
+    // Role-based login enforcement
+    if (isAdminLogin && user.role !== 'admin') {
+      return NextResponse.json(
+        { message: 'Access denied. Admin privileges required.' },
+        { status: 403 }
+      );
+    }
+
+    if (!isAdminLogin && user.role === 'admin') {
+      return NextResponse.json(
+        { message: 'Admins must login through the admin portal.' },
+        { status: 403 }
       );
     }
 
@@ -42,7 +57,7 @@ export async function POST(request) {
 
     // Compare password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     if (!isPasswordValid) {
       return NextResponse.json(
         { message: 'Invalid email or password' },
@@ -52,10 +67,10 @@ export async function POST(request) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
+      {
         userId: user._id,
         email: user.email,
-        role: user.role 
+        role: user.role
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -71,7 +86,14 @@ export async function POST(request) {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        address: user.address
+        address: user.address,
+        city: user.city,
+        state: user.state,
+        country: user.country,
+        postalCode: user.postalCode,
+        dob: user.dob,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       }
     });
 

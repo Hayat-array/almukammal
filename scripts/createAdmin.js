@@ -1,14 +1,14 @@
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-// Update with your MongoDB connection string
-const MONGODB_URI = 'mongodb://localhost:27017/laptop-store'; // Change to your database name
+// MongoDB connection string
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/laptop-store';
 
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, lowercase: true },
   password: String,
+  dob: Date,
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   phone: String,
   address: {
@@ -30,44 +30,37 @@ async function createAdmin() {
 
     const adminEmail = 'admin@almukammal.com';
     const adminPassword = 'admin123';
+    const adminDOB = new Date('1990-01-01'); // Default DOB for admin
 
     // Check if admin already exists
     const existingAdmin = await User.findOne({ email: adminEmail });
-    
+
     if (existingAdmin) {
-      console.log('⚠️  Admin user already exists. Updating password...');
-      
+      console.log('⚠️  Admin user already exists. Updating password and DOB...');
+
       // Hash the password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(adminPassword, salt);
-      
-      // Update the existing admin with new password
+
+      // Update the existing admin
       await User.findOneAndUpdate(
         { email: adminEmail },
         {
           $set: {
             password: hashedPassword,
             role: 'admin',
-            name: 'System Administrator'
+            name: 'System Administrator',
+            dob: adminDOB
           }
         }
       );
-      
-      console.log('✅ Admin password updated successfully!');
-      
-      // Verify the update
-      const verifyAdmin = await User.findOne({ email: adminEmail });
-      console.log('\n📋 Verification:');
-      console.log('   Email:', verifyAdmin.email);
-      console.log('   Role:', verifyAdmin.role);
-      console.log('   Password exists:', !!verifyAdmin.password);
-      console.log('   Password hash length:', verifyAdmin.password?.length);
-      console.log('   Password starts with $2a$ or $2b$:', verifyAdmin.password?.startsWith('$2'));
-      
+
+      console.log('✅ Admin updated successfully!');
+
     } else {
       // Create new admin user
       console.log('📝 Creating new admin user...');
-      
+
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
@@ -75,6 +68,7 @@ async function createAdmin() {
         name: 'System Administrator',
         email: adminEmail,
         password: hashedPassword,
+        dob: adminDOB,
         role: 'admin',
         phone: '+971501234567',
         address: {
@@ -94,6 +88,7 @@ async function createAdmin() {
     console.log('\n🔐 Admin Login Credentials:');
     console.log('   Email:', adminEmail);
     console.log('   Password:', adminPassword);
+    console.log('   DOB: 1990-01-01 (for password reset)');
     console.log('\n⚠️  IMPORTANT: Change these credentials after first login!\n');
 
   } catch (err) {

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Users DOB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .user-item {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Update Users DOB</h1>
+        
+        <div class="info">
+            <strong>ℹ️ What this does:</strong><br>
+            This will add a default Date of Birth (31/07/2002) to all users who don't have one in the database.
+            This is needed for password reset and account deletion features.
+        </div>
+
+        <button id="updateBtn" onclick="updateDOB()">
+            🚀 Update All Users
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function updateDOB() {
+            const btn = document.getElementById('updateBtn');
+            const resultDiv = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Updating...';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/update-dob', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Updated ${data.updatedCount} users with DOB: 31/07/2002<br><br>
+                        <strong>Updated Users:</strong>
+                        <div class="user-list">
+                            ${data.users.map(u => `
+                                <div class="user-item">
+                                    📧 ${u.email} - ${u.name || 'No name'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <strong>❌ Error!</strong><br>
+                        ${data.error}
+                    `;
+                }
+
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Error!</strong><br>
+                    ${error.message}
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Update All Users';
+            }
+        }
+    </script>
+</body>
+</html>

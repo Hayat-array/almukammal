@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
-import products from '@/data/products';
+// import products from '@/data/products';
 import ClientLayout from '../ClientLayout';
 
 const ITEMS_PER_PAGE = 12;
@@ -16,8 +16,9 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('newest');
   const [filterBrand, setFilterBrand] = useState('');
   const [filterPriceRange, setFilterPriceRange] = useState('');
+  const [products, setProducts] = useState([]);
   const [viewMode, setViewMode] = useState('grid');
-  
+
   const currentPage = parseInt(searchParams.get('page')) || 1;
   const searchQuery = searchParams.get('search') || '';
   const currentYear = new Date().getFullYear();
@@ -48,13 +49,14 @@ export default function ProductsPage() {
   const { filteredProducts, similarProducts, showingSimilar } = useMemo(() => {
     // Sort products
     let sortedProducts = [...products];
-    
+
     switch (sortBy) {
       case 'newest':
         sortedProducts.sort((a, b) => {
-          const yearA = a.year || (a.releaseDate ? new Date(a.releaseDate).getFullYear() : 0);
-          const yearB = b.year || (b.releaseDate ? new Date(b.releaseDate).getFullYear() : 0);
-          return yearB - yearA;
+          // Use createdAt, releaseDate, or year for sorting
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : (a.releaseDate ? new Date(a.releaseDate).getTime() : (a.year ? new Date(a.year, 0, 1).getTime() : 0));
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : (b.releaseDate ? new Date(b.releaseDate).getTime() : (b.year ? new Date(b.year, 0, 1).getTime() : 0));
+          return dateB - dateA;
         });
         break;
       case 'price-low':
@@ -69,17 +71,18 @@ export default function ProductsPage() {
       default:
         break;
     }
-    
+
     // Mark new products
     sortedProducts = sortedProducts.map(product => ({
       ...product,
-      isNew: (product.year === currentYear) || 
-             (product.releaseDate && new Date(product.releaseDate).getFullYear() === currentYear)
+      isNew: (product.year === currentYear) ||
+        (product.releaseDate && new Date(product.releaseDate).getFullYear() === currentYear) ||
+        (product.createdAt && new Date(product.createdAt).getFullYear() === currentYear)
     }));
 
     // Apply filters
     let filtered = sortedProducts;
-    
+
     // Brand filter
     if (filterBrand) {
       filtered = filtered.filter(product => {
@@ -102,7 +105,7 @@ export default function ProductsPage() {
         return false;
       });
     }
-    
+
     // Price range filter
     if (filterPriceRange) {
       const [min, max] = filterPriceRange.split('-').map(Number);
@@ -112,7 +115,7 @@ export default function ProductsPage() {
         return true;
       });
     }
-    
+
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -129,16 +132,16 @@ export default function ProductsPage() {
         return false;
       });
     }
-    
+
     // Similar products logic for no search results
     let similar = [];
     let showSimilar = false;
-    
+
     if (filtered.length === 0 && searchQuery) {
       const brands = ['apple', 'dell', 'hp', 'lenovo', 'asus', 'acer', 'msi', 'razer', 'samsung', 'microsoft', 'lg'];
       const queryLower = searchQuery.toLowerCase();
       const matchedBrand = brands.find(brand => queryLower.includes(brand));
-      
+
       if (matchedBrand) {
         similar = sortedProducts.filter(product => {
           const nameLower = product.name.toLowerCase();
@@ -147,7 +150,7 @@ export default function ProductsPage() {
         showSimilar = true;
       }
     }
-    
+
     return {
       filteredProducts: filtered,
       similarProducts: similar,
@@ -169,7 +172,7 @@ export default function ProductsPage() {
     if (sortBy !== 'newest') params.set('sort', sortBy);
     if (filterBrand) params.set('brand', filterBrand);
     if (filterPriceRange) params.set('price', filterPriceRange);
-    
+
     const queryString = params.toString();
     if (queryString !== searchParams.toString()) {
       router.push(`/products?${queryString}`);
@@ -225,12 +228,22 @@ export default function ProductsPage() {
     router.push(`/products?${params.toString()}`);
   };
 
-  // Simulate loading
+  // Fetch products from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    async function fetchProducts() {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        if (data.products) {
+          setProducts(data.products);
+        }
+      } catch (error) {
+        console.error('Failed to fetch products', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
   }, []);
 
   if (loading) {
@@ -457,10 +470,10 @@ export default function ProductsPage() {
                 )}
                 {filterPriceRange && (
                   <div style={{ background: '#dbeafe', color: '#1e40af', borderRadius: '0.375rem', padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}>
-                    Price: {filterPriceRange === '0-1000' ? 'Under AED 1,000' : 
-                            filterPriceRange === '1000-2000' ? 'AED 1,000 - 2,000' :
-                            filterPriceRange === '2000-3000' ? 'AED 2,000 - 3,000' :
-                            filterPriceRange === '3000-5000' ? 'AED 3,000 - 5,000' :
+                    Price: {filterPriceRange === '0-1000' ? 'Under AED 1,000' :
+                      filterPriceRange === '1000-2000' ? 'AED 1,000 - 2,000' :
+                        filterPriceRange === '2000-3000' ? 'AED 2,000 - 3,000' :
+                          filterPriceRange === '3000-5000' ? 'AED 3,000 - 5,000' :
                             filterPriceRange === '5000-99999' ? 'Above AED 5,000' : filterPriceRange}
                   </div>
                 )}
@@ -493,14 +506,14 @@ export default function ProductsPage() {
           ) : (
             <>
               {/* Products Grid/List */}
-              <div style={{ 
-                display: viewMode === 'grid' 
-                  ? 'grid' 
-                  : 'flex', 
-                  flexDirection: 'column',
+              <div style={{
+                display: viewMode === 'grid'
+                  ? 'grid'
+                  : 'flex',
+                flexDirection: 'column',
                 gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(280px, 1fr))' : 'none',
-                gap: viewMode === 'grid' ? '1.5rem' : '1rem', 
-                marginBottom: '2rem' 
+                gap: viewMode === 'grid' ? '1.5rem' : '1rem',
+                marginBottom: '2rem'
               }}>
                 {currentProducts.map(product => (
                   <div key={product.id} style={viewMode === 'list' ? { display: 'flex', gap: '1rem', padding: '1rem', background: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' } : {}}>

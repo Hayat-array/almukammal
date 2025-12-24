@@ -1,20 +1,44 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
-import products from '@/data/products';
 import ClientLayout from './ClientLayout';
 import './Home.css';
 
 export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch products from MongoDB
+    async function fetchProducts() {
+      try {
+        const response = await fetch('/api/products');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Home page products:', data.products?.length, 'products');
+          console.log('First product:', data.products?.[0]);
+          setProducts(data.products || []);
+        } else {
+          console.error('Failed to fetch products:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
   // ✅ OPTIMIZED: Memoized - 95% FASTER!
-  const featuredProducts = useMemo(() => 
-    products.slice(0, 8).map(p => ({ 
-      ...p, 
-      isNew: p.year === new Date().getFullYear() 
+  const featuredProducts = useMemo(() =>
+    products.slice(0, 8).map(p => ({
+      ...p,
+      isNew: p.year === new Date().getFullYear()
     }))
-  , [products]);
+    , [products]);
 
   const stats = useMemo(() => [
     { number: '50+', label: 'Laptop Models' },
@@ -65,23 +89,31 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="featured-grid">
-              {featuredProducts.map((product, index) => (
-                <div 
-                  key={product.id}
-                  className="fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <ProductCard product={product} />
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '3rem' }}>
+                <p>Loading products...</p>
+              </div>
+            ) : (
+              <>
+                <div className="featured-grid">
+                  {featuredProducts.map((product, index) => (
+                    <div
+                      key={product.id || product._id}
+                      className="fade-in"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="featured-footer">
-              <Link href="/products" className="view-all-button">
-                View All {products.length} Laptops
-              </Link>
-            </div>
+                <div className="featured-footer">
+                  <Link href="/products" className="view-all-button">
+                    View All {products.length} Laptops
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>

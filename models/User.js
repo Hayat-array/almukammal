@@ -17,9 +17,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required'],
   },
+  dob: {
+    type: Date,
+    required: [true, 'Date of birth is required'],
+  },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'manager'],
     default: 'user',
   },
   phone: {
@@ -32,10 +36,39 @@ const UserSchema = new mongoose.Schema({
     zipCode: String,
     country: String,
   },
+  savedAddresses: [{
+    label: String,
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: String,
+    isDefault: Boolean,
+  }],
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  resetToken: String,
+  resetTokenExpiry: Date,
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Update timestamp on save
+UserSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);
