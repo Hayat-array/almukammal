@@ -87,7 +87,11 @@ export async function GET(request) {
             }
         });
     } catch (error) {
-        console.error('Error fetching products:', error);
-        return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+        console.error('SERVER ERROR fetching products:', error);
+        console.error('Error Stack:', error.stack);
+        return NextResponse.json(
+            { error: 'Failed to fetch products', details: error.message },
+            { status: 500 }
+        );
     }
 }

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const ProductSchema = new mongoose.Schema({
     id: {
@@ -106,4 +106,4 @@ ProductSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.models.Product || mongoose.model('Product', ProductSchema);
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
