@@ -5,6 +5,9 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import './NotFound.css';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function Error({ error, reset }) {
   useEffect(() => {
     console.error('Application error:', error);
@@ -19,7 +22,7 @@ export default function Error({ error, reset }) {
           We encountered an unexpected error. Please try again or contact support if the problem persists.
         </p>
         <div className="not-found-actions">
-          <button 
+          <button
             onClick={reset}
             className="not-found-button primary"
             type="button"

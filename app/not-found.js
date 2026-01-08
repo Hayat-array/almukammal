@@ -2,6 +2,10 @@
 import Link from 'next/link';
 import './NotFound.css';
 
+// Force dynamic rendering to avoid prerendering issues
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 export default function NotFound() {
   return (
     <div className="not-found-container">
