@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import ProductModel from '@/models/ProductModel';
+import Discount from '@/models/Discount';
 
 // GET - Fetch all products (public endpoint) with active discounts
 export async function GET(request) {
     try {
         await dbConnect();
 
-        // Fetch products and active discounts in parallel - OPTIMIZED with lean()
+        // Fetch products and active discounts in parallel
         const [products, activeDiscounts] = await Promise.all([
-            ProductModel.find({}).select('-id').sort({ createdAt: -1 }).lean(),
-            import('@/models/Discount').then(mod => mod.default.find({
+            ProductModel.find({}).sort({ createdAt: -1 }).lean(),
+            Discount.find({
                 isActive: true,
                 startDate: { $lte: new Date() },
                 endDate: { $gte: new Date() }
-            }).lean())
+            }).lean()
         ]);
 
         // Helper to find best discount for a product

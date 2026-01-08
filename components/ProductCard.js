@@ -49,8 +49,9 @@ const ProductCard = memo(function ProductCard({ product }) {
     let timeoutId = null;
 
     const loadImage = async () => {
-      if (!isMounted || !product?.image) return;
+      if (!isMounted) return;
 
+      // Use the memoized path (which handles fallbacks), don't check product.image directly
       const imageUrl = getImagePath;
 
       timeoutId = setTimeout(() => {

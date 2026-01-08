@@ -9,22 +9,30 @@ import './Home.css';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch products from MongoDB
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products');
+        console.log('Fetching products...');
+        const response = await fetch('/api/products', { cache: 'no-store', headers: { 'Pragma': 'no-cache' } });
         if (response.ok) {
           const data = await response.json();
-          console.log('Home page products:', data.products?.length, 'products');
-          console.log('First product:', data.products?.[0]);
-          setProducts(data.products || []);
+          console.log('Products fetched:', data.products?.length);
+          if (data.products && data.products.length > 0) {
+            setProducts(data.products);
+          } else {
+            setError('No products found in database.');
+          }
         } else {
-          console.error('Failed to fetch products:', response.status);
+          const text = await response.text();
+          console.error('Fetch failed:', response.status, text);
+          setError(`Failed to load products: ${response.status} ${response.statusText}`);
         }
-      } catch (error) {
-        console.error('Error fetching products:', error);
+      } catch (err) {
+        console.error('Error executing fetch:', err);
+        setError(`Error: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -92,6 +100,11 @@ export default function Home() {
             {loading ? (
               <div style={{ textAlign: 'center', padding: '3rem' }}>
                 <p>Loading products...</p>
+              </div>
+            ) : error ? (
+              <div style={{ textAlign: 'center', padding: '3rem', color: 'red' }}>
+                <p>⚠️ {error}</p>
+                <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem', cursor: 'pointer' }}>Retry</button>
               </div>
             ) : (
               <>

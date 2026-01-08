@@ -18,7 +18,7 @@ export function middleware(request) {
     const role = request.cookies.get('user_role')?.value;
 
     // 3. Define Route Groups
-    const isAuthPage = pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register') || pathname === '/auth/admin/login';
+    const isAuthPage = pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register') || pathname === '/auth/admin/login' || pathname === '/auth/admin/register';
     const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/auth/admin/main');
     const isUserRoute = pathname.startsWith('/orders') || pathname.startsWith('/checkout') || pathname.startsWith('/profile');
 
