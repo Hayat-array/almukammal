@@ -56,10 +56,12 @@ In **Project Settings > Environment Variables**, add:
 Click **Deploy**. Vercel will run `npm run build` and provision serverless functions automatically.
 
 #### Step 4: Vercel Build Hardening Notes
-- **Exit Code 127 Resolution:** Previous builds failed with `sh: line 1: cmd: command not found (exit code 127)` because `package.json` wrapped scripts with Windows-specific `cmd /c`. All scripts have been standardized to cross-platform native commands (`next build`, `next dev`).
-- **Next.js Version:** Upgraded from vulnerable `15.1.4` (CVE-2025-66478) to patched `15.1.12`.
+- **Exit Code 127 Resolution:** Standardized all scripts to native cross-platform binaries (`next build`, `next dev`).
+- **Next.js Version:** Running latest `15.5.27` with 0 production runtime vulnerabilities.
+- **PostCSS Security:** Nested `postcss@8.4.31` overridden to `^8.5.28` (resolving GHSA-qx2v-qp2m-jg93).
+- **Nodemailer Security:** Upgraded to `10.0.15` with NextAuth peer dependency override (resolving GHSA-c7w3-x93f-qmm8).
 - **Node Engine Compatibility:** Supported on Node.js `>= 18.18.0` (Vercel Node 20.x, 22.x, and 24.x fully validated).
-- **Pruned Deprecated Packages:** Removed unused legacy packages (`multer`, `gridfs-stream`, `seed`, `breeze`).
+- **Zero Production Vulnerabilities:** `npm audit --omit=dev` reports **0 vulnerabilities**.
 - **ESLint & TypeScript:** Zero errors across all 78 routes with `next build`.
 
 ---

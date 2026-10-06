@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] — Zero Production Vulnerabilities Security Hardening (October 2026)
+
+### Security & Dependency Hygiene
+- **PostCSS Upstream Vulnerability Elimination:** Implemented scoped npm override for `postcss@^8.5.28` to patch Next.js nested `postcss@8.4.31`, unifying the tree on secure `postcss@8.5.29`.
+- **Nodemailer Security Upgrade:** Upgraded `nodemailer` to `10.0.15` and configured `next-auth` peer dependency override to `^10.0.15`, eliminating all SMTP injection advisories (GHSA-c7w3-x93f-qmm8) with zero invalid dependency warnings.
+- **Production Audit Clearance:** `npm audit --omit=dev` verified at **0 vulnerabilities**.
+- **Development Toolchain Braces Classification:** Audited `braces@3.0.3` via `eslint-config-next`, confirmed strictly isolated to dev-time linting with 0 production runtime exposure.
+- **Verification:** 100% test pass rate across auth, SMTP OTP, and logistics (92/92 tests passed).
+
 ## [1.1.0] — Vercel Production Hardening & Security Patch (October 2026)
 
 ### Fixed & Hardened
