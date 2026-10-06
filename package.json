@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cmd /c \"set NODE_OPTIONS=--max-semi-space-size=64 --max-old-space-size=4096 && next dev --turbo\"",
-    "dev:webpack": "cmd /c \"set NODE_OPTIONS=--max-semi-space-size=64 --max-old-space-size=4096 && next dev\"",
-    "build": "cmd /c \"set NODE_OPTIONS=--max-semi-space-size=64 --max-old-space-size=4096 && next build\"",
+    "dev": "next dev --turbo",
+    "dev:webpack": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
