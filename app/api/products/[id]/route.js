@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import ProductModel from '@/models/ProductModel';
 
+const productDetailCache = new Map();
+const DETAIL_CACHE_TTL = 60 * 1000; // 60s cache
+
 // GET - Fetch single product by ID (public endpoint)
 export async function GET(request, context) {
     try {
@@ -16,10 +19,21 @@ export async function GET(request, context) {
             }, { status: 400 });
         }
 
+        // Check in-memory cache
+        const cached = productDetailCache.get(productId);
+        if (cached && (Date.now() - cached.timestamp < DETAIL_CACHE_TTL)) {
+            return NextResponse.json({ product: cached.data }, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+                    'X-Cache': 'HIT',
+                }
+            });
+        }
+
         await dbConnect();
 
-        // Find product by MongoDB _id, exclude numeric id field
-        const product = await ProductModel.findById(productId).select('-id');
+        // Find product by MongoDB _id, exclude numeric id field using .lean() for maximum speed
+        const product = await ProductModel.findById(productId).select('-id').lean();
 
         if (!product) {
             return NextResponse.json({
@@ -48,7 +62,15 @@ export async function GET(request, context) {
             createdAt: product.createdAt
         };
 
-        return NextResponse.json({ product: productData });
+        // Save to in-memory cache
+        productDetailCache.set(productId, { data: productData, timestamp: Date.now() });
+
+        return NextResponse.json({ product: productData }, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+                'X-Cache': 'MISS',
+            }
+        });
     } catch (error) {
         console.error('Error fetching product:', error);
         return NextResponse.json({

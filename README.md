@@ -1,611 +1,141 @@
-# Al Mukammal - E-Commerce Platform
+# ⚡ Al Mukammal Computer Trading LLC — Production E-Commerce Platform
 
-A full-stack e-commerce platform built with Next.js, MongoDB, and modern web technologies for selling laptops and electronics.
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19.1.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas_Mongoose-green?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![Market](https://img.shields.io/badge/Market-United_Arab_Emirates_(AED)-red?style=for-the-badge)](https://almukammal.ae)
 
-## 🚀 Features
-
-### User Features
-- **Authentication System**
-  - User registration and login
-  - Admin login (separate route)
-  - JWT-based authentication
-  - Password change with verification
-  - Forgot password functionality
-  - Account deletion with password + DOB verification
-
-- **Product Browsing**
-  - Product listing with search and filters
-  - Product detail pages with image gallery
-  - Color-based product variants
-  - Multiple product images per color
-  - Product specifications display
-  - Breadcrumb navigation
-
-- **Shopping Cart**
-  - Add/remove products
-  - User-specific cart storage
-  - Cart persistence across sessions
-  - Cart cleared on logout/login for different users
-
-- **User Profile**
-  - View and edit personal information
-  - Comprehensive location selector (200+ countries)
-  - State/district selection for major countries
-  - Custom location input for unlisted regions
-  - Password management
-  - Account deletion
-  - Display all user details (DOB, role, member since, etc.)
-
-### Admin Features
-- **Admin Dashboard**
-  - Overview of orders, products, users
-  - Quick access to all admin functions
-  - Statistics and analytics
-
-- **Product Management**
-  - Add new products
-  - Edit existing products
-  - Delete products
-  - Bulk product import (JSON)
-  - Bulk delete all products (with verification)
-  - Custom color management
-  - Image upload with color assignment
-  - Product specifications management
-
-- **Order Management**
-  - View all orders
-  - Update order status
-  - Order details view
-
-- **User Management**
-  - View all users
-  - User role management
-  - User account management
-
-- **Custom Colors**
-  - Add custom colors not in predefined list
-  - Color name + hex code input
-  - Color name displayed to users (hex code hidden)
-  - Custom colors available for product selection
-
-## 📁 Project Structure
-
-```
-Al_Mukammal/
-├── app/
-│   ├── api/                      # API Routes
-│   │   ├── auth/                 # Authentication APIs
-│   │   │   ├── login/           # User login
-│   │   │   ├── register/        # User registration
-│   │   │   └── me/              # Get current user
-│   │   ├── admin/               # Admin APIs
-│   │   │   ├── products/        # Product CRUD
-│   │   │   │   ├── bulk-import/ # Bulk import products
-│   │   │   │   └── delete-all/  # Delete all products
-│   │   │   ├── orders/          # Order management
-│   │   │   └── update-dob/      # Update users DOB
-│   │   └── user/                # User APIs
-│   │       ├── profile/         # Update profile
-│   │       ├── password/        # Change password
-│   │       └── delete/          # Delete account
-│   ├── auth/                    # Auth Pages
-│   │   ├── login/              # User login page
-│   │   ├── register/           # User registration page
-│   │   ├── forgot-password/    # Password reset page
-│   │   └── admin/              # Admin routes
-│   │       ├── login/          # Admin login page
-│   │       ├── main/           # Admin dashboard
-│   │       └── products/       # Product management
-│   │           ├── edit/[id]/  # Edit product
-│   │           └── bulk-import/ # Bulk import UI
-│   ├── products/               # Product Pages
-│   │   ├── [id]/              # Product detail page
-│   │   └── page.js            # Products listing
-│   ├── profile/               # User profile page
-│   ├── cart/                  # Shopping cart page
-│   ├── admin/                 # Admin main page
-│   ├── ClientLayout.js        # Main layout component
-│   └── page.js                # Homepage
-├── contexts/
-│   └── AuthContext.js         # Authentication context
-├── models/
-│   ├── User.js               # User model
-│   ├── ProductModel.js       # Product model
-│   └── Order.js              # Order model
-├── lib/
-│   └── mongodb.js            # MongoDB connection
-├── data/
-│   └── countries.js          # Countries and states data
-├── scripts/
-│   └── updateUsersDOB.js     # Script to update users DOB
-├── public/
-│   ├── images/               # Static images
-│   └── update-dob.html       # DOB update utility
-├── middleware.js             # Route protection middleware
-├── .env.local               # Environment variables
-└── package.json             # Dependencies
-
-```
-
-## 🔑 Key Pages
-
-### Public Pages
-1. **Homepage** (`/`) - Landing page with featured products
-2. **Products** (`/products`) - Product listing with filters
-3. **Product Detail** (`/products/[id]`) - Individual product page
-4. **Login** (`/auth/login`) - User login
-5. **Register** (`/auth/register`) - User registration
-6. **Forgot Password** (`/auth/forgot-password`) - Password reset
-
-### User Pages (Protected)
-1. **Profile** (`/profile`) - User profile management
-2. **Cart** (`/cart`) - Shopping cart
-3. **Orders** (`/orders`) - User order history
-
-### Admin Pages (Admin Only)
-1. **Admin Dashboard** (`/admin`) - Main admin dashboard
-2. **Admin Login** (`/auth/admin/login`) - Admin authentication
-3. **Admin Main** (`/auth/admin/main`) - Detailed admin dashboard
-4. **Product Management** (`/auth/admin/products/edit/[id]`) - Edit products
-5. **Bulk Import** (`/auth/admin/products/bulk-import`) - Import products via JSON
-6. **Order Management** (`/admin/orders`) - Manage orders
-7. **User Management** (`/admin/users`) - Manage users
-
-## 🛠️ Technologies Used
-
-- **Frontend**: Next.js 14, React, JavaScript
-- **Backend**: Next.js API Routes
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT (jsonwebtoken)
-- **Password Hashing**: bcryptjs
-- **Styling**: Inline CSS (custom styling)
-- **File Upload**: Multipart form data
-- **State Management**: React Context API
-
-## 📦 Installation
-
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (local or MongoDB Atlas)
-- npm or yarn
-
-### Steps
-
-1. **Clone the repository**
-```bash
-git clone <your-repo-url>
-cd Al_Mukammal
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Set up environment variables**
-
-Create a `.env.local` file in the root directory:
-
-```env
-# MongoDB Connection
-MONGODB_URI=mongodb://localhost:27017/al_mukammal
-# OR for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/al_mukammal
-
-# JWT Secret (use a strong random string)
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-
-# Next.js
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
-
-4. **Run the development server**
-```bash
-npm run dev
-```
-
-5. **Open your browser**
-```
-http://localhost:3000
-```
-
-## 🔐 Default Admin Account
-
-Create an admin account manually in MongoDB or use the registration with role modification:
-
-```javascript
-// In MongoDB, update a user to admin:
-db.users.updateOne(
-  { email: "admin@almukammal.com" },
-  { $set: { role: "admin" } }
-)
-```
-
-## 🌐 Hosting Instructions
-
-### Option 1: Vercel (Recommended for Next.js)
-
-1. **Prepare for deployment**
-```bash
-npm run build
-```
-
-2. **Install Vercel CLI**
-```bash
-npm install -g vercel
-```
-
-3. **Deploy to Vercel**
-```bash
-vercel
-```
-
-4. **Set environment variables in Vercel**
-   - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
-   - Add:
-     - `MONGODB_URI` - Your MongoDB Atlas connection string
-     - `JWT_SECRET` - Your JWT secret key
-     - `NEXT_PUBLIC_API_URL` - Your production URL
-
-5. **Deploy**
-```bash
-vercel --prod
-```
-
-### Option 2: Railway
-
-1. **Create account** at [railway.app](https://railway.app)
-
-2. **Install Railway CLI**
-```bash
-npm install -g @railway/cli
-```
-
-3. **Login**
-```bash
-railway login
-```
-
-4. **Initialize project**
-```bash
-railway init
-```
-
-5. **Add environment variables**
-```bash
-railway variables set MONGODB_URI="your-mongodb-uri"
-railway variables set JWT_SECRET="your-jwt-secret"
-```
-
-6. **Deploy**
-```bash
-railway up
-```
-
-### Option 3: Netlify
-
-1. **Build the project**
-```bash
-npm run build
-```
-
-2. **Install Netlify CLI**
-```bash
-npm install -g netlify-cli
-```
-
-3. **Deploy**
-```bash
-netlify deploy --prod
-```
-
-4. **Set environment variables**
-   - Go to Netlify Dashboard → Site Settings → Environment Variables
-   - Add `MONGODB_URI` and `JWT_SECRET`
-
-### Option 4: DigitalOcean / AWS / VPS
-
-1. **Set up a VPS** (Ubuntu 22.04 recommended)
-
-2. **Install Node.js**
-```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-
-3. **Install PM2** (Process Manager)
-```bash
-sudo npm install -g pm2
-```
-
-4. **Clone your repository**
-```bash
-git clone <your-repo-url>
-cd Al_Mukammal
-```
-
-5. **Install dependencies**
-```bash
-npm install
-```
-
-6. **Create .env.local file**
-```bash
-nano .env.local
-# Add your environment variables
-```
-
-7. **Build the project**
-```bash
-npm run build
-```
-
-8. **Start with PM2**
-```bash
-pm2 start npm --name "al-mukammal" -- start
-pm2 save
-pm2 startup
-```
-
-9. **Set up Nginx as reverse proxy**
-```bash
-sudo apt install nginx
-sudo nano /etc/nginx/sites-available/almukammal
-```
-
-Add this configuration:
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-10. **Enable the site**
-```bash
-sudo ln -s /etc/nginx/sites-available/almukammal /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-11. **Set up SSL with Let's Encrypt**
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com
-```
-
-## 📊 Database Setup
-
-### MongoDB Atlas (Cloud - Recommended)
-
-1. **Create account** at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-
-2. **Create a cluster** (Free tier available)
-
-3. **Get connection string**
-   - Click "Connect" → "Connect your application"
-   - Copy the connection string
-   - Replace `<password>` with your database password
-
-4. **Whitelist IP addresses**
-   - Network Access → Add IP Address
-   - For development: Add your current IP
-   - For production: Add `0.0.0.0/0` (allow from anywhere)
-
-5. **Update .env.local**
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/al_mukammal?retryWrites=true&w=majority
-```
-
-### Local MongoDB
-
-1. **Install MongoDB**
-```bash
-# Ubuntu
-sudo apt-get install mongodb
-
-# macOS
-brew install mongodb-community
-
-# Windows
-# Download from mongodb.com
-```
-
-2. **Start MongoDB**
-```bash
-sudo systemctl start mongodb
-```
-
-3. **Use local connection**
-```env
-MONGODB_URI=mongodb://localhost:27017/al_mukammal
-```
-
-## 🔧 Configuration
-
-### Image Upload Directory
-Images are stored in `public/images/products/`
-
-Make sure this directory exists and has write permissions:
-```bash
-mkdir -p public/images/products
-chmod 755 public/images/products
-```
-
-### Custom Colors
-Custom colors are stored in component state. To persist them:
-1. Add a `CustomColor` model in MongoDB
-2. Save custom colors to database
-3. Load on component mount
-
-## 📝 API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `GET /api/auth/me` - Get current user
-
-### User
-- `PUT /api/user/profile` - Update profile
-- `PUT /api/user/password` - Change password
-- `DELETE /api/user/delete` - Delete account
-
-### Admin - Products
-- `GET /api/admin/products` - Get all products
-- `POST /api/admin/products` - Create product
-- `PUT /api/admin/products/[id]` - Update product
-- `DELETE /api/admin/products/[id]` - Delete product
-- `POST /api/admin/products/bulk-import` - Bulk import
-- `POST /api/admin/products/delete-all` - Delete all products
-
-### Admin - Orders
-- `GET /api/admin/orders` - Get all orders
-- `PUT /api/admin/orders/[id]` - Update order status
-
-### Admin - Users
-- `GET /api/admin/users` - Get all users
-- `POST /api/admin/update-dob` - Update users DOB
-
-## 🎨 Features Detail
-
-### User-Specific Cart
-- Cart data stored in `localStorage` with user ID
-- Format: `cart_<userId>`
-- Cleared on logout
-- Loaded on login
-- Prevents cart sharing between users
-
-### Location Selector
-- 200+ countries available
-- 15 major countries with states/districts
-- Custom location input for unlisted regions
-- State field shows conditionally based on country
-
-### Custom Colors
-- Admin can add custom colors
-- Color name + hex code
-- Hex code hidden from users
-- Available in product selection
-- Shows with color dot preview
-
-### Password Security
-- bcrypt hashing (10 rounds)
-- Current password verification for changes
-- Password + DOB verification for account deletion
-- JWT token expiration: 7 days
-
-### Image Management
-- Multiple images per product
-- Color-based image assignment
-- Image roles: Main, Side, Back, Extra
-- Filter images by color
-- Upload new images or use existing URLs
-
-## 🐛 Troubleshooting
-
-### MongoDB Connection Issues
-```bash
-# Check MongoDB status
-sudo systemctl status mongodb
-
-# Restart MongoDB
-sudo systemctl restart mongodb
-
-# Check connection string format
-mongodb://localhost:27017/al_mukammal
-```
-
-### Port Already in Use
-```bash
-# Kill process on port 3000
-npx kill-port 3000
-
-# Or use different port
-PORT=3001 npm run dev
-```
-
-### Build Errors
-```bash
-# Clear Next.js cache
-rm -rf .next
-
-# Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
-
-# Rebuild
-npm run build
-```
-
-### Image Upload Issues
-```bash
-# Check directory permissions
-ls -la public/images/
-
-# Create directory if missing
-mkdir -p public/images/products
-
-# Set permissions
-chmod 755 public/images/products
-```
-
-## 📄 License
-
-This project is proprietary software. All rights reserved.
-
-## 👥 Support
-
-For support, email: support@almukammal.com
-
-## 🔄 Updates
-
-To update the application:
-```bash
-git pull origin main
-npm install
-npm run build
-pm2 restart al-mukammal
-```
-
-## 🎯 Production Checklist
-
-Before deploying to production:
-
-- [ ] Update `JWT_SECRET` to a strong random string
-- [ ] Set up MongoDB Atlas with proper security
-- [ ] Configure environment variables in hosting platform
-- [ ] Enable HTTPS/SSL certificate
-- [ ] Set up proper error logging
-- [ ] Configure CORS if needed
-- [ ] Set up database backups
-- [ ] Test all authentication flows
-- [ ] Test payment integration (if applicable)
-- [ ] Set up monitoring and analytics
-- [ ] Configure email service for password reset
-- [ ] Review and update security headers
-- [ ] Optimize images and assets
-- [ ] Set up CDN for static assets
-- [ ] Configure rate limiting for APIs
-- [ ] Set up automated backups
-
-## 🚀 Performance Optimization
-
-1. **Enable caching**
-2. **Optimize images** (use Next.js Image component)
-3. **Implement lazy loading**
-4. **Use CDN for static assets**
-5. **Enable gzip compression**
-6. **Minimize bundle size**
+A state-of-the-art, enterprise-grade e-commerce application designed for **Al Mukammal Computer Trading LLC** (Dubai, United Arab Emirates). Engineered specifically for high-ticket premium laptop and workstation retail with server-side pricing validation, zero-trust order processing, Juspay-inspired design aesthetics, and automated UAE WhatsApp order dispatches.
 
 ---
 
-**Built with ❤️ for Al Mukammal**
+## 🏛️ System Documentation Index
+
+Comprehensive technical documentation is maintained in the repository:
+
+1. [PROJECT_AUDIT.md](file:///e:/Al_MUKAMMAL_PART_2/PROJECT_AUDIT.md) — Comprehensive technical audit, vulnerability discovery, and remediation log.
+2. [ARCHITECTURE.md](file:///e:/Al_MUKAMMAL_PART_2/ARCHITECTURE.md) — Full-stack system architecture, data flows, and edge security routing.
+3. [DATABASE_DOCUMENTATION.md](file:///e:/Al_MUKAMMAL_PART_2/DATABASE_DOCUMENTATION.md) — Mongoose schemas, compound indexes, constraints, and ER diagram.
+4. [API_DOCUMENTATION.md](file:///e:/Al_MUKAMMAL_PART_2/API_DOCUMENTATION.md) — Exhaustive REST API specification with request/response schemas.
+5. [BUSINESS_LOGIC.md](file:///e:/Al_MUKAMMAL_PART_2/BUSINESS_LOGIC.md) — UAE commercial logic, discount precedence, shipping tiers, WhatsApp dispatch.
+6. [SECURITY_AUDIT.md](file:///e:/Al_MUKAMMAL_PART_2/SECURITY_AUDIT.md) — OWASP Top 10 remediation, cryptographic token handling, input sanitization.
+7. [PERFORMANCE_AUDIT.md](file:///e:/Al_MUKAMMAL_PART_2/PERFORMANCE_AUDIT.md) — Core Web Vitals targets, caching headers, payload optimization.
+8. [PRODUCTION_CHECKLIST.md](file:///e:/Al_MUKAMMAL_PART_2/PRODUCTION_CHECKLIST.md) — Pre-launch verification checklist for commercial handover.
+9. [DEPLOYMENT.md](file:///e:/Al_MUKAMMAL_PART_2/DEPLOYMENT.md) — Production hosting guides for Vercel, Docker, and Ubuntu VPS + PM2/Nginx.
+10. [TODO.md](file:///e:/Al_MUKAMMAL_PART_2/TODO.md) — Master sprint backlog and completed feature tracker.
+
+---
+
+## 🚀 Key Architectural Highlights
+
+### 1. Modern Juspay-Inspired Design Aesthetics
+- **Dark Surface Palette:** Rich `#0b0f19` canvas, elevated `#111827` cards, subtle glassmorphic borders (`rgba(255, 255, 255, 0.08)`).
+- **Accents:** Electric Indigo (`#6366f1`) and Royal Blue (`#2563eb`) with dynamic interactive glows.
+- **Pill Radius System:** Fluid rounded buttons (`var(--radius-pill)`), floating navbar pill, spec badges, and filter chips.
+- **Fluid Typography:** CSS `clamp()` scaling for sharp, crisp reading across smartphones (375px), tablets, and 4K displays.
+- **Micro-Interactions:** Smooth CSS hover translates, focus glows, and custom SVG toast notifications replacing native alerts.
+
+### 2. Hardened Production Security
+- **Server-Side Price Validation:** The checkout API (`POST /api/orders`) never trusts client prices. It re-queries MongoDB for authoritative item costs, verifies active discounts, validates promotional coupon eligibility, checks store threshold rules, and computes shipping server-side.
+- **Edge Route Guards:** `middleware.js` strictly validates JWT signatures and role claims (`admin`, `manager`) before allowing access to `/admin/*`, preventing unauthorized access.
+- **Cryptographic Token Handling:** JWT secrets are cryptographically enforced in production (`getJwtSecret()` throws fatal errors if absent).
+- **Secondary Identity Challenge:** User accounts require Date of Birth (`dob`), utilized as a second factor for sensitive account deletions and password resets.
+
+### 3. Tailored UAE Commercial Workflows
+- **Currency:** Formatted universally in AED (United Arab Emirates Dirham).
+- **7 Emirates Delivery:** Dedicated address selector covering Dubai, Abu Dhabi, Sharjah, Ajman, Ras Al Khaimah, Fujairah, and Umm Al Quwain.
+- **WhatsApp Order Dispatch:** Every confirmed order instantly generates a WhatsApp consultation and tracking link to the official showroom line: `+971 50 955 0121`.
+- **Dynamic Delivery Thresholds:** Configurable free delivery thresholds (e.g. Free shipping above AED 1,000) managed through `/admin/settings`.
+
+---
+
+## 💻 Tech Stack
+
+- **Framework:** Next.js 15.5.4 (App Router)
+- **UI Engine:** React 19.1.0 with React DOM 19
+- **Styling:** Modular Vanilla CSS & Design Tokens (`app/design-tokens.css`)
+- **Database:** MongoDB 6.0+ via Mongoose 8.19
+- **Authentication:** JSON Web Tokens (`jsonwebtoken`) & `bcryptjs` password hashing
+- **Deployment Runtimes:** Node.js 20+, Vercel Serverless Edge, or Docker
+
+---
+
+## 🛠️ Getting Started (Local Development)
+
+### Prerequisites
+- Node.js 18.18+ or 20 LTS installed
+- MongoDB running locally or a MongoDB Atlas URI
+
+### 1. Clone & Install Dependencies
+```bash
+git clone <repo-url> al-mukammal
+cd al-mukammal
+npm install
+```
+
+### 2. Configure Environment
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Fill in `MONGODB_URI` and `JWT_SECRET`.
+
+### 3. Start Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 4. Build for Production
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+├── app/
+│   ├── admin/               # Admin portal (Dashboard, Orders, Products, Coupons, Settings)
+│   ├── api/                 # Secure REST API endpoints (Orders, Auth, Products, User)
+│   ├── auth/                # Login, Register, Forgot Password
+│   ├── cart/                # Shopping cart with coupon engine
+│   ├── checkout/            # UAE 7 Emirates checkout & WhatsApp dispatch
+│   ├── orders/              # Customer order tracking & history
+│   ├── products/            # Product catalog & product detail
+│   ├── profile/             # Customer profile & UAE address manager
+│   ├── ClientLayout.js      # Global layout wrapper with Navbar & Footer
+│   ├── design-tokens.css    # Juspay-inspired CSS tokens
+│   ├── layout.js            # Root App Router layout
+│   └── page.js              # High-conversion Homepage
+├── components/
+│   ├── Footer.js            # UAE showroom corporate footer
+│   ├── Navbar.js            # Floating pill navigation with category mega-menu
+│   ├── ProductCard.js       # Premium laptop product card with specs
+│   └── Toast.js             # Global toast notification provider
+├── contexts/
+│   ├── AuthContext.js       # Client authentication & session sync
+│   └── CartContext.js       # Persistent cart state & discount calculation
+├── lib/
+│   ├── auth.js              # Server auth utilities & JWT verification
+│   └── mongodb.js           # Cached Mongoose connection handler
+├── models/
+│   ├── Coupon.js            # Promotional coupon schema
+│   ├── Discount.js          # Campaign discount schema
+│   ├── Order.js             # Customer order schema
+│   ├── ProductModel.js      # Laptop inventory schema
+│   ├── Setting.js           # Store settings & shipping thresholds
+│   └── User.js              # User account & DOB schema
+└── middleware.js            # Edge routing guards
+```
+
+---
+
+## 📞 Client Handover & Support
+
+**Commercial Entity:** Al Mukammal Computer Trading LLC  
+**Headquarters:** Dubai, United Arab Emirates  
+**Official WhatsApp:** [+971 50 955 0121](https://wa.me/971509550121)  
+**Status:** Commercial Production-Ready

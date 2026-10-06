@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import ClientLayout from '@/app/ClientLayout';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MASTER_COLORS = [
     { name: 'Space Grey', hex: '#53565a' },
@@ -17,9 +19,11 @@ const MASTER_COLORS = [
     { name: 'Blue', hex: '#007aff' }
 ];
 
-export default function EditProduct() {
+export default function EditProductPage() {
     const params = useParams();
     const router = useRouter();
+    const { token: authContextToken, user, loading: authLoading } = useAuth();
+
     const [product, setProduct] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -38,189 +42,215 @@ export default function EditProduct() {
         weight: '',
         os: '',
         colors: '',
-        images: [] // Unified list: [{ file: null, url: '', color: 'All', preview: '' }]
+        images: []
     });
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [filterColor, setFilterColor] = useState('All');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // Custom color state
-    const [customColors, setCustomColors] = useState([]); // [{ name: 'Custom Red', hex: '#ff0000' }]
+    // Custom colors modal
+    const [customColors, setCustomColors] = useState([]);
     const [showCustomColorModal, setShowCustomColorModal] = useState(false);
     const [customColorName, setCustomColorName] = useState('');
-    const [customColorHex, setCustomColorHex] = useState('#000000');
+    const [customColorHex, setCustomColorHex] = useState('#0866FF');
 
-    useEffect(() => {
-        fetchProduct();
+    const formatPreview = useCallback((img) => {
+        if (!img) return '/placeholder.jpg';
+        if (img.startsWith('blob:') || img.startsWith('data:') || img.startsWith('http://') || img.startsWith('https://')) {
+            return img;
+        }
+        const clean = img.replace(/^\/+/, '');
+        return `/${clean}`;
     }, []);
 
-    const fetchProduct = async () => {
+    const fetchProduct = useCallback(async (productId) => {
+        if (!productId) return;
+        setLoading(true);
+        setError('');
+
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/admin/products/${params.id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const token = authContextToken || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`/api/admin/products/${productId}`, {
+                headers,
+                cache: 'no-store'
             });
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.product) {
-                    setProduct(data.product);
-                    const colorMap = data.product.imageColorMap || [];
+                    const prod = data.product;
+                    setProduct(prod);
 
-                    // Unified Image Loading
-                    const initialImages = (data.product.images || []).map(img => {
+                    const colorMap = prod.imageColorMap || [];
+                    const rawImages = Array.isArray(prod.images) && prod.images.length > 0
+                        ? prod.images
+                        : (prod.image ? [prod.image] : []);
+
+                    const initialImages = rawImages.map(img => {
                         const mapping = colorMap.find(m => m.url === img);
                         return {
                             file: null,
                             url: img.startsWith('http') ? img : '',
-                            preview: img.startsWith('http') ? img : `/${img}`, // For existing images
+                            preview: formatPreview(img),
                             color: mapping ? mapping.color : 'All',
                             isExisting: true,
                             originalUrl: img
                         };
                     });
 
-                    // Ensure at least one empty slot if no images
                     if (initialImages.length === 0) {
-                        initialImages.push({ file: null, url: '', color: 'All', preview: '' });
+                        initialImages.push({ file: null, url: '', color: 'All', preview: '/placeholder.jpg', isExisting: false });
                     }
 
                     setFormData({
-                        name: data.product.name || '',
-                        description: data.product.description || '',
-                        price: data.product.price || 0,
-                        stock: data.product.stock || 0,
-                        brand: data.product.brand || '',
-                        category: data.product.category || '',
-                        cpu: data.product.specs?.cpu || '',
-                        ram: data.product.specs?.ram || '',
-                        storage: data.product.specs?.storage || '',
-                        display: data.product.specs?.display || '',
-                        gpu: data.product.specs?.gpu || '',
-                        os: data.product.specs?.os || '',
-                        colors: Array.isArray(data.product.colors) ? data.product.colors.join(', ') : (data.product.colors || ''),
+                        name: prod.name || '',
+                        description: prod.description || '',
+                        price: prod.price !== undefined ? prod.price : '',
+                        stock: prod.stock !== undefined ? prod.stock : 1,
+                        brand: prod.brand || 'HP',
+                        category: prod.category || 'Laptops',
+                        warranty: prod.warranty || '1 Year Official Warranty',
+                        cpu: prod.specs?.cpu || '',
+                        ram: prod.specs?.ram || '',
+                        storage: prod.specs?.storage || '',
+                        display: prod.specs?.display || '',
+                        gpu: prod.specs?.gpu || '',
+                        battery: prod.specs?.battery || '',
+                        weight: prod.specs?.weight || '',
+                        os: prod.specs?.os || '',
+                        colors: Array.isArray(prod.colors) ? prod.colors.join(', ') : (prod.colors || ''),
                         images: initialImages
                     });
+                } else {
+                    setError('Product data could not be parsed.');
                 }
             } else {
-                setError('Failed to load product');
+                const errData = await response.json().catch(() => ({}));
+                setError(errData.error || `Failed to load product (#${productId})`);
             }
         } catch (err) {
-            setError('Error loading product');
+            console.error('Error loading product:', err);
+            setError('Network or server error while loading product data.');
         } finally {
             setLoading(false);
         }
-    };
+    }, [authContextToken, formatPreview]);
+
+    useEffect(() => {
+        if (!authLoading && params?.id) {
+            fetchProduct(params.id);
+        }
+    }, [params?.id, authLoading, fetchProduct]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (error) setError('');
     };
 
     const toggleColor = (colorName) => {
         const currentColors = formData.colors.split(',').map(c => c.trim()).filter(Boolean);
-        const index = currentColors.findIndex(c => c.toLowerCase() === colorName.toLowerCase());
+        const exists = currentColors.some(c => c.toLowerCase() === colorName.toLowerCase());
 
         let newColors;
-        if (index > -1) {
-            newColors = currentColors.filter((_, i) => i !== index);
+        if (exists) {
+            newColors = currentColors.filter(c => c.toLowerCase() !== colorName.toLowerCase());
         } else {
             newColors = [...currentColors, colorName];
         }
 
-        setFormData({ ...formData, colors: newColors.join(', ') });
+        setFormData(prev => ({ ...prev, colors: newColors.join(', ') }));
     };
 
-    // Get all available colors (master + custom)
-    const getAllColors = () => {
-        return [...MASTER_COLORS, ...customColors];
-    };
+    const getAllColors = () => [...MASTER_COLORS, ...customColors];
 
-    // Add custom color
     const handleAddCustomColor = () => {
         if (!customColorName.trim()) {
-            alert('Please enter a color name');
+            alert('Please enter a color name.');
             return;
         }
 
-        // Check if color already exists
-        const allColors = getAllColors();
-        if (allColors.some(c => c.name.toLowerCase() === customColorName.trim().toLowerCase())) {
-            alert('This color name already exists');
+        const all = getAllColors();
+        if (all.some(c => c.name.toLowerCase() === customColorName.trim().toLowerCase())) {
+            alert('A color with this name already exists.');
             return;
         }
 
-        const newCustomColor = {
+        const newColor = {
             name: customColorName.trim(),
             hex: customColorHex
         };
 
-        setCustomColors([...customColors, newCustomColor]);
+        setCustomColors(prev => [...prev, newColor]);
+        toggleColor(newColor.name);
         setShowCustomColorModal(false);
         setCustomColorName('');
-        setCustomColorHex('#000000');
-        setSuccess(`Custom color "${newCustomColor.name}" added successfully!`);
+        setCustomColorHex('#0866FF');
+        setSuccess(`Custom color "${newColor.name}" added and selected.`);
         setTimeout(() => setSuccess(''), 3000);
     };
 
-    // --- Image Role Helper ---
     const getImageRole = (index, color) => {
         if (!color || color === 'All') {
-            if (index === 0) return 'Main Image (Default)';
-            return `Additional Image #${index + 1}`;
+            if (index === 0) return 'Primary Hero Photo';
+            return `Gallery View #${index + 1}`;
         }
-
-        // Find all images with this color
-        const sameColorImages = formData.images
+        const sameColor = formData.images
             .map((img, i) => ({ ...img, originalIndex: i }))
             .filter(img => img.color === color);
+        const rank = sameColor.findIndex(img => img.originalIndex === index);
 
-        const rank = sameColorImages.findIndex(img => img.originalIndex === index);
-
-        if (rank === 0) return `Main Image (${color})`;
-        if (rank === 1) return `Side Image (${color})`;
-        if (rank === 2) return `Back Image (${color})`;
-        return `Extra Image (${color})`;
+        if (rank === 0) return `Primary (${color})`;
+        if (rank === 1) return `Side Profile (${color})`;
+        if (rank === 2) return `Keyboard / Rear (${color})`;
+        return `Detail Shot (${color})`;
     };
-    // -------------------------
 
-    // --- Image Handling Helpers ---
     const handleAddImageSlot = () => {
-        // Auto-assign color if filter is active
         const defaultColor = filterColor !== 'All' ? filterColor : 'All';
-        setFormData({
-            ...formData,
-            images: [...formData.images, { file: null, url: '', color: defaultColor, preview: '' }]
-        });
+        setFormData(prev => ({
+            ...prev,
+            images: [
+                ...prev.images,
+                { file: null, url: '', color: defaultColor, preview: '/placeholder.jpg', isExisting: false }
+            ]
+        }));
     };
 
     const handleRemoveImageSlot = (index) => {
         if (formData.images.length <= 1) {
-            // Don't remove the last slot, just clear it
-            const updated = [...formData.images];
-            updated[index] = { file: null, url: '', color: 'All', preview: '' };
-            setFormData({ ...formData, images: updated });
+            setFormData(prev => ({
+                ...prev,
+                images: [{ file: null, url: '', color: 'All', preview: '/placeholder.jpg', isExisting: false }]
+            }));
             return;
         }
-        setFormData({
-            ...formData,
-            images: formData.images.filter((_, i) => i !== index)
-        });
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
     };
 
     const handleImageChange = (index, field, value) => {
         const updated = [...formData.images];
         updated[index] = { ...updated[index], [field]: value };
 
-        // If updating file, set preview
         if (field === 'file' && value) {
             updated[index].preview = URL.createObjectURL(value);
+        } else if (field === 'url' && value) {
+            updated[index].preview = formatPreview(value);
         }
 
-        setFormData({ ...formData, images: updated });
+        setFormData(prev => ({ ...prev, images: updated }));
     };
-    // ----------------------------
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -229,475 +259,600 @@ export default function EditProduct() {
         setSuccess('');
 
         try {
-            const token = localStorage.getItem('token');
+            const token = authContextToken || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
             const formDataToSend = new FormData();
 
-            // Append basic fields
+            // Append standard form fields
             Object.keys(formData).forEach(key => {
-                if (key !== 'images' && formData[key] !== null) {
+                if (key !== 'images' && formData[key] !== null && formData[key] !== undefined) {
                     formDataToSend.append(key, formData[key]);
                 }
             });
 
-            // Append Images (Unified List)
+            // Append Unified Images
             formData.images.forEach((img, index) => {
                 if (img.file) {
                     formDataToSend.append(`image_${index}`, img.file);
                 }
                 if (img.url || img.isExisting) {
-                    // Pass original URL if it's an existing image and no new file/url provided
-                    const urlValue = img.url || (img.isExisting ? img.originalUrl : '');
-                    formDataToSend.append(`imageUrl_${index}`, urlValue);
+                    const urlVal = img.url || (img.isExisting ? img.originalUrl : '');
+                    formDataToSend.append(`imageUrl_${index}`, urlVal);
                 }
-                // Always send the color
                 formDataToSend.append(`imageColor_${index}`, img.color || 'All');
             });
 
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`/api/admin/products/${params.id}`, {
                 method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}` },
+                headers,
                 body: formDataToSend
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                setSuccess('Product updated successfully!');
+                setSuccess('Product changes saved to catalog successfully!');
                 setTimeout(() => {
-                    // Refresh to show updated state clearly
-                    window.location.reload();
-                }, 1000);
+                    fetchProduct(params.id);
+                }, 800);
             } else {
                 setError(data.error || 'Failed to update product');
             }
         } catch (err) {
-            setError('Error updating product');
+            console.error('Update product error:', err);
+            setError('Error updating product. Please verify connection and retry.');
         } finally {
             setSaving(false);
         }
     };
 
-    if (loading) {
-        return (
-            <ClientLayout>
-                <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <p>Loading product...</p>
-                </div>
-            </ClientLayout>
-        );
-    }
-
     return (
         <ClientLayout>
-            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-                <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Edit Product</h1>
-                    <button
-                        onClick={() => router.push('/auth/admin/main')}
-                        style={{ background: '#6b7280', color: 'white', padding: '0.5rem 1rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer' }}
-                    >
-                        ← Back to Dashboard
-                    </button>
+            <div className="edit-container">
+                {/* Top Navigation Bar */}
+                <div className="edit-header">
+                    <div className="header-info">
+                        <Link href="/auth/admin/main" className="back-link">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                            Back to Command Center
+                        </Link>
+                        <div className="header-title-row">
+                            <div className="badge-tag">Inventory Item #{params?.id ? String(params.id).slice(-8) : '...'}</div>
+                            <h1 className="page-title">
+                                {loading ? 'Loading Product Details...' : (formData.name || 'Edit Product')}
+                            </h1>
+                            <p className="page-subtitle">
+                                Configure specifications, pricing, imagery, and variant color palettes
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="header-actions">
+                        <button
+                            type="button"
+                            onClick={() => fetchProduct(params.id)}
+                            disabled={loading || saving}
+                            className="btn-secondary"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                            </svg>
+                            Refresh
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={saving || loading}
+                            className="btn-primary"
+                        >
+                            {saving ? (
+                                <>
+                                    <span className="btn-spinner"></span>
+                                    Saving Catalog...
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    Save All Changes
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
-                {error && <div style={{ background: '#fee2e2', border: '1px solid #ef4444', color: '#991b1b', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>{error}</div>}
-                {success && <div style={{ background: '#d1fae5', border: '1px solid #10b981', color: '#065f46', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>{success}</div>}
+                {/* Alerts */}
+                {error && (
+                    <div className="alert-box alert-error">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <span>{error}</span>
+                    </div>
+                )}
 
-                <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                        {/* LEFT COLUMN: Basic Info */}
-                        <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem' }}>Product Details</h2>
+                {success && (
+                    <div className="alert-box alert-success">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span>{success}</span>
+                    </div>
+                )}
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Product Name</label>
-                                <input type="text" name="name" value={formData.name} onChange={handleChange} required style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} />
+                {loading ? (
+                    <div className="loading-skeleton">
+                        <div className="spinner-large"></div>
+                        <p>Syncing product record from Al Mukammal database...</p>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="edit-form-grid">
+                        {/* LEFT COLUMN: Core Details & Hardware */}
+                        <div className="column-card">
+                            <div className="card-section-header">
+                                <div className="section-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                        <line x1="12" y1="17" x2="12" y2="21" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 className="section-title">General Specifications</h2>
+                                    <p className="section-desc">Storefront title, pricing, and hardware capabilities</p>
+                                </div>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleChange} rows={3} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} />
+                            <div className="field-group">
+                                <label className="field-label">Product Name / Model Title *</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="e.g., HP Spectre x360 14"
+                                    className="modern-field"
+                                />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Price (AED)</label><input type="number" name="price" value={formData.price} onChange={handleChange} required style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Stock</label><input type="number" name="stock" value={formData.stock} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
+                            <div className="field-group">
+                                <label className="field-label">Product Overview & Key Features</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    rows={4}
+                                    placeholder="Executive description highlighting finish, durability, and business performance..."
+                                    className="modern-field textarea-field"
+                                />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Brand</label><input type="text" name="brand" value={formData.brand} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Category</label><input type="text" name="category" value={formData.category} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
+                            <div className="field-row-2">
+                                <div className="field-group">
+                                    <label className="field-label">Retail Price (AED) *</label>
+                                    <div className="input-prefix-wrapper">
+                                        <span className="input-prefix">AED</span>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleChange}
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                            placeholder="2198"
+                                            className="modern-field field-with-prefix"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="field-group">
+                                    <label className="field-label">Inventory Units In Stock</label>
+                                    <input
+                                        type="number"
+                                        name="stock"
+                                        value={formData.stock}
+                                        onChange={handleChange}
+                                        min="0"
+                                        placeholder="1"
+                                        className="modern-field"
+                                    />
+                                </div>
                             </div>
 
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.5rem', marginBottom: '1rem' }}>Specifications</h3>
-                            {/* Specs Grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>CPU</label><input type="text" name="cpu" value={formData.cpu} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>RAM</label><input type="text" name="ram" value={formData.ram} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
+                            <div className="field-row-2">
+                                <div className="field-group">
+                                    <label className="field-label">Manufacturer / Brand</label>
+                                    <input
+                                        type="text"
+                                        name="brand"
+                                        value={formData.brand}
+                                        onChange={handleChange}
+                                        placeholder="HP, Dell, Apple, Lenovo"
+                                        className="modern-field"
+                                    />
+                                </div>
+                                <div className="field-group">
+                                    <label className="field-label">Category</label>
+                                    <input
+                                        type="text"
+                                        name="category"
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                        placeholder="Laptops, Ultrabooks, Workstations"
+                                        className="modern-field"
+                                    />
+                                </div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Storage</label><input type="text" name="storage" value={formData.storage} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Display</label><input type="text" name="display" value={formData.display} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
+
+                            <div className="field-group">
+                                <label className="field-label">Warranty Details</label>
+                                <input
+                                    type="text"
+                                    name="warranty"
+                                    value={formData.warranty}
+                                    onChange={handleChange}
+                                    placeholder="1 Year Official Distributor Warranty"
+                                    className="modern-field"
+                                />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>GPU</label><input type="text" name="gpu" value={formData.gpu} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
-                                <div><label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>OS</label><input type="text" name="os" value={formData.os} onChange={handleChange} style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }} /></div>
+
+                            <div className="divider-line"></div>
+
+                            <h3 className="subsection-title">Hardware Architecture</h3>
+
+                            <div className="field-row-2">
+                                <div className="field-group">
+                                    <label className="field-label">Processor (CPU)</label>
+                                    <input
+                                        type="text"
+                                        name="cpu"
+                                        value={formData.cpu}
+                                        onChange={handleChange}
+                                        placeholder="Intel Core i7-13700H"
+                                        className="modern-field"
+                                    />
+                                </div>
+                                <div className="field-group">
+                                    <label className="field-label">Memory (RAM)</label>
+                                    <input
+                                        type="text"
+                                        name="ram"
+                                        value={formData.ram}
+                                        onChange={handleChange}
+                                        placeholder="16GB DDR5 5200MHz"
+                                        className="modern-field"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="field-row-2">
+                                <div className="field-group">
+                                    <label className="field-label">Storage Capacity</label>
+                                    <input
+                                        type="text"
+                                        name="storage"
+                                        value={formData.storage}
+                                        onChange={handleChange}
+                                        placeholder="1TB NVMe PCIe 4.0 SSD"
+                                        className="modern-field"
+                                    />
+                                </div>
+                                <div className="field-group">
+                                    <label className="field-label">Display & Resolution</label>
+                                    <input
+                                        type="text"
+                                        name="display"
+                                        value={formData.display}
+                                        onChange={handleChange}
+                                        placeholder="14' 2.8K OLED 120Hz 500 nits"
+                                        className="modern-field"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="field-row-2">
+                                <div className="field-group">
+                                    <label className="field-label">Graphics Card (GPU)</label>
+                                    <input
+                                        type="text"
+                                        name="gpu"
+                                        value={formData.gpu}
+                                        onChange={handleChange}
+                                        placeholder="NVIDIA RTX 4060 8GB GDDR6"
+                                        className="modern-field"
+                                    />
+                                </div>
+                                <div className="field-group">
+                                    <label className="field-label">Operating System</label>
+                                    <input
+                                        type="text"
+                                        name="os"
+                                        value={formData.os}
+                                        onChange={handleChange}
+                                        placeholder="Windows 11 Pro Genuine"
+                                        className="modern-field"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        {/* RIGHT COLUMN: Images & Colors */}
-                        <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>Product Images</h2>
+                        {/* RIGHT COLUMN: Media & Variant Color Mapping */}
+                        <div className="column-card">
+                            <div className="card-section-header">
+                                <div className="section-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <polyline points="21 15 16 10 5 21" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 className="section-title">Visual Media & Finishes</h2>
+                                    <p className="section-desc">Manage multi-angle assets and map photos to specific finishes</p>
+                                </div>
+                            </div>
 
-                            {/* FILTER TABS */}
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+                            {/* Color Filter Tabs */}
+                            <div className="filter-tab-bar">
                                 <button
                                     type="button"
                                     onClick={() => setFilterColor('All')}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        borderRadius: '2rem',
-                                        fontSize: '0.875rem',
-                                        fontWeight: '600',
-                                        border: filterColor === 'All' ? '2px solid #374151' : '1px solid #e5e7eb',
-                                        background: filterColor === 'All' ? '#374151' : 'white',
-                                        color: filterColor === 'All' ? 'white' : '#6b7280',
-                                        cursor: 'pointer'
-                                    }}
+                                    className={`filter-pill ${filterColor === 'All' ? 'active-all' : ''}`}
                                 >
-                                    View All
+                                    All Images ({formData.images.length})
                                 </button>
-                                {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((c, i) => (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        onClick={() => setFilterColor(c)}
-                                        style={{
-                                            padding: '0.5rem 1rem',
-                                            borderRadius: '2rem',
-                                            fontSize: '0.875rem',
-                                            fontWeight: '600',
-                                            border: filterColor === c ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                                            background: filterColor === c ? '#eff6ff' : 'white',
-                                            color: filterColor === c ? '#1d4ed8' : '#6b7280',
-                                            cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', gap: '6px'
-                                        }}
-                                    >
-                                        <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: getAllColors().find(mc => mc.name.toLowerCase() === c.toLowerCase())?.hex || '#ccc' }}></span>
-                                        {c}
-                                    </button>
-                                ))}
+                                {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((colorName, idx) => {
+                                    const matchColor = getAllColors().find(mc => mc.name.toLowerCase() === colorName.toLowerCase());
+                                    const isActive = filterColor.toLowerCase() === colorName.toLowerCase();
+                                    return (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setFilterColor(colorName)}
+                                            className={`filter-pill ${isActive ? 'active-color' : ''}`}
+                                        >
+                                            <span
+                                                className="color-dot"
+                                                style={{ background: matchColor?.hex || '#94A3B8' }}
+                                            />
+                                            {colorName}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
-                            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1.5rem' }}>
-                                Showing {filterColor === 'All' ? 'all images' : `only ${filterColor} images`}.
-                                {filterColor !== 'All' && <strong> New images will accurately default to {filterColor}.</strong>}
-                            </p>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {/* Image Slots */}
+                            <div className="image-slots-list">
                                 {formData.images.map((img, index) => {
-                                    // FILTER logic
-                                    if (filterColor !== 'All' && img.color !== filterColor) return null;
+                                    if (filterColor !== 'All' && img.color?.toLowerCase() !== filterColor.toLowerCase()) {
+                                        return null;
+                                    }
 
                                     return (
-                                        <div key={index} style={{
-                                            border: '1px solid #e5e7eb',
-                                            borderRadius: '0.75rem',
-                                            padding: '1rem',
-                                            background: '#f9fafb',
-                                            display: 'grid',
-                                            gridTemplateColumns: '100px 1fr auto',
-                                            gap: '1rem',
-                                            alignItems: 'start'
-                                        }}>
-                                            {/* Image Preview */}
-                                            <div style={{
-                                                width: '100px',
-                                                height: '100px',
-                                                background: '#e5e7eb',
-                                                borderRadius: '0.5rem',
-                                                overflow: 'hidden',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                {img.preview ? (
-                                                    <img src={img.preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                ) : (
-                                                    <span style={{ fontSize: '2rem', color: '#9ca3af' }}>🖼️</span>
-                                                )}
+                                        <div key={index} className="image-slot-card">
+                                            {/* Preview Thumbnail */}
+                                            <div className="slot-preview-wrapper">
+                                                <img
+                                                    src={img.preview || '/placeholder.jpg'}
+                                                    alt="Laptop View"
+                                                    className="slot-preview-img"
+                                                    onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
+                                                />
+                                                <span className="role-tag">{getImageRole(index, img.color)}</span>
                                             </div>
 
-                                            {/* Inputs */}
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                                <div style={{ fontSize: '0.875rem', fontWeight: 'bold', color: '#111827' }}>
-                                                    {getImageRole(index, img.color)}
+                                            {/* Controls */}
+                                            <div className="slot-controls">
+                                                <div className="slot-file-row">
+                                                    <label className="file-upload-btn">
+                                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                            <polyline points="17 8 12 3 7 8" />
+                                                            <line x1="12" y1="3" x2="12" y2="15" />
+                                                        </svg>
+                                                        Upload Device File
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={(e) => handleImageChange(index, 'file', e.target.files[0])}
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                    </label>
+                                                    {img.file && (
+                                                        <span className="uploaded-file-name">
+                                                            ✓ {img.file.name}
+                                                        </span>
+                                                    )}
                                                 </div>
 
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleImageChange(index, 'file', e.target.files[0])}
-                                                    style={{ fontSize: '0.875rem', cursor: 'pointer' }}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Or paste Image URL"
-                                                    value={img.url}
-                                                    onChange={(e) => handleImageChange(index, 'url', e.target.value)}
-                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.4rem', fontSize: '0.875rem', cursor: 'text' }}
-                                                />
-                                                <div>
-                                                    <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#4b5563', display: 'block', marginBottom: '2px' }}>Show only for Color:</label>
+                                                <div className="field-group" style={{ marginBottom: 0 }}>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Or paste Direct Image CDN URL"
+                                                        value={img.url || (img.isExisting ? img.originalUrl : '')}
+                                                        onChange={(e) => handleImageChange(index, 'url', e.target.value)}
+                                                        className="modern-field compact-field"
+                                                    />
+                                                </div>
+
+                                                <div className="color-assign-row">
+                                                    <span className="color-assign-label">Display for Finish:</span>
                                                     <select
                                                         value={img.color || 'All'}
                                                         onChange={(e) => handleImageChange(index, 'color', e.target.value)}
-                                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.4rem', background: 'white', cursor: 'pointer' }}
+                                                        className="modern-select"
                                                     >
-                                                        <option value="All">All Colors (Always Visible)</option>
-                                                        {(formData.colors || '').split(',').map(c => c.trim()).filter(Boolean).map((c, i) => (
+                                                        <option value="All">All Finishes (Global Visibility)</option>
+                                                        {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((c, i) => (
                                                             <option key={i} value={c}>{c}</option>
                                                         ))}
                                                     </select>
                                                 </div>
                                             </div>
 
-                                            {/* Delete Button */}
+                                            {/* Delete Slot Button */}
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveImageSlot(index)}
-                                                style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.5rem' }}
-                                                title="Remove Image"
+                                                className="slot-remove-btn"
+                                                title="Remove this image slot"
                                             >
-                                                🗑️
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                </svg>
                                             </button>
                                         </div>
                                     );
                                 })}
                             </div>
 
+                            {/* Add Slot Button */}
                             <button
                                 type="button"
                                 onClick={handleAddImageSlot}
-                                style={{
-                                    width: '100%',
-                                    marginTop: '1.5rem',
-                                    padding: '0.75rem',
-                                    border: '2px dashed #3b82f6',
-                                    borderRadius: '0.75rem',
-                                    color: '#3b82f6',
-                                    fontWeight: '600',
-                                    background: '#eff6ff',
-                                    cursor: 'pointer'
-                                }}
+                                className="add-slot-btn"
                             >
-                                + Add Another Image
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                Add Another Image Angle
                             </button>
 
-                            {/* Color Tags */}
-                            <div style={{ marginTop: '2.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '1rem' }}>
-                                    Manage Available Colors (Click to add/remove)
-                                </label>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                                    {getAllColors().map((colorObj, idx) => {
-                                        const isSelected = formData.colors.split(',').map(c => c.trim().toLowerCase()).includes(colorObj.name.toLowerCase());
+                            <div className="divider-line"></div>
+
+                            {/* Color Palettes Section */}
+                            <div className="colors-management-box">
+                                <div className="colors-header-row">
+                                    <div>
+                                        <h3 className="subsection-title" style={{ margin: 0 }}>Available Finish Variants</h3>
+                                        <p className="section-desc">Toggle the color options buyers can select for this device</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCustomColorModal(true)}
+                                        className="btn-custom-color"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                        </svg>
+                                        Custom Color
+                                    </button>
+                                </div>
+
+                                <div className="color-swatches-grid">
+                                    {getAllColors().map((col, idx) => {
+                                        const isSelected = formData.colors
+                                            .split(',')
+                                            .map(c => c.trim().toLowerCase())
+                                            .includes(col.name.toLowerCase());
+
                                         return (
                                             <button
                                                 key={idx}
                                                 type="button"
-                                                onClick={() => toggleColor(colorObj.name)}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    padding: '6px 12px',
-                                                    borderRadius: '20px',
-                                                    border: isSelected ? '1px solid #3b82f6' : '1px solid #e5e7eb',
-                                                    background: isSelected ? '#eff6ff' : 'white',
-                                                    color: isSelected ? '#1d4ed8' : '#374151',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.875rem',
-                                                    transition: 'all 0.2s'
-                                                }}
+                                                onClick={() => toggleColor(col.name)}
+                                                className={`swatch-btn ${isSelected ? 'swatch-selected' : ''}`}
                                             >
-                                                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: colorObj.hex, border: '1px solid rgba(0,0,0,0.1)' }}></span>
-                                                {colorObj.name}
-                                                {isSelected && <span>✓</span>}
+                                                <span
+                                                    className="swatch-indicator"
+                                                    style={{ background: col.hex }}
+                                                />
+                                                <span className="swatch-name">{col.name}</span>
+                                                {isSelected && (
+                                                    <svg className="swatch-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                                        <polyline points="20 6 9 17 4 12" />
+                                                    </svg>
+                                                )}
                                             </button>
                                         );
                                     })}
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={saving}
-                                style={{
-                                    width: '100%',
-                                    background: saving ? '#9ca3af' : 'linear-gradient(135deg, #10b981, #059669)',
-                                    color: 'white',
-                                    padding: '1rem',
-                                    borderRadius: '0.5rem',
-                                    border: 'none',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    cursor: saving ? 'not-allowed' : 'pointer',
-                                    marginTop: '2rem',
-                                    boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                {saving ? '⌛ Saving Changes...' : '✅ Save All Changes'}
-                            </button>
+                            {/* Footer Submit Button inside the card */}
+                            <div className="card-footer-submit">
+                                <button
+                                    type="submit"
+                                    disabled={saving || loading}
+                                    className="btn-submit-large"
+                                >
+                                    {saving ? 'Saving Product...' : 'Commit & Save All Updates'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </form>
-
-                {/* Custom Color Button - Fixed Position */}
-                <button
-                    type="button"
-                    onClick={() => setShowCustomColorModal(true)}
-                    style={{
-                        position: 'fixed',
-                        bottom: '2rem',
-                        right: '2rem',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: 'white',
-                        padding: '1rem 1.5rem',
-                        borderRadius: '50px',
-                        border: 'none',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        boxShadow: '0 8px 20px rgba(102, 126, 234, 0.4)',
-                        zIndex: 1000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                    }}
-                >
-                    🎨 Add Custom Color
-                </button>
+                    </form>
+                )}
 
                 {/* Custom Color Modal */}
                 {showCustomColorModal && (
-                    <div style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0,0,0,0.7)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2000
-                    }}>
-                        <div style={{
-                            background: 'white',
-                            padding: '2rem',
-                            borderRadius: '1rem',
-                            maxWidth: '500px',
-                            width: '90%',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                                Add Custom Color
-                            </h2>
-                            <p style={{ color: '#6b7280', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-                                Add a custom color that's not in the predefined list. The color name will be displayed to users.
-                            </p>
+                    <div className="modal-backdrop">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <div className="section-icon-badge" style={{ width: '40px', height: '40px' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="modal-title">Define Custom Finish</h3>
+                                    <p className="section-desc">Create a proprietary tone for specialized device models</p>
+                                </div>
+                            </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
-                                    Color Name <span style={{ color: '#dc2626' }}>*</span>
-                                </label>
+                            <div className="field-group">
+                                <label className="field-label">Finish Name *</label>
                                 <input
                                     type="text"
                                     value={customColorName}
                                     onChange={(e) => setCustomColorName(e.target.value)}
-                                    placeholder="e.g., Midnight Blue, Rose Pink"
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.75rem',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '0.5rem',
-                                        fontSize: '1rem'
-                                    }}
+                                    placeholder="e.g., Titanium Sand, Alpine White"
+                                    className="modern-field"
                                 />
                             </div>
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
-                                    Color Code (Hex) <span style={{ color: '#dc2626' }}>*</span>
-                                </label>
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div className="field-group">
+                                <label className="field-label">Hex Shade Swatch *</label>
+                                <div className="color-picker-row">
                                     <input
                                         type="color"
                                         value={customColorHex}
                                         onChange={(e) => setCustomColorHex(e.target.value)}
-                                        style={{
-                                            width: '60px',
-                                            height: '60px',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '0.5rem',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="native-color-picker"
                                     />
                                     <input
                                         type="text"
                                         value={customColorHex}
                                         onChange={(e) => setCustomColorHex(e.target.value)}
-                                        placeholder="#000000"
-                                        style={{
-                                            flex: 1,
-                                            padding: '0.75rem',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '1rem',
-                                            fontFamily: 'monospace'
-                                        }}
+                                        className="modern-field"
+                                        style={{ fontFamily: 'monospace' }}
                                     />
                                 </div>
-                                <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                                    Note: The hex code will not be shown to users, only the color name
-                                </p>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem' }}>
+                            <div className="modal-actions">
                                 <button
-                                    onClick={() => {
-                                        setShowCustomColorModal(false);
-                                        setCustomColorName('');
-                                        setCustomColorHex('#000000');
-                                    }}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.75rem',
-                                        background: '#f3f4f6',
-                                        color: '#374151',
-                                        border: 'none',
-                                        borderRadius: '0.5rem',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
+                                    type="button"
+                                    onClick={() => setShowCustomColorModal(false)}
+                                    className="btn-secondary"
+                                    style={{ flex: 1 }}
                                 >
                                     Cancel
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={handleAddCustomColor}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.75rem',
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '0.5rem',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
+                                    className="btn-primary"
+                                    style={{ flex: 1 }}
                                 >
                                     Add Color
                                 </button>
@@ -705,6 +860,723 @@ export default function EditProduct() {
                         </div>
                     </div>
                 )}
+
+                <style jsx>{`
+                    .edit-container {
+                        max-width: 1320px;
+                        margin: 0 auto;
+                        padding: 36px 24px 80px;
+                        background: var(--bg-canvas, #F7F8FA);
+                        min-height: calc(100vh - 80px);
+                    }
+
+                    .edit-header {
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: space-between;
+                        gap: 24px;
+                        margin-bottom: 28px;
+                        flex-wrap: wrap;
+                    }
+
+                    .header-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .back-link {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 0.85rem;
+                        font-weight: 700;
+                        color: #64748B;
+                        text-decoration: none;
+                        transition: color 0.15s ease;
+                        margin-bottom: 4px;
+                    }
+
+                    .back-link:hover {
+                        color: #0866FF;
+                    }
+
+                    .badge-tag {
+                        display: inline-block;
+                        font-size: 0.68rem;
+                        font-weight: 800;
+                        color: #0866FF;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        background: rgba(8, 102, 255, 0.08);
+                        padding: 3px 10px;
+                        border-radius: 9999px;
+                        margin-bottom: 8px;
+                    }
+
+                    .page-title {
+                        font-size: 2.1rem;
+                        font-weight: 850;
+                        color: #080808;
+                        letter-spacing: -0.03em;
+                        margin: 0;
+                    }
+
+                    .page-subtitle {
+                        font-size: 0.92rem;
+                        color: #64748B;
+                        margin: 4px 0 0 0;
+                    }
+
+                    .header-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+
+                    .btn-secondary {
+                        background: #FFFFFF;
+                        color: #0F172A;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 9999px;
+                        padding: 11px 20px;
+                        font-size: 0.88rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .btn-secondary:hover:not(:disabled) {
+                        border-color: #0866FF;
+                        color: #0866FF;
+                        background: #F8FAFC;
+                    }
+
+                    .btn-primary {
+                        background: #0B0B0D;
+                        color: #FFFFFF;
+                        border: none;
+                        border-radius: 9999px;
+                        padding: 12px 24px;
+                        font-size: 0.92rem;
+                        font-weight: 750;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+                        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .btn-primary:hover:not(:disabled) {
+                        background: #0866FF;
+                        box-shadow: 0 10px 28px rgba(8, 102, 255, 0.32);
+                        transform: translateY(-1px);
+                    }
+
+                    .btn-primary:disabled, .btn-secondary:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+
+                    .btn-spinner {
+                        width: 14px;
+                        height: 14px;
+                        border: 2px solid rgba(255, 255, 255, 0.3);
+                        border-top-color: #FFFFFF;
+                        border-radius: 50%;
+                        animation: spin 0.8s linear infinite;
+                    }
+
+                    .alert-box {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 14px 20px;
+                        border-radius: 16px;
+                        font-size: 0.9rem;
+                        font-weight: 600;
+                        margin-bottom: 24px;
+                    }
+
+                    .alert-error {
+                        background: #FEF2F2;
+                        color: #991B1B;
+                        border: 1px solid #FECACA;
+                    }
+
+                    .alert-success {
+                        background: #ECFDF5;
+                        color: #065F46;
+                        border: 1px solid #A7F3D0;
+                    }
+
+                    .loading-skeleton {
+                        text-align: center;
+                        padding: 80px 20px;
+                        background: #FFFFFF;
+                        border-radius: 28px;
+                        border: 1px solid #E2E8F0;
+                        color: #64748B;
+                    }
+
+                    .spinner-large {
+                        width: 44px;
+                        height: 44px;
+                        border: 3px solid #E2E8F0;
+                        border-top-color: #0866FF;
+                        border-radius: 50%;
+                        animation: spin 0.9s linear infinite;
+                        margin: 0 auto 16px;
+                    }
+
+                    .edit-form-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 28px;
+                    }
+
+                    .column-card {
+                        background: #FFFFFF;
+                        border: 1px solid rgba(0, 0, 0, 0.07);
+                        border-radius: 28px;
+                        padding: 36px 32px;
+                        box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .card-section-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        margin-bottom: 28px;
+                    }
+
+                    .section-icon-badge {
+                        width: 46px;
+                        height: 46px;
+                        border-radius: 14px;
+                        background: #F1F5F9;
+                        color: #0B0B0D;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                    }
+
+                    .section-title {
+                        font-size: 1.35rem;
+                        font-weight: 800;
+                        color: #080808;
+                        margin: 0 0 2px 0;
+                        letter-spacing: -0.02em;
+                    }
+
+                    .section-desc {
+                        font-size: 0.85rem;
+                        color: #64748B;
+                        margin: 0;
+                    }
+
+                    .subsection-title {
+                        font-size: 1.05rem;
+                        font-weight: 800;
+                        color: #080808;
+                        margin: 8px 0 16px 0;
+                        letter-spacing: -0.01em;
+                    }
+
+                    .field-group {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+                        margin-bottom: 18px;
+                    }
+
+                    .field-row-2 {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 16px;
+                    }
+
+                    .field-label {
+                        font-size: 0.78rem;
+                        font-weight: 750;
+                        color: #334155;
+                        text-transform: uppercase;
+                        letter-spacing: 0.04em;
+                    }
+
+                    .modern-field {
+                        width: 100%;
+                        background: #F8FAFC;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 14px;
+                        padding: 12px 16px;
+                        font-size: 0.92rem;
+                        color: #0F172A;
+                        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+                        outline: none;
+                        font-family: inherit;
+                    }
+
+                    .modern-field:focus {
+                        background: #FFFFFF;
+                        border-color: #0866FF;
+                        box-shadow: 0 0 0 4px rgba(8, 102, 255, 0.12);
+                    }
+
+                    .compact-field {
+                        padding: 9px 14px;
+                        font-size: 0.85rem;
+                    }
+
+                    .textarea-field {
+                        resize: vertical;
+                        min-height: 96px;
+                        line-height: 1.5;
+                    }
+
+                    .input-prefix-wrapper {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .input-prefix {
+                        position: absolute;
+                        left: 14px;
+                        font-size: 0.82rem;
+                        font-weight: 800;
+                        color: #64748B;
+                        pointer-events: none;
+                    }
+
+                    .field-with-prefix {
+                        padding-left: 54px;
+                    }
+
+                    .divider-line {
+                        height: 1px;
+                        background: #F1F5F9;
+                        margin: 24px 0 20px;
+                    }
+
+                    /* Filter Pills */
+                    .filter-tab-bar {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        flex-wrap: wrap;
+                        margin-bottom: 20px;
+                    }
+
+                    .filter-pill {
+                        background: #F8FAFC;
+                        border: 1.5px solid #E2E8F0;
+                        color: #64748B;
+                        border-radius: 9999px;
+                        padding: 6px 14px;
+                        font-size: 0.82rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.15s ease;
+                    }
+
+                    .filter-pill:hover {
+                        border-color: #CBD5E1;
+                        color: #0F172A;
+                    }
+
+                    .filter-pill.active-all {
+                        background: #0B0B0D;
+                        color: #FFFFFF;
+                        border-color: #0B0B0D;
+                    }
+
+                    .filter-pill.active-color {
+                        background: rgba(8, 102, 255, 0.08);
+                        color: #0866FF;
+                        border-color: #0866FF;
+                    }
+
+                    .color-dot {
+                        width: 9px;
+                        height: 9px;
+                        border-radius: 50%;
+                        border: 1px solid rgba(0, 0, 0, 0.12);
+                    }
+
+                    /* Image Slots */
+                    .image-slots-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                        margin-bottom: 16px;
+                    }
+
+                    .image-slot-card {
+                        background: #F8FAFC;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 20px;
+                        padding: 16px;
+                        display: grid;
+                        grid-template-columns: 100px 1fr auto;
+                        gap: 16px;
+                        align-items: start;
+                        transition: border-color 0.18s ease;
+                    }
+
+                    .image-slot-card:hover {
+                        border-color: #CBD5E1;
+                    }
+
+                    .slot-preview-wrapper {
+                        width: 100px;
+                        height: 100px;
+                        border-radius: 14px;
+                        background: #FFFFFF;
+                        border: 1px solid #E2E8F0;
+                        overflow: hidden;
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .slot-preview-img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+
+                    .role-tag {
+                        position: absolute;
+                        bottom: 4px;
+                        left: 4px;
+                        right: 4px;
+                        background: rgba(11, 11, 13, 0.78);
+                        color: #FFFFFF;
+                        font-size: 0.6rem;
+                        font-weight: 750;
+                        padding: 2px 4px;
+                        border-radius: 6px;
+                        text-align: center;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        backdrop-filter: blur(4px);
+                    }
+
+                    .slot-controls {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+
+                    .slot-file-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                    }
+
+                    .file-upload-btn {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        background: #FFFFFF;
+                        border: 1.5px solid #CBD5E1;
+                        border-radius: 9999px;
+                        padding: 6px 14px;
+                        font-size: 0.78rem;
+                        font-weight: 750;
+                        color: #334155;
+                        cursor: pointer;
+                        transition: all 0.15s ease;
+                    }
+
+                    .file-upload-btn:hover {
+                        border-color: #0866FF;
+                        color: #0866FF;
+                    }
+
+                    .uploaded-file-name {
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        color: #059669;
+                    }
+
+                    .color-assign-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+
+                    .color-assign-label {
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        color: #64748B;
+                        white-space: nowrap;
+                    }
+
+                    .modern-select {
+                        background: #FFFFFF;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 12px;
+                        padding: 7px 12px;
+                        font-size: 0.82rem;
+                        color: #0F172A;
+                        font-weight: 600;
+                        outline: none;
+                        cursor: pointer;
+                        width: 100%;
+                    }
+
+                    .slot-remove-btn {
+                        background: transparent;
+                        border: none;
+                        color: #94A3B8;
+                        cursor: pointer;
+                        padding: 6px;
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.15s ease;
+                    }
+
+                    .slot-remove-btn:hover {
+                        color: #EF4444;
+                        background: #FEE2E2;
+                    }
+
+                    .add-slot-btn {
+                        width: 100%;
+                        background: #FFFFFF;
+                        border: 2px dashed #CBD5E1;
+                        border-radius: 18px;
+                        padding: 14px;
+                        color: #0866FF;
+                        font-size: 0.88rem;
+                        font-weight: 750;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        cursor: pointer;
+                        transition: all 0.18s ease;
+                    }
+
+                    .add-slot-btn:hover {
+                        border-color: #0866FF;
+                        background: rgba(8, 102, 255, 0.04);
+                    }
+
+                    /* Colors Management */
+                    .colors-management-box {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 14px;
+                    }
+
+                    .colors-header-row {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 12px;
+                    }
+
+                    .btn-custom-color {
+                        background: #F1F5F9;
+                        color: #0F172A;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 9999px;
+                        padding: 6px 14px;
+                        font-size: 0.78rem;
+                        font-weight: 750;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.15s ease;
+                    }
+
+                    .btn-custom-color:hover {
+                        background: #E2E8F0;
+                        color: #0866FF;
+                    }
+
+                    .color-swatches-grid {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                    }
+
+                    .swatch-btn {
+                        background: #FFFFFF;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 9999px;
+                        padding: 7px 14px;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 0.82rem;
+                        font-weight: 650;
+                        color: #334155;
+                        cursor: pointer;
+                        transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+
+                    .swatch-btn:hover {
+                        border-color: #CBD5E1;
+                    }
+
+                    .swatch-btn.swatch-selected {
+                        border-color: #0866FF;
+                        background: rgba(8, 102, 255, 0.06);
+                        color: #0866FF;
+                        font-weight: 750;
+                    }
+
+                    .swatch-indicator {
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        border: 1px solid rgba(0, 0, 0, 0.12);
+                    }
+
+                    .swatch-check {
+                        color: #0866FF;
+                    }
+
+                    .card-footer-submit {
+                        margin-top: 32px;
+                        padding-top: 20px;
+                        border-top: 1px solid #F1F5F9;
+                    }
+
+                    .btn-submit-large {
+                        width: 100%;
+                        background: #0B0B0D;
+                        color: #FFFFFF;
+                        border: none;
+                        border-radius: 9999px;
+                        padding: 15px 24px;
+                        font-size: 0.98rem;
+                        font-weight: 800;
+                        cursor: pointer;
+                        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+                    }
+
+                    .btn-submit-large:hover:not(:disabled) {
+                        background: #0866FF;
+                        box-shadow: 0 12px 32px rgba(8, 102, 255, 0.32);
+                        transform: translateY(-1px);
+                    }
+
+                    .btn-submit-large:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+
+                    /* Modal */
+                    .modal-backdrop {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(11, 11, 13, 0.6);
+                        backdrop-filter: blur(8px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 1000;
+                        padding: 20px;
+                    }
+
+                    .modal-content {
+                        background: #FFFFFF;
+                        border-radius: 28px;
+                        padding: 32px;
+                        max-width: 440px;
+                        width: 100%;
+                        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .modal-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        margin-bottom: 24px;
+                    }
+
+                    .modal-title {
+                        font-size: 1.25rem;
+                        font-weight: 800;
+                        color: #080808;
+                        margin: 0 0 2px 0;
+                    }
+
+                    .color-picker-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+
+                    .native-color-picker {
+                        width: 52px;
+                        height: 48px;
+                        border: 1.5px solid #E2E8F0;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        background: transparent;
+                        padding: 2px;
+                    }
+
+                    .modal-actions {
+                        display: flex;
+                        gap: 12px;
+                        margin-top: 24px;
+                    }
+
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+
+                    @media (max-width: 960px) {
+                        .edit-form-grid {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .edit-container {
+                            padding: 24px 16px 60px;
+                        }
+
+                        .column-card {
+                            padding: 24px 20px;
+                            border-radius: 24px;
+                        }
+
+                        .image-slot-card {
+                            grid-template-columns: 80px 1fr auto;
+                        }
+
+                        .slot-preview-wrapper {
+                            width: 80px;
+                            height: 80px;
+                        }
+                    }
+                `}</style>
             </div>
         </ClientLayout>
     );

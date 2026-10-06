@@ -1,63 +1,70 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
+import { createOtpChallenge } from '@/lib/otp';
+import { sendPasswordResetOtpEmail } from '@/lib/mailer';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimiter';
 
 export async function POST(request) {
-    try {
-        const { email, dob } = await request.json();
+  try {
+    const ip = getClientIp(request);
 
-        if (!email || !dob) {
-            return NextResponse.json(
-                { message: 'Email and date of birth are required' },
-                { status: 400 }
-            );
-        }
-
-        await dbConnect();
-
-        // Find user by email
-        const user = await User.findOne({ email: email.toLowerCase() });
-
-        if (!user) {
-            return NextResponse.json(
-                { message: 'No account found with this email' },
-                { status: 404 }
-            );
-        }
-
-        // Verify DOB
-        const userDob = new Date(user.dob).toISOString().split('T')[0];
-        const providedDob = new Date(dob).toISOString().split('T')[0];
-
-        if (userDob !== providedDob) {
-            return NextResponse.json(
-                { message: 'Date of birth does not match our records' },
-                { status: 401 }
-            );
-        }
-
-        // Generate a temporary reset token (valid for 15 minutes)
-        const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        const resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-        // Store reset token in user document (you may want to add these fields to schema)
-        user.resetToken = resetToken;
-        user.resetTokenExpiry = resetTokenExpiry;
-        await user.save();
-
-        return NextResponse.json({
-            success: true,
-            message: 'Identity verified. You can now reset your password.',
-            resetToken,
-            userId: user._id
-        });
-
-    } catch (error) {
-        console.error('Forgot password error:', error);
-        return NextResponse.json(
-            { message: 'Internal server error' },
-            { status: 500 }
-        );
+    // Rate limiting: max 5 forgot-password requests per 15 min per IP
+    const rateLimit = checkRateLimit(`forgot-password:ip:${ip}`, 5, 900);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Too many password reset requests. Please wait a few minutes before trying again.'
+        },
+        { status: 429 }
+      );
     }
+
+    const body = await request.json();
+    const { email } = body;
+
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json(
+        { success: false, message: 'Email address is required.' },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    await dbConnect();
+
+    // Check if user exists (without revealing status to the client)
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (user) {
+      // Generate OTP challenge for password reset
+      const { rawOtp, expiryMinutes } = await createOtpChallenge({
+        email: normalizedEmail,
+        purpose: 'password_reset',
+      });
+
+      // Send password reset email via SMTP
+      await sendPasswordResetOtpEmail({
+        to: normalizedEmail,
+        otp: rawOtp,
+        expiryMinutes,
+      });
+    }
+
+    // Generic safe response to defend against user enumeration
+    return NextResponse.json({
+      success: true,
+      message: 'If an account exists for this email, a verification code has been sent.',
+      email: normalizedEmail,
+    });
+
+  } catch (error) {
+    console.error('Forgot password processing error:', error.message);
+    return NextResponse.json(
+      { success: false, message: 'An error occurred while processing your request. Please try again.' },
+      { status: 500 }
+    );
+  }
 }

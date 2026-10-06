@@ -3,14 +3,37 @@ import dbConnect from '@/lib/mongodb';
 import ProductModel from '@/models/ProductModel';
 import Discount from '@/models/Discount';
 
+// In-memory cache for fast sub-10ms responses
+let cachedProductsData = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+
+export function invalidateProductsCache() {
+    cachedProductsData = null;
+    lastCacheTime = 0;
+}
+
 // GET - Fetch all products (public endpoint) with active discounts
 export async function GET(request) {
     try {
+        const now = Date.now();
+        if (cachedProductsData && (now - lastCacheTime < CACHE_TTL_MS)) {
+            return NextResponse.json({ products: cachedProductsData }, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+                    'X-Cache': 'HIT',
+                }
+            });
+        }
+
         await dbConnect();
 
-        // Fetch products and active discounts in parallel
+        // Fetch products and active discounts in parallel with lean projection
         const [products, activeDiscounts] = await Promise.all([
-            ProductModel.find({}).sort({ createdAt: -1 }).lean(),
+            ProductModel.find({})
+                .select('name description price comparePrice image images specs brand category warranty stock ratings createdAt')
+                .sort({ createdAt: -1 })
+                .lean(),
             Discount.find({
                 isActive: true,
                 startDate: { $lte: new Date() },
@@ -81,10 +104,15 @@ export async function GET(request) {
             };
         });
 
+        // Save to in-memory cache
+        cachedProductsData = productsData;
+        lastCacheTime = Date.now();
+
         // Add caching headers for better performance
         return NextResponse.json({ products: productsData }, {
             headers: {
                 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+                'X-Cache': 'MISS',
             }
         });
     } catch (error) {

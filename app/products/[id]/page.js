@@ -1,599 +1,902 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import React, { useState, useEffect, useMemo, use } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import styles from './ProductDetail.module.css';
+import { useToast } from '@/components/Toast';
+import ClientLayout from '@/app/ClientLayout';
 
-const MASTER_COLORS = [
-  { name: 'Space Grey', hex: '#53565a' },
-  { name: 'Silver', hex: '#c0c0c0' },
-  { name: 'Midnight', hex: '#191970' },
-  { name: 'Starlight', hex: '#f0ead6' },
-  { name: 'Gold', hex: '#ffd700' },
-  { name: 'Rose Gold', hex: '#b76e79' },
-  { name: 'Graphite', hex: '#41424c' },
-  { name: 'Black', hex: '#1c1c1c' },
-  { name: 'White', hex: '#f5f5f7' },
-  { name: 'Blue', hex: '#007aff' }
-];
+export default function ProductDetailPage({ params }) {
+  const unwrappedParams = use(params);
+  const id = unwrappedParams?.id;
 
-export default function ProductDetail() {
-  const params = useParams();
   const [product, setProduct] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [notification, setNotification] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [thumbsLoaded, setThumbsLoaded] = useState({});
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [selectedColor, setSelectedColor] = useState('');
-  const mainImageRef = useRef(null);
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
 
+  const { user } = useAuth();
+  const { addToast } = useToast();
   const router = useRouter();
-  const { user, token, loading: authLoading } = useAuth();
 
-  const isAuthenticated = !!(user && token);
-  const id = params?.id;
-
-  // Fetch product from MongoDB
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchDetail() {
       if (!id) return;
-
       try {
-        const response = await fetch(`/api/products/${id}`);
-        const data = await response.json();
-        console.log('Product API Response:', { status: response.status, hasProduct: !!data.product, data });
-
-        if (response.ok && data.product) {
-          setProduct(data.product);
-          if (data.product.colors && Array.isArray(data.product.colors) && data.product.colors.length > 0) {
-            setSelectedColor(data.product.colors[0]);
-          } else if (data.product.colors && typeof data.product.colors === 'string') {
-            // Handle case where colors might come as string
-            const cols = data.product.colors.split(',').map(c => c.trim()).filter(Boolean);
-            if (cols.length > 0) setSelectedColor(cols[0]);
+        setLoading(true);
+        const res = await fetch(`/api/products/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.product) {
+            setProduct(data.product);
+            if (data.product.colors?.length > 0) {
+              setSelectedColor(data.product.colors[0]);
+            }
+          } else {
+            setError('Product not found');
           }
-          console.log('Processed colors:', data.product.colors, 'Initial selected:', selectedColor);
         } else {
-          console.error('Product not found:', data.error || 'No product in response');
+          setError('Product does not exist or has been removed');
         }
-      } catch (error) {
-        console.error('Error fetching product:', error);
+      } catch {
+        setError('Error retrieving product data');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     }
-
-    fetchProduct();
+    fetchDetail();
   }, [id]);
 
-  // Reset image selection when color changes
-  useEffect(() => {
-    setSelectedImage(0);
-  }, [selectedColor]);
-
-  // Memoize image gallery - filter by selected color if applicable
+  // Gallery compilation
   const gallery = useMemo(() => {
     if (!product) return [];
-
-    const uniqueImages = new Set();
-    // Combine main image and images array
-    const allImages = [];
-    if (product.image) allImages.push(product.image);
-    if (product.images && Array.isArray(product.images)) {
+    const list = [];
+    if (product.image) list.push(product.image);
+    if (Array.isArray(product.images)) {
       product.images.forEach(img => {
-        if (img && !allImages.includes(img)) allImages.push(img);
+        if (img && !list.includes(img)) list.push(img);
       });
     }
+    return list.map(img => (img.startsWith('http') || img.startsWith('/') ? img : `/${img}`));
+  }, [product]);
 
-    const colorMap = product.imageColorMap || [];
+  const activeImage = gallery[selectedImageIdx] || '/placeholder.jpg';
+  const specs = product?.specs || {};
 
-    allImages.forEach((img) => {
-      const mapping = colorMap.find(m => m.url === img);
+  const handleAddToCart = () => {
+    if (!user) {
+      addToast('Please sign in to add items to your cart', 'info');
+      router.push(`/auth/login?redirect=/products/${id}`);
+      return;
+    }
 
-      // If a color is selected, hide images mapped to OTHER colors
-      if (selectedColor && mapping && mapping.color && mapping.color !== 'All') {
-        if (mapping.color.toLowerCase() !== selectedColor.toLowerCase()) {
-          return; // Skip this image
-        }
+    setAddingToCart(true);
+    try {
+      const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const itemIndex = existingCart.findIndex(item => (item.id || item._id) === id);
+
+      const price = product.discountedPrice || product.price;
+
+      if (itemIndex > -1) {
+        existingCart[itemIndex].quantity = (existingCart[itemIndex].quantity || 1) + quantity;
+        if (selectedColor) existingCart[itemIndex].selectedColor = selectedColor;
+      } else {
+        existingCart.push({
+          id,
+          _id: id,
+          name: product.name,
+          price,
+          originalPrice: product.price,
+          image: activeImage,
+          quantity,
+          selectedColor,
+          brand: product.brand,
+          category: product.category
+        });
       }
 
-      uniqueImages.add(img);
-    });
-
-    const result = Array.from(uniqueImages)
-      .map(img => img.startsWith('/') || img.startsWith('http') ? img : `/${img}`);
-
-    return result.length > 0 ? result : (product.image ? [product.image.startsWith('/') || product.image.startsWith('http') ? product.image : `/${product.image}`] : []);
-  }, [product, selectedColor]);
-
-  // Show notification
-  const showNotification = useCallback((message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
-  }, []);
-
-  // Require authentication
-  const requireAuth = useCallback((actionCallback) => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return false;
+      localStorage.setItem('cart', JSON.stringify(existingCart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      addToast(`Added ${quantity}x "${product.name}" to cart`, 'success');
+    } catch {
+      addToast('Could not add to cart. Try again.', 'error');
+    } finally {
+      setTimeout(() => setAddingToCart(false), 300);
     }
-    return actionCallback();
-  }, [isAuthenticated]);
+  };
 
-  // Handle Add to Cart
-  const handleAddToCart = useCallback(async () => {
-    return requireAuth(async () => {
-      if (isAddingToCart) return;
+  const handleBuyNow = () => {
+    handleAddToCart();
+    router.push('/cart');
+  };
 
-      setIsAddingToCart(true);
+  if (loading) {
+    return (
+      <ClientLayout>
+        <div className="detail-loading-screen">
+          <div className="spinner"></div>
+          <p>Loading laptop details...</p>
+        </div>
+      </ClientLayout>
+    );
+  }
 
-      try {
-        let cart = [];
-        const cartKey = user?.id ? `cart_${user.id}` : 'cart';
-        const storedCart = localStorage.getItem(cartKey);
+  if (error || !product) {
+    return (
+      <ClientLayout>
+        <div className="detail-error-screen">
+          <span className="error-icon">⚠️</span>
+          <h2>Product Not Found</h2>
+          <p>{error || 'The requested model could not be found in our inventory.'}</p>
+          <Link href="/products" className="back-catalog-btn">
+            ← Return to Products
+          </Link>
+        </div>
+      </ClientLayout>
+    );
+  }
 
-        if (storedCart && storedCart !== 'null' && storedCart !== 'undefined') {
-          try {
-            cart = JSON.parse(storedCart);
-            if (!Array.isArray(cart)) cart = [];
-          } catch (e) {
-            cart = [];
+  const effectivePrice = product.discountedPrice || product.price;
+
+  return (
+    <ClientLayout>
+      <div className="product-detail-root">
+        {/* Breadcrumb Navigation */}
+        <div className="breadcrumb-nav">
+          <div className="nav-inner">
+            <Link href="/">Home</Link>
+            <span>/</span>
+            <Link href="/products">Products</Link>
+            <span>/</span>
+            <span className="current-crumb">{product.name}</span>
+          </div>
+        </div>
+
+        <div className="detail-container">
+          <div className="detail-grid">
+            {/* Left Column: Visual Gallery */}
+            <div className="gallery-column">
+              <div className="main-image-viewport">
+                {product.discountBadge && (
+                  <span className="discount-tag">{product.discountBadge}</span>
+                )}
+                <img
+                  src={activeImage}
+                  alt={product.name}
+                  className="main-showcase-image"
+                  onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
+                />
+              </div>
+
+              {/* Thumbnails Row */}
+              {gallery.length > 1 && (
+                <div className="thumbnails-row">
+                  {gallery.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIdx(idx)}
+                      className={`thumb-btn ${selectedImageIdx === idx ? 'active' : ''}`}
+                    >
+                      <img src={img} alt={`Angle ${idx + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Trust Badges */}
+              <div className="trust-pills-card">
+                <div className="trust-pill-item">
+                  <span className="pill-icon">🛡️</span>
+                  <div>
+                    <strong>1-Year UAE Warranty</strong>
+                    <p>Official manufacturer warranty coverage</p>
+                  </div>
+                </div>
+                <div className="trust-pill-item">
+                  <span className="pill-icon">🚚</span>
+                  <div>
+                    <strong>Express Delivery</strong>
+                    <p>Same-day dispatch across Dubai & Emirates</p>
+                  </div>
+                </div>
+                <div className="trust-pill-item">
+                  <span className="pill-icon">📦</span>
+                  <div>
+                    <strong>Factory Sealed</strong>
+                    <p>100% Brand new original packaging</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Specifications & Purchasing Controls */}
+            <div className="info-column">
+              <div className="brand-category-header">
+                <span className="brand-chip">{product.brand || 'Premium Laptop'}</span>
+                <span className="category-chip">{product.category || 'High Performance'}</span>
+              </div>
+
+              <h1 className="product-title">{product.name}</h1>
+              <p className="product-short-desc">{product.description}</p>
+
+              {/* Pricing Block */}
+              <div className="pricing-card">
+                <div className="price-row">
+                  <div className="price-main">
+                    <span className="currency">AED</span>
+                    <span className="amount">{Number(effectivePrice).toLocaleString()}</span>
+                  </div>
+                  {product.discountedPrice && (
+                    <div className="price-strike">
+                      AED {Number(product.price).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+                <div className="tax-delivery-note">
+                  Inclusive of all UAE taxes • Free delivery for orders over AED 5,000
+                </div>
+              </div>
+
+              {/* Color Variant Selector */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="variants-section">
+                  <label className="variant-label">
+                    Color Variant: <strong>{selectedColor}</strong>
+                  </label>
+                  <div className="color-swatches">
+                    {product.colors.map((c, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedColor(c)}
+                        className={`color-btn ${selectedColor === c ? 'active' : ''}`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quantity Stepper & Action Buttons */}
+              <div className="purchase-action-block">
+                <div className="quantity-stepper">
+                  <button
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="step-btn"
+                    disabled={quantity <= 1}
+                  >
+                    −
+                  </button>
+                  <span className="qty-value">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(q => q + 1)}
+                    className="step-btn"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="add-to-cart-btn"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                  <span>{addingToCart ? 'Adding...' : 'Add to Cart'}</span>
+                </button>
+
+                <button onClick={handleBuyNow} className="buy-now-btn">
+                  Buy Now →
+                </button>
+              </div>
+
+              {/* Direct WhatsApp Consultation Button */}
+              <a
+                href={`https://wa.me/971509550121?text=${encodeURIComponent(`Hello Al Mukammal, I have questions about the "${product.name}" (AED ${Number(effectivePrice).toLocaleString()}). Is it in stock in your Dubai showroom?`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="whatsapp-inquire-btn"
+              >
+                <span>💬 Ask Sales Specialist on WhatsApp</span>
+              </a>
+
+              {/* Technical Specifications Table */}
+              <div className="specs-table-card">
+                <h3 className="specs-card-title">Technical Specifications</h3>
+                <div className="specs-grid">
+                  {specs.cpu && (
+                    <div className="spec-row">
+                      <span className="spec-key">Processor (CPU)</span>
+                      <span className="spec-val">{specs.cpu}</span>
+                    </div>
+                  )}
+                  {specs.ram && (
+                    <div className="spec-row">
+                      <span className="spec-key">Memory (RAM)</span>
+                      <span className="spec-val">{specs.ram}</span>
+                    </div>
+                  )}
+                  {specs.gpu && (
+                    <div className="spec-row">
+                      <span className="spec-key">Graphics (GPU)</span>
+                      <span className="spec-val">{specs.gpu}</span>
+                    </div>
+                  )}
+                  {specs.storage && (
+                    <div className="spec-row">
+                      <span className="spec-key">Storage (SSD)</span>
+                      <span className="spec-val">{specs.storage}</span>
+                    </div>
+                  )}
+                  {specs.display && (
+                    <div className="spec-row">
+                      <span className="spec-key">Display</span>
+                      <span className="spec-val">{specs.display}</span>
+                    </div>
+                  )}
+                  {specs.battery && (
+                    <div className="spec-row">
+                      <span className="spec-key">Battery Life</span>
+                      <span className="spec-val">{specs.battery}</span>
+                    </div>
+                  )}
+                  {specs.os && (
+                    <div className="spec-row">
+                      <span className="spec-key">Operating System</span>
+                      <span className="spec-val">{specs.os}</span>
+                    </div>
+                  )}
+                  <div className="spec-row">
+                    <span className="spec-key">Warranty</span>
+                    <span className="spec-val">{product.warranty || '1 Year Manufacturer Warranty'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .product-detail-root {
+          min-height: 100vh;
+          background: var(--bg-default, #ffffff);
+          color: var(--text-primary, #080808);
+          padding-bottom: 6rem;
+        }
+
+        .breadcrumb-nav {
+          padding: 1.25rem 1.5rem;
+          background: #f7f8fa;
+          border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+        }
+
+        .nav-inner {
+          max-width: var(--container-max, 1280px);
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-size: 0.88rem;
+          color: var(--text-secondary, #5f6368);
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+
+        .nav-inner a {
+          color: var(--text-secondary, #5f6368);
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+
+        .nav-inner a:hover {
+          color: var(--text-primary, #080808);
+        }
+
+        .current-crumb {
+          color: var(--text-primary, #080808);
+          font-weight: 600;
+        }
+
+        .detail-container {
+          max-width: var(--container-max, 1280px);
+          margin: 3rem auto 0;
+          padding: 0 1.5rem;
+        }
+
+        .detail-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+        }
+
+        @media (max-width: 960px) {
+          .detail-grid {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
           }
         }
 
-        const existingItemIndex = cart.findIndex(item => item.id === product.id || item.id === product._id);
-
-        if (existingItemIndex !== -1) {
-          cart[existingItemIndex].quantity += quantity;
-        } else {
-          cart.push({
-            id: product.id || product._id,
-            name: product.name,
-            price: product.price,
-            image: gallery[0],
-            quantity: quantity,
-            color: selectedColor,
-            userId: user?.id
-          });
+        /* Gallery Column */
+        .gallery-column {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
         }
 
-        localStorage.setItem(cartKey, JSON.stringify(cart));
-        window.dispatchEvent(new Event('cartUpdated'));
+        .main-image-viewport {
+          position: relative;
+          width: 100%;
+          height: 480px;
+          background: #f7f8fa;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2.5rem;
+          overflow: hidden;
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+        }
 
-        showNotification(`${product.name} added to cart!`);
-      } catch (error) {
-        console.error('Error adding to cart:', error);
-        showNotification('Failed to add item to cart. Please try again.', 'error');
-      } finally {
-        setIsAddingToCart(false);
-      }
-    });
-  }, [product, quantity, gallery, showNotification, isAddingToCart, user, requireAuth]);
+        .main-showcase-image {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-  // Handle Buy Now
-  const handleBuyNow = useCallback(async () => {
-    return requireAuth(async () => {
-      await handleAddToCart();
-      router.push('/checkout');
-    });
-  }, [handleAddToCart, router, requireAuth]);
+        .main-showcase-image:hover {
+          transform: scale(1.04);
+        }
 
-  // Handle mouse move for zoom
-  const handleMouseMove = useCallback((e) => {
-    if (!mainImageRef.current) return;
+        .discount-tag {
+          position: absolute;
+          top: 1.5rem;
+          left: 1.5rem;
+          background: #ef4444;
+          color: #ffffff;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 0.35rem 0.85rem;
+          border-radius: 9999px;
+          letter-spacing: 0.04em;
+        }
 
-    const rect = mainImageRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePosition({ x, y });
-  }, []);
+        .thumbnails-row {
+          display: flex;
+          gap: 0.75rem;
+          overflow-x: auto;
+          padding-bottom: 0.5rem;
+        }
 
-  // Handle quantity change
-  const handleQuantityChange = useCallback((newQuantity) => {
-    const maxQuantity = product?.stock || 10;
-    const validQuantity = Math.max(1, Math.min(newQuantity, maxQuantity));
-    setQuantity(validQuantity);
-  }, [product]);
+        .thumb-btn {
+          width: 80px;
+          height: 80px;
+          background: #f7f8fa;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 16px;
+          padding: 0.5rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          flex-shrink: 0;
+        }
 
-  // Handle image load
-  const handleImageLoad = useCallback(() => {
-    setImageLoaded(true);
-  }, []);
+        .thumb-btn img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+        }
 
-  // Handle thumbnail load
-  const handleThumbLoad = useCallback((index) => {
-    setThumbsLoaded(prev => ({ ...prev, [index]: true }));
-  }, []);
+        .thumb-btn:hover {
+          border-color: #cbd5e1;
+          background: #ffffff;
+        }
 
-  // Handle login redirect
-  const handleLoginRedirect = useCallback(() => {
-    setShowLoginModal(false);
-    router.push('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
-  }, [router]);
+        .thumb-btn.active {
+          border-color: var(--blue-primary, #0866ff);
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(8, 102, 255, 0.15);
+        }
 
-  // Handle signup redirect
-  const handleSignupRedirect = useCallback(() => {
-    setShowLoginModal(false);
-    router.push('/auth/register?redirect=' + encodeURIComponent(window.location.pathname));
-  }, [router]);
+        .trust-pills-card {
+          background: #f7f8fa;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 24px;
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          margin-top: 0.5rem;
+        }
 
-  // Handle close login modal
-  const handleCloseLoginModal = useCallback(() => {
-    setShowLoginModal(false);
-  }, []);
+        .trust-pill-item {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
 
-  // Loading state
-  if (isLoading || authLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-        <p>Loading product details...</p>
-      </div>
-    );
-  }
+        .pill-icon {
+          font-size: 1.5rem;
+        }
 
-  // Product not found
-  if (!product) {
-    return (
-      <div className={styles.notFound}>
-        <h2>Product not found</h2>
-        <p>We couldn't find the product you're looking for.</p>
-        <div className={styles.notFoundActions}>
-          <Link href="/products" className={styles.linkButton}>Back to products</Link>
-        </div>
-      </div>
-    );
-  }
+        .trust-pill-item strong {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: var(--text-primary, #080808);
+          margin-bottom: 0.15rem;
+        }
 
-  return (
-    <>
-      {notification && (
-        <div className={`${styles.notification} ${styles[notification.type]}`}>
-          {notification.message}
-        </div>
-      )}
+        .trust-pill-item p {
+          font-size: 0.8rem;
+          color: var(--text-secondary, #5f6368);
+          margin: 0;
+        }
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h3>Join Us to Continue</h3>
-              <button
-                className={styles.closeButton}
-                onClick={handleCloseLoginModal}
-                aria-label="Close modal"
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.modalContent}>
-              <p>Please log in or create an account to add items to your cart and make purchases.</p>
-              <div className={styles.modalActions}>
-                <button
-                  className={styles.primary}
-                  onClick={handleLoginRedirect}
-                >
-                  Login to Your Account
-                </button>
-                <button
-                  className={styles.primaryAlt}
-                  onClick={handleSignupRedirect}
-                >
-                  Create New Account
-                </button>
-                <button
-                  className={styles.secondary}
-                  onClick={handleCloseLoginModal}
-                >
-                  Continue Shopping
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        /* Info Column */
+        .info-column {
+          display: flex;
+          flex-direction: column;
+        }
 
-      <div className={styles.container}>
-        <div className={styles.breadcrumb}>
-          <Link href="/">Home</Link>
-          <span className={styles.separator}>/</span>
-          <Link href="/products">Products</Link>
-          <span className={styles.separator}>/</span>
-          <span className={styles.current}>{product.name}</span>
-        </div>
+        .brand-category-header {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
 
-        <div className={styles.topGrid}>
-          {/* Image Gallery */}
-          <div className={styles.gallery}>
-            <div
-              className={styles.mainImageContainer}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              ref={mainImageRef}
-            >
-              {!imageLoaded && (
-                <div className={styles.imagePlaceholder}>
-                  <div className={styles.imageSpinner}></div>
-                </div>
-              )}
-              <img
-                src={gallery[selectedImage] || '/placeholder.jpg'}
-                alt={`${product.name} main`}
-                loading="lazy"
-                className={`${styles.mainImage} ${imageLoaded ? styles.loaded : ''}`}
-                style={isHovering ? {
-                  transform: 'scale(2)',
-                  transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
-                } : {}}
-                onLoad={handleImageLoad}
-                onError={(e) => {
-                  e.target.src = '/placeholder.jpg';
-                  setImageLoaded(true);
-                }}
-              />
-              {isHovering && (
-                <div
-                  className={styles.zoomIndicator}
-                  style={{
-                    left: `${mousePosition.x}%`,
-                    top: `${mousePosition.y}%`,
-                  }}
-                />
-              )}
-            </div>
+        .brand-chip {
+          background: var(--blue-soft, #eaf3ff);
+          color: var(--blue-primary, #0866ff);
+          border: 1px solid rgba(8, 102, 255, 0.15);
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 0.3rem 0.8rem;
+          border-radius: 9999px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
 
-            {/* Thumbnails */}
-            {gallery.length > 1 && (
-              <div className={styles.thumbs}>
-                {gallery.map((src, i) => (
-                  <div
-                    key={i}
-                    className={`${styles.thumbContainer} ${selectedImage === i ? styles.thumbActive : ''}`}
-                    onClick={() => setSelectedImage(i)}
-                  >
-                    {!thumbsLoaded[i] && (
-                      <div className={styles.thumbPlaceholder}></div>
-                    )}
-                    <img
-                      src={src}
-                      alt={`${product.name} ${i + 1}`}
-                      className={`${styles.thumb} ${thumbsLoaded[i] ? styles.loaded : ''}`}
-                      onLoad={() => handleThumbLoad(i)}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = '/placeholder.jpg';
-                        setThumbsLoaded(prev => ({ ...prev, [i]: true }));
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+        .category-chip {
+          background: #f7f8fa;
+          color: var(--text-secondary, #5f6368);
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          font-size: 0.75rem;
+          font-weight: 600;
+          padding: 0.3rem 0.8rem;
+          border-radius: 9999px;
+        }
 
-            {/* RELOCATED COLOR SELECTION */}
-            <div className={styles.colorSelectorSection}>
-              <span className={styles.colorSelectorTitle}>Select Finish / Color</span>
-              <div className={styles.colorGrid}>
-                {MASTER_COLORS.map((colorObj, index) => {
-                  const isAvailable = Array.isArray(product.colors) &&
-                    product.colors.some(c => (c && typeof c === 'string' ? c.toLowerCase() : '') === colorObj.name.toLowerCase());
+        .product-title {
+          font-size: clamp(2rem, 3vw + 0.5rem, 2.75rem);
+          font-weight: 850;
+          letter-spacing: -0.03em;
+          color: var(--text-primary, #080808);
+          line-height: 1.18;
+          margin: 0 0 1rem 0;
+        }
 
-                  return (
-                    <button
-                      key={index}
-                      type="button"
-                      disabled={!isAvailable}
-                      onClick={() => isAvailable && setSelectedColor(colorObj.name)}
-                      className={`
-                        ${styles.colorChip} 
-                        ${selectedColor === colorObj.name ? styles.active : ''} 
-                        ${!isAvailable ? styles.unavailable : ''}
-                      `}
-                      title={isAvailable ? `Select ${colorObj.name}` : `${colorObj.name} not available`}
-                    >
-                      <span
-                        className={styles.colorPreview}
-                        style={{ background: colorObj.hex }}
-                      ></span>
-                      {colorObj.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+        .product-short-desc {
+          font-size: 1rem;
+          line-height: 1.6;
+          color: var(--text-secondary, #5f6368);
+          margin: 0 0 2rem 0;
+        }
 
-          {/* Product Info */}
-          <div className={styles.info}>
-            <div className={styles.titleRow}>
-              <h1 className={styles.title}>{product.name}</h1>
-              {product.brand && <span className={styles.model}>{product.brand}</span>}
-            </div>
+        .pricing-card {
+          background: #f7f8fa;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 24px;
+          padding: 1.5rem 1.75rem;
+          margin-bottom: 2rem;
+        }
 
-            <div className={styles.rating}>
-              <div className={styles.stars}>
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={i < (product.ratings?.average || 4) ? styles.starFilled : styles.starEmpty}>★</span>
-                ))}
-              </div>
-              <span className={styles.reviewCount}>({product.ratings?.count || 12} reviews)</span>
-            </div>
+        .price-row {
+          display: flex;
+          align-items: baseline;
+          gap: 1rem;
+          margin-bottom: 0.4rem;
+        }
 
-            <p className={styles.summary}>{product.description || ''}</p>
+        .price-main {
+          display: flex;
+          align-items: baseline;
+          gap: 0.4rem;
+        }
 
-            <div className={styles.priceRow}>
-              {product.discountBadge && (
-                <div style={{
-                  display: 'inline-block',
-                  background: '#dc2626',
-                  color: 'white',
-                  padding: '6px 14px',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  marginBottom: '12px'
-                }}>
-                  {product.discountBadge}
-                </div>
-              )}
-              <div className={styles.price}>
-                {product.discountedPrice ? (
-                  <>
-                    <span style={{ textDecoration: 'line-through', fontSize: '0.7em', opacity: 0.6, marginRight: '12px', color: '#6b7280' }}>
-                      AED {product.price?.toLocaleString()}
-                    </span>
-                    <span style={{ color: '#16a34a' }}>
-                      AED {product.discountedPrice?.toLocaleString()}
-                    </span>
-                  </>
-                ) : (
-                  `AED ${product.price?.toLocaleString() ?? product.price ?? ''}`
-                )}
-              </div>
-            </div>
+        .currency {
+          font-size: 1.25rem;
+          font-weight: 750;
+          color: var(--blue-primary, #0866ff);
+        }
 
-            <div className={styles.stockInfo}>
-              <span className={`${styles.stock} ${product.stock > 0 ? styles.inStock : styles.outOfStock}`}>
-                {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
-              </span>
-            </div>
+        .amount {
+          font-size: 2.5rem;
+          font-weight: 850;
+          letter-spacing: -0.03em;
+          color: var(--text-primary, #080808);
+        }
 
-            {/* Specs Grid */}
-            {product.specs && (
-              <div className={styles.specsGrid}>
-                {Object.entries(product.specs).slice(0, 4).map(([k, v]) => (
-                  <div key={k} className={styles.specCard}>
-                    <div className={styles.specKey}>{k}</div>
-                    <div className={styles.specVal}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+        .price-strike {
+          font-size: 1.15rem;
+          color: #9ca3af;
+          text-decoration: line-through;
+          font-weight: 500;
+        }
 
+        .tax-delivery-note {
+          font-size: 0.8rem;
+          color: var(--text-secondary, #5f6368);
+        }
 
-            {/* Quantity Selector */}
-            <div className={styles.quantitySelector}>
-              <label>Quantity:</label>
-              <div className={styles.quantityControls}>
-                <button
-                  onClick={() => handleQuantityChange(quantity - 1)}
-                  className={styles.quantityBtn}
-                  aria-label="Decrease quantity"
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max={product.stock || 10}
-                  value={quantity}
-                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                  className={styles.quantityInput}
-                />
-                <button
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  className={styles.quantityBtn}
-                  aria-label="Increase quantity"
-                  disabled={quantity >= (product.stock || 10)}
-                >
-                  +
-                </button>
-              </div>
-            </div>
+        .variants-section {
+          margin-bottom: 2rem;
+        }
 
-            {/* Action Buttons */}
-            <div className={styles.actions}>
-              <button
-                className={styles.primary}
-                onClick={handleAddToCart}
-                disabled={isAddingToCart || product.stock <= 0 || authLoading}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <div className={styles.btnSpinner}></div>
-                    Adding...
-                  </>
-                ) : (
-                  <b>Add to Cart</b>
-                )}
-              </button>
-              <button
-                className={styles.primaryAlt}
-                onClick={handleBuyNow}
-                disabled={product.stock <= 0 || authLoading}
-              >
-                <b>Buy Now</b>
-              </button>
-            </div>
+        .variant-label {
+          display: block;
+          font-size: 0.88rem;
+          color: var(--text-secondary, #5f6368);
+          margin-bottom: 0.75rem;
+        }
 
-            {!isAuthenticated && !authLoading && (
-              <div className={styles.authNotice}>
-                <p>💡 <strong>Login or Sign Up required</strong> to add items to cart and make purchases</p>
-              </div>
-            )}
+        .variant-label strong {
+          color: var(--text-primary, #080808);
+        }
 
-            <div className={styles.metaRow}>
-              <div><strong>Warranty:</strong> {product.warranty ?? '1 Year'}</div>
-              <div><strong>Delivery:</strong> Free in UAE (2-5 days)</div>
-            </div>
-          </div>
-        </div>
+        .color-swatches {
+          display: flex;
+          gap: 0.6rem;
+          flex-wrap: wrap;
+        }
 
-        {/* Tabs */}
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'details' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('details')}
-          >
-            Product Details
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'specs' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('specs')}
-          >
-            Specifications
-          </button>
-        </div>
+        .color-btn {
+          background: #ffffff;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          color: var(--text-primary, #080808);
+          padding: 0.5rem 1.15rem;
+          border-radius: 9999px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-        <div className={styles.tabContent}>
-          {activeTab === 'details' && (
-            <div className={styles.details}>
-              <h2>Product Highlights</h2>
-              <p>{product.description}</p>
-              <h3>Warranty & Delivery</h3>
-              <p><strong>Warranty:</strong> {product.warranty ?? '1 Year'}</p>
-              <p><strong>Delivery:</strong> Free in UAE (2-5 days)</p>
-            </div>
-          )}
+        .color-btn:hover {
+          border-color: #cbd5e1;
+          background: #f7f8fa;
+        }
 
-          {activeTab === 'specs' && product.specs && (
-            <div className={styles.specifications}>
-              <h2>Specifications</h2>
-              <div className={styles.specsTable}>
-                {Object.entries(product.specs).map(([k, v]) => (
-                  <div key={k} className={styles.specRow}>
-                    <div className={styles.specKey}>{k}</div>
-                    <div className={styles.specVal}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
+        .color-btn.active {
+          background: var(--text-primary, #080808);
+          color: #ffffff;
+          border-color: var(--text-primary, #080808);
+          box-shadow: 0 4px 12px rgba(8, 8, 8, 0.15);
+        }
+
+        /* Action Buttons */
+        .purchase-action-block {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 1.25rem;
+        }
+
+        .quantity-stepper {
+          display: flex;
+          align-items: center;
+          background: #ffffff;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 9999px;
+          padding: 0.3rem 0.4rem;
+        }
+
+        .step-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: none;
+          background: #f7f8fa;
+          color: var(--text-primary, #080808);
+          font-size: 1.2rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s;
+        }
+
+        .step-btn:hover:not(:disabled) {
+          background: #eef1f5;
+        }
+
+        .step-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+
+        .qty-value {
+          padding: 0 1.1rem;
+          font-weight: 750;
+          font-size: 0.95rem;
+          color: var(--text-primary, #080808);
+        }
+
+        .add-to-cart-btn {
+          flex: 1;
+          min-width: 170px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.6rem;
+          background: var(--text-primary, #080808);
+          color: #ffffff;
+          border: none;
+          border-radius: 9999px;
+          padding: 0.95rem 1.75rem;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .add-to-cart-btn:hover {
+          background: var(--blue-primary, #0866ff);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 24px -4px rgba(8, 102, 255, 0.35);
+        }
+
+        .buy-now-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--blue-primary, #0866ff);
+          color: #ffffff;
+          border: none;
+          border-radius: 9999px;
+          padding: 0.95rem 1.75rem;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .buy-now-btn:hover {
+          background: var(--blue-secondary, #2b8cff);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 24px -4px rgba(8, 102, 255, 0.35);
+        }
+
+        .whatsapp-inquire-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.6rem;
+          background: #f0fdf4;
+          color: #166534;
+          border: 1px solid #bbf7d0;
+          border-radius: 9999px;
+          padding: 0.9rem;
+          text-decoration: none;
+          font-size: 0.92rem;
+          font-weight: 700;
+          margin-bottom: 2.5rem;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .whatsapp-inquire-btn:hover {
+          background: #dcfce7;
+          border-color: #86efac;
+          transform: translateY(-1px);
+        }
+
+        /* Specs Table */
+        .specs-table-card {
+          background: #ffffff;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 24px;
+          padding: 1.75rem;
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+        }
+
+        .specs-card-title {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: var(--text-primary, #080808);
+          margin: 0 0 1.25rem 0;
+          letter-spacing: -0.02em;
+        }
+
+        .specs-grid {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .spec-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.9rem 0;
+          border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+          font-size: 0.88rem;
+        }
+
+        .spec-row:last-child {
+          border-bottom: none;
+        }
+
+        .spec-key {
+          color: var(--text-secondary, #5f6368);
+          font-weight: 500;
+        }
+
+        .spec-val {
+          color: var(--text-primary, #080808);
+          font-weight: 600;
+          text-align: right;
+          max-width: 60%;
+        }
+
+        .detail-loading-screen,
+        .detail-error-screen {
+          min-height: 80vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 2rem;
+          background: var(--bg-default, #ffffff);
+          color: var(--text-primary, #080808);
+        }
+
+        .spinner {
+          width: 44px;
+          height: 44px;
+          border: 3px solid rgba(8, 102, 255, 0.15);
+          border-top-color: var(--blue-primary, #0866ff);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          margin-bottom: 1.25rem;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .error-icon {
+          font-size: 2.75rem;
+          margin-bottom: 1rem;
+        }
+
+        .back-catalog-btn {
+          background: var(--text-primary, #080808);
+          color: #ffffff;
+          border-radius: 9999px;
+          padding: 0.85rem 1.85rem;
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 1.25rem;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .back-catalog-btn:hover {
+          background: var(--blue-primary, #0866ff);
+          transform: translateY(-2px);
+        }
+      `}</style>
+    </ClientLayout>
   );
 }

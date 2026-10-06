@@ -1,29 +1,40 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import UserModel from '@/models/User';
-import jwt from 'jsonwebtoken';
+import { verifyUser } from '@/lib/auth';
 
-// Verify user authentication
-async function verifyUser(request) {
+// GET - Retrieve user profile
+export async function GET(request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return null;
+        const decoded = await verifyUser(request);
+        if (!decoded) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return decoded;
-    } catch {
-        return null;
+        await dbConnect();
+        const user = await UserModel.findById(decoded.userId).select('-password');
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        return NextResponse.json({
+            error: 'Failed to fetch profile',
+            details: error.message
+        }, { status: 500 });
     }
 }
 
 // PUT - Update user profile
 export async function PUT(request) {
     try {
-        const user = await verifyUser(request);
-        if (!user) {
+        const decoded = await verifyUser(request);
+        if (!decoded) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -31,14 +42,14 @@ export async function PUT(request) {
 
         const updates = await request.json();
 
-        // Don't allow changing email or role through this endpoint
+        // Security: Don't allow changing email or role or password through this endpoint
         delete updates.email;
         delete updates.role;
         delete updates.password;
 
         // Update user
         const updatedUser = await UserModel.findByIdAndUpdate(
-            user.userId,
+            decoded.userId,
             { $set: updates },
             { new: true, runValidators: true }
         ).select('-password');
@@ -61,3 +72,4 @@ export async function PUT(request) {
         }, { status: 500 });
     }
 }
+

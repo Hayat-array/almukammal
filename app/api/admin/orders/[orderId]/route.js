@@ -1,49 +1,40 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
-import { verifyToken } from '@/lib/auth';
+import { verifyAdmin } from '@/lib/auth';
 
-// ✅ ADMIN UPDATE ORDER STATUS
+// PATCH - Admin update order status or tracking number
 export async function PATCH(request, { params }) {
   try {
-    const { orderId } = await params;
-    const authHeader = request.headers.get('authorization');
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const admin = await verifyAdmin(request);
+    if (!admin) {
       return NextResponse.json(
-        { success: false, error: 'Admin token required' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { status } = await request.json();
-
-    if (!orderId || !status) {
-      return NextResponse.json(
-        { success: false, error: 'Order ID and status are required' },
-        { status: 400 }
-      );
-    }
-
-    // Verify admin token
-    const decoded = verifyToken(token);
-    if (!decoded || decoded.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
+        { success: false, error: 'Admin privileges required' },
         { status: 403 }
+      );
+    }
+
+    const { orderId } = await params;
+    const body = await request.json();
+    const { status, trackingNumber } = body;
+
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (status && !validStatuses.includes(status)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` },
+        { status: 400 }
       );
     }
 
     await dbConnect();
 
-    // Update order (admin can update any order)
+    const updateFields = { updatedAt: new Date() };
+    if (status) updateFields.status = status;
+    if (trackingNumber !== undefined) updateFields.trackingNumber = trackingNumber;
+
     const order = await Order.findByIdAndUpdate(
       orderId,
-      {
-        status,
-        updatedAt: new Date()
-      },
+      updateFields,
       { new: true }
     ).populate('customer', 'name email');
 
@@ -54,27 +45,52 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    console.log(`✅ ADMIN: Updated order ${orderId} to ${status}`);
-
     return NextResponse.json({
       success: true,
       order: {
         _id: order._id.toString(),
         orderNumber: order.orderNumber,
         customer: order.customer,
+        customerInfo: order.customerInfo,
         items: order.items,
         totalAmount: order.totalAmount,
         status: order.status,
-        orderDate: order.createdAt,
-        trackingNumber: order.trackingNumber
-      }
+        orderDate: order.orderDate || order.createdAt,
+        trackingNumber: order.trackingNumber || ''
+      },
+      message: `Order status updated to ${order.status}`
     });
 
   } catch (error) {
-    console.error('❌ Admin Update Order Error:', error);
+    console.error('Admin Update Order Error:', error);
     return NextResponse.json(
-      { success: false, error: 'Server error' },
+      { success: false, error: 'Failed to update order' },
       { status: 500 }
     );
+  }
+}
+
+// GET - Single order detail for admin
+export async function GET(request, { params }) {
+  try {
+    const admin = await verifyAdmin(request);
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, error: 'Admin privileges required' },
+        { status: 403 }
+      );
+    }
+
+    const { orderId } = await params;
+    await dbConnect();
+
+    const order = await Order.findById(orderId).populate('customer', 'name email phone');
+    if (!order) {
+      return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, order });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Server error retrieving order' }, { status: 500 });
   }
 }

@@ -33,9 +33,9 @@ export default function AdminLogin() {
     const result = await login(formData.email, formData.password, 'admin');
 
     if (result.success) {
-      router.push('/admin/dashboard');
+      router.push('/admin');
     } else {
-      setError(result.error || 'Invalid credentials');
+      setError(result.error || 'Invalid administrator credentials');
     }
 
     setLoading(false);
@@ -44,72 +44,88 @@ export default function AdminLogin() {
   return (
     <ClientLayout>
       <div className="auth-container">
-        {/* Animated Background */}
-        <div className="animated-bg">
-          <div className="gradient-orb orb-1"></div>
-          <div className="gradient-orb orb-2"></div>
-        </div>
-
-        <div className="glass-card">
+        <div className="auth-card">
           <div className="card-header">
-            <div className="icon-wrapper admin-icon">
-              {/* Lock Icon */}
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
+            <div className="admin-brand-wrap">
+              <Link href="/" className="admin-brand-link" title="Al Mukammal Computer Trading">
+                <img src="/logo-mark.png" alt="Al Mukammal" className="admin-brand-logo" />
+              </Link>
             </div>
-            <h1 className="card-title">Admin Login</h1>
-            <p className="card-subtitle">Secure access for administrators</p>
+            <div className="admin-tag">Al Mukammal Operations</div>
+            <h1 className="card-title">Staff Command Access</h1>
+            <p className="card-subtitle">Restricted to authorized store leadership</p>
           </div>
 
           {error && (
             <div className="message error-message">
-              <span>⚠️ {error}</span>
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="input-group">
-              <label className="input-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="modern-input"
-                disabled={loading}
-              />
+              <label htmlFor="email" className="input-label">Admin Email</label>
+              <div className="input-wrapper">
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  placeholder="admin@almukammal.ae"
+                  className="modern-input"
+                  disabled={loading}
+                />
+              </div>
             </div>
 
             <div className="input-group">
-              <label className="input-label">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="modern-input"
-                disabled={loading}
-              />
+              <div className="label-row">
+                <label htmlFor="password" className="input-label">Password</label>
+                <Link href="/auth/admin/forgot-password" className="forgot-link">
+                  Recovery?
+                </Link>
+              </div>
+              <div className="input-wrapper">
+                <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="••••••••"
+                  className="modern-input"
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            <button type="submit" disabled={loading} className="submit-btn admin-btn">
-              {loading ? 'Authenticating...' : 'Access Dashboard'}
+            <button type="submit" disabled={loading} className="submit-btn">
+              {loading ? 'Authenticating...' : 'Enter Command Center'}
             </button>
           </form>
 
           <div className="card-footer">
-            <p className="footer-label">Don't have an access?</p>
             <div className="login-options">
-              <Link href="/auth/login" className="footer-link user-link">
-                Login as User
+              <Link href="/auth/login" className="footer-link">
+                ← Customer Login
               </Link>
-              <span className="divider">|</span>
-              <Link href="/auth/admin/register" className="footer-link admin-link" style={{ color: "red" }}>
-                Register as Admin
+              <span className="dot-sep">•</span>
+              <Link href="/auth/admin/register" className="admin-register-link">
+                Register New Admin
               </Link>
             </div>
           </div>
@@ -117,145 +133,253 @@ export default function AdminLogin() {
 
         <style jsx>{`
           .auth-container {
-            min-height: 100vh;
+            min-height: calc(100vh - 80px);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 50%, #450a0a 100%);
-            padding: 2rem;
+            padding: 40px 16px 80px;
+            background: var(--bg-canvas, #F7F8FA);
             position: relative;
-            overflow: hidden;
           }
-          .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem;
-            border-radius: 12px;
+
+          .auth-card {
             width: 100%;
-            max-width: 340px; /* Slightly smaller than register */
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            z-index: 10;
+            max-width: 440px;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+            border-radius: 28px;
+            padding: 40px 36px;
+            box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.03);
+            position: relative;
           }
-          .icon-wrapper.admin-icon {
-            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+
+          .card-header {
+            text-align: center;
+            margin-bottom: 28px;
+          }
+
+          .admin-brand-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+          }
+
+          :global(.admin-brand-link),
+          .admin-brand-link {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 16px !important;
+            background: #080808 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 8px 24px rgba(8, 102, 255, 0.3) !important;
+            border: 2px solid rgba(8, 102, 255, 0.45) !important;
+            overflow: hidden !important;
+            text-decoration: none !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+            flex-shrink: 0 !important;
+          }
+
+          :global(.admin-brand-link:hover),
+          .admin-brand-link:hover {
+            transform: translateY(-2px) scale(1.05) !important;
+            border-color: #2B8CFF !important;
+            box-shadow: 0 12px 28px rgba(8, 102, 255, 0.5) !important;
+          }
+
+          .admin-brand-logo {
+            width: 100%;
+            height: 100%;
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: cover;
+            display: block;
+          }
+
+          .admin-tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #0866FF;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(8, 102, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 9999px;
+            margin-bottom: 10px;
+          }
+
+          .card-title {
+            font-size: 1.65rem;
+            font-weight: 850;
+            color: #080808;
+            letter-spacing: -0.02em;
+            margin: 0 0 6px 0;
+          }
+
+          .card-subtitle {
+            font-size: 0.88rem;
+            color: #64748B;
+            margin: 0;
+          }
+
+          .message {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.25rem;
-            color: white;
-            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
-          }
-          .card-title {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 0.1rem;
-          }
-          .card-subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 0.7rem;
-            margin-bottom: 1rem;
-          }
-          .input-group {
-            margin-bottom: 0.5rem;
-          }
-          .input-label {
-            display: block;
-            font-size: 0.7rem;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.88rem;
             font-weight: 600;
-            color: #475569;
-            margin-bottom: 0.1rem;
+            margin-bottom: 20px;
           }
+
+          .error-message {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+          }
+
+          .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+          }
+
+          .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+          }
+
+          .label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+
+          .input-label {
+            font-size: 0.78rem;
+            font-weight: 750;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+          }
+
+          .forgot-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0866FF;
+            text-decoration: none;
+          }
+
+          .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+
+          :global(.input-icon) {
+            position: absolute;
+            left: 16px;
+            color: #94A3B8;
+            pointer-events: none;
+          }
+
           .modern-input {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-          }
-          .modern-input:focus {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 9999px;
+            padding: 13px 18px 13px 46px;
+            font-size: 0.92rem;
+            color: #0F172A;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
             outline: none;
+            font-family: inherit;
           }
-          .submit-btn.admin-btn {
-            width: 100%;
-            padding: 0.6rem;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
+
+          .modern-input:focus {
+            background: #FFFFFF;
+            border-color: #0866FF;
+            box-shadow: 0 0 0 4px rgba(8, 102, 255, 0.12);
+          }
+
+          .submit-btn {
+            background: #0B0B0D;
+            color: #FFFFFF;
             border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.85rem;
+            border-radius: 9999px;
+            padding: 14px 24px;
+            font-size: 0.95rem;
+            font-weight: 750;
             cursor: pointer;
-            transition: transform 0.2s;
-            margin-top: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
           }
-          .submit-btn.admin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+
+          .submit-btn:hover:not(:disabled) {
+            background: #0866FF;
+            box-shadow: 0 10px 28px rgba(8, 102, 255, 0.32);
+            transform: translateY(-1px);
           }
-          .error-message {
-            background: #fee2e2;
-            color: #b91c1c;
-            padding: 0.5rem;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
+
+          .card-footer {
+            margin-top: 28px;
             text-align: center;
-            font-size: 0.75rem;
-            font-weight: 500;
+            border-top: 1px solid #F1F5F9;
+            padding-top: 20px;
           }
-           .card-footer {
-             margin-top: 1rem;
-             text-align: center;
-             border-top: 1px solid #f1f5f9;
-             padding-top: 1rem;
-          }
-          .footer-label {
-            color: #64748b;
-            font-size: 0.75rem;
-            margin-bottom: 0.5rem;
-          }
+
           .login-options {
             display: flex;
-            justify-content: center;
-            gap: 0.5rem;
             align-items: center;
-            font-size: 0.8rem;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.85rem;
           }
+
+          .dot-sep {
+            color: #CBD5E1;
+          }
+
           .footer-link {
-             text-decoration: none;
-             font-weight: 600;
-             transition: color 0.2s;
+            color: #64748B;
+            font-weight: 600;
+            text-decoration: none;
           }
-          .user-link {
-             color: #475569;
+
+          .footer-link:hover {
+            color: #0866FF;
           }
-          .user-link:hover {
-             color: #1e293b;
-             text-decoration: underline;
+
+          .admin-register-link {
+            color: #0866FF;
+            font-weight: 700;
+            text-decoration: none;
           }
-          .admin-link {
-             color: #dc2626;
+
+          .admin-register-link:hover {
+            text-decoration: underline;
           }
-          .admin-link:hover {
-             color: #991b1b;
-             text-decoration: underline;
+
+          @media (max-width: 640px) {
+            .auth-card {
+              padding: 30px 20px;
+              border-radius: 24px;
+            }
+
+            .card-title {
+              font-size: 1.4rem;
+            }
           }
-          .divider {
-            color: #cbd5e1;
-          }
-          
-           .animated-bg { position: absolute; inset: 0; }
-           .gradient-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4; }
-           .orb-1 { width: 400px; height: 400px; background: #ef4444; top: -10%; right: -10%; }
-           .orb-2 { width: 300px; height: 300px; background: #3b82f6; bottom: -10%; left: -10%; }
         `}</style>
       </div>
     </ClientLayout>

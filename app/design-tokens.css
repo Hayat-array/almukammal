@@ -1,0 +1,130 @@
+/* ==============================================================================
+   AL MUKAMMAL — CENTRAL DESIGN TOKENS (LIGHT-FIRST + STRATEGIC DARK ANCHORS)
+   Commercial Grade • Inspired by Premium Modern Fintech / SaaS Standards
+   ============================================================================== */
+
+:root {
+  /* ----------------------------------------------------------------------------
+     1. COLOR SYSTEM (70-80% Light, 15-25% Dark Anchors, 5-10% Blue Accents)
+     ---------------------------------------------------------------------------- */
+  
+  /* Primary Light Surfaces (Dominant Base) */
+  --bg-default: #FFFFFF;
+  --bg-secondary: #F7F8FA;
+  --bg-soft: #F1F4F7;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  
+  /* Neutral Typography (High Contrast, Clean) */
+  --text-primary: #080808;
+  --text-secondary: #5F6368;
+  --text-tertiary: #80868B;
+  --text-muted: #9AA0A6;
+
+  /* Subtle Architectural Borders */
+  --border-main: #E5E7EB;
+  --border-subtle: #EEF0F3;
+  --border-hover: #D1D5DB;
+
+  /* Strategic Dark Anchors (Contrast & Tech Sections) */
+  --dark-bg: #0B0B0D;
+  --dark-surface: #14161A;
+  --dark-card: #191B20;
+  --dark-border: rgba(255, 255, 255, 0.08);
+  --dark-border-hover: rgba(255, 255, 255, 0.16);
+  --dark-text: #FFFFFF;
+  --dark-text-muted: #9BA1A6;
+  --dark-text-subtle: #6B7280;
+
+  /* Blue Accents (Reserved for CTAs, Active States, Badges, Metrics) */
+  --blue-primary: #0866FF;
+  --blue-secondary: #2B8CFF;
+  --blue-hover: #0756D6;
+  --blue-soft: #EAF3FF;
+  --blue-subtle: rgba(8, 102, 255, 0.07);
+  --blue-glow: rgba(8, 102, 255, 0.18);
+  --blue-glow-hover: rgba(8, 102, 255, 0.32);
+
+  /* Semantic Feedback (Restrained & Professional) */
+  --success: #059669;
+  --success-soft: #ECFDF5;
+  --warning: #D97706;
+  --warning-soft: #FFFBEB;
+  --error: #DC2626;
+  --error-soft: #FEF2F2;
+
+  /* Backward Compatibility Aliases for Components */
+  --bg-canvas: var(--bg-secondary);
+  --bg-card: var(--bg-default);
+  --brand-primary: var(--blue-primary);
+  --brand-secondary: var(--blue-secondary);
+  --glow-sm: 0 4px 14px var(--blue-glow);
+
+  /* ----------------------------------------------------------------------------
+     2. SPACING SCALE (8px System)
+     ---------------------------------------------------------------------------- */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+  --space-5xl: 128px;
+
+  /* Container Max-Width */
+  --max-width-site: 1280px;
+  --max-width-narrow: 1040px;
+  --max-width-hero: 1140px;
+
+  /* ----------------------------------------------------------------------------
+     3. TYPOGRAPHY (Fluid Clamp Scale)
+     ---------------------------------------------------------------------------- */
+  --font-hero: clamp(2.5rem, 5vw + 0.5rem, 4.25rem);
+  --font-h1: clamp(2rem, 3.5vw + 0.25rem, 3.25rem);
+  --font-h2: clamp(1.6rem, 2.5vw + 0.25rem, 2.5rem);
+  --font-h3: clamp(1.25rem, 1.8vw + 0.15rem, 1.75rem);
+  --font-h4: clamp(1.1rem, 1.2vw + 0.1rem, 1.25rem);
+  --font-body: 1rem;
+  --font-body-sm: 0.875rem;
+  --font-caption: 0.75rem;
+
+  /* ----------------------------------------------------------------------------
+     4. RADIUS & SURFACE TOKENS (Signature 24-32px Rounded Surfaces & Pills)
+     ---------------------------------------------------------------------------- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+  --radius-pill: 9999px;
+
+  /* ----------------------------------------------------------------------------
+     5. ELEVATION & SHADOWS
+     ---------------------------------------------------------------------------- */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 14px 34px -4px rgba(0, 0, 0, 0.09), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  --shadow-floating: 0 20px 48px -8px rgba(0, 0, 0, 0.2), 0 4px 16px -2px rgba(0, 0, 0, 0.08);
+
+  /* ----------------------------------------------------------------------------
+     6. MOTION & ANIMATION (Level 1, 2, 3 Hierarchy)
+     ---------------------------------------------------------------------------- */
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

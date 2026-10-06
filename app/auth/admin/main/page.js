@@ -372,45 +372,61 @@ export default function AdminPage() {
       `}</style>
       <div style={{
         minHeight: '80vh',
-        padding: '2rem 0',
-        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)'
+        padding: '2.5rem 1rem 4rem',
+        background: 'var(--bg-canvas, #F7F8FA)'
       }}>
-        <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
+        <div style={{ maxWidth: '84rem', margin: '0 auto' }}>
           <div style={{
             background: 'white',
-            borderRadius: '1rem',
-            padding: '2rem',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+            borderRadius: '28px',
+            padding: '2.5rem',
+            border: '1px solid rgba(0, 0, 0, 0.07)',
+            boxShadow: '0 20px 48px -12px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02)'
           }}>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{
-                  background: 'linear-gradient(135deg, #dc2626, #ef4444)',
+                  background: '#0B0B0D',
                   color: 'white',
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.75rem',
+                  width: '3.2rem',
+                  height: '3.2rem',
+                  borderRadius: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginRight: '1rem',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 8px 24px rgba(11, 11, 13, 0.25)'
                 }}>
-                  <svg style={{ width: '1.5rem', height: '1.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <svg style={{ width: '1.6rem', height: '1.6rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
                 <div>
+                  <div style={{
+                    display: 'inline-block',
+                    fontSize: '0.68rem',
+                    fontWeight: '800',
+                    color: '#0866FF',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    background: 'rgba(8, 102, 255, 0.08)',
+                    padding: '2px 9px',
+                    borderRadius: '9999px',
+                    marginBottom: '4px'
+                  }}>
+                    Command Center
+                  </div>
                   <h1 style={{
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                    color: '#1f2937',
+                    fontSize: '1.9rem',
+                    fontWeight: '850',
+                    color: '#080808',
+                    letterSpacing: '-0.02em',
                     margin: 0
                   }}>
                     Admin Dashboard
                   </h1>
-                  <p style={{ color: '#6b7280', margin: '0.25rem 0 0 0' }}>
+                  <p style={{ color: '#64748B', margin: '0.15rem 0 0 0', fontSize: '0.9rem' }}>
                     Welcome back, {user.name || 'Admin'}
                   </p>
                 </div>
@@ -419,19 +435,22 @@ export default function AdminPage() {
                 onClick={fetchDashboardData}
                 disabled={refreshing}
                 style={{
-                  background: refreshing ? '#9ca3af' : 'linear-gradient(135deg, #dc2626, #ef4444)',
+                  background: refreshing ? '#9ca3af' : '#0B0B0D',
                   color: 'white',
                   border: 'none',
                   padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
+                  borderRadius: '9999px',
                   cursor: refreshing ? 'not-allowed' : 'pointer',
-                  fontWeight: '600',
+                  fontWeight: '750',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   transition: 'all 0.2s',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
                 }}
+                onMouseOver={(e) => { if (!refreshing) e.currentTarget.style.background = '#0866FF'; }}
+                onMouseOut={(e) => { if (!refreshing) e.currentTarget.style.background = '#0B0B0D'; }}
               >
                 {refreshing ? (
                   <>
@@ -447,7 +466,10 @@ export default function AdminPage() {
                   </>
                 ) : (
                   <>
-                    🔄 Refresh
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                    </svg>
+                    Refresh
                   </>
                 )}
               </button>
@@ -473,37 +495,41 @@ export default function AdminPage() {
             {/* Tabs */}
             <div style={{
               display: 'flex',
-              gap: '0.5rem',
+              gap: '0.6rem',
               marginBottom: '2rem',
-              borderBottom: '2px solid #e5e7eb',
+              paddingBottom: '1.25rem',
+              borderBottom: '1px solid #EEF0F3',
               overflowX: 'auto'
             }}>
               {[
-                { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
-                { id: 'users', label: '👥 Users', icon: '👥' },
-                { id: 'products', label: '💻 Products', icon: '💻' },
-                { id: 'orders', label: '📦 Orders', icon: '📦' },
-                { id: 'customers', label: '🛍️ Customers', icon: '🛍️' }
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'users', label: 'Users', icon: '👥' },
+                { id: 'products', label: 'Products', icon: '💻' },
+                { id: 'orders', label: 'Orders', icon: '📦' },
+                { id: 'customers', label: 'Customers', icon: '🛍️' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    background: activeTab === tab.id ? '#dc2626' : 'transparent',
-                    color: activeTab === tab.id ? 'white' : '#6b7280',
-                    border: 'none',
-                    borderRadius: '0.5rem 0.5rem 0 0',
-                    fontWeight: '600',
+                    padding: '0.65rem 1.4rem',
+                    background: activeTab === tab.id ? '#0B0B0D' : '#F8FAFC',
+                    color: activeTab === tab.id ? '#FFFFFF' : '#64748B',
+                    border: activeTab === tab.id ? '1.5px solid #0B0B0D' : '1.5px solid #E2E8F0',
+                    borderRadius: '9999px',
+                    fontWeight: '750',
+                    fontSize: '0.86rem',
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
                     whiteSpace: 'nowrap',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.5rem',
+                    boxShadow: activeTab === tab.id ? '0 4px 14px rgba(11, 11, 13, 0.2)' : 'none'
                   }}
                 >
-                  {tab.icon} {tab.label.split(' ')[1]}
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -882,25 +908,28 @@ export default function AdminPage() {
                 {/* Products Tab */}
                 {activeTab === 'products' && (
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                        💻 Product Management
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#080808', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                        💻 Product Catalog Management
                       </h3>
                       <button
                         onClick={() => setShowAddProduct(!showAddProduct)}
                         style={{
-                          background: showAddProduct ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+                          background: showAddProduct ? '#64748B' : '#0B0B0D',
                           color: 'white',
                           border: 'none',
-                          padding: '0.75rem 1.5rem',
-                          borderRadius: '0.5rem',
+                          padding: '0.7rem 1.4rem',
+                          borderRadius: '9999px',
                           cursor: 'pointer',
-                          fontWeight: '600',
-                          transition: 'all 0.2s',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          fontWeight: '750',
+                          fontSize: '0.88rem',
+                          transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                          boxShadow: '0 4px 14px rgba(11, 11, 13, 0.15)'
                         }}
+                        onMouseOver={(e) => { if (!showAddProduct) e.currentTarget.style.background = '#0866FF'; }}
+                        onMouseOut={(e) => { if (!showAddProduct) e.currentTarget.style.background = '#0B0B0D'; }}
                       >
-                        {showAddProduct ? '❌ Cancel' : '➕ Add New Product'}
+                        {showAddProduct ? 'Cancel' : '+ Add New Product'}
                       </button>
                     </div>
                     {/* Add Product Form */}
@@ -1322,88 +1351,124 @@ export default function AdminPage() {
                         <p>No products found</p>
                       </div>
                     ) : (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid #EEF0F3' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
-                            <tr style={{ background: '#f3f4f6' }}>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>ID</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Image</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Name</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Price</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Colors</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Specs</th>
-                              <th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Actions</th>
+                            <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #EEF0F3' }}>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Item ID</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Device</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Product Name</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Price</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Finishes</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>Specifications</th>
+                              <th style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B', textAlign: 'center' }}>Manage</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {products.map(product => (
-                              <tr key={product.id} style={{ borderBottom: '1px solid #e5e7eb', transition: 'background 0.2s' }}>
-                                <td style={{ padding: '0.75rem', fontWeight: '600' }}>#{product.id}</td>
-                                <td style={{ padding: '0.75rem' }}>
-                                  <img
-                                    src={product.image?.startsWith('http') ? product.image : `/${product.image}`}
-                                    alt={product.name}
-                                    style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '0.5rem' }}
-                                    onError={(e) => { e.target.src = '/placeholder.jpg'; }}
-                                  />
-                                </td>
-                                <td style={{ padding: '0.75rem', fontWeight: '600' }}>{product.name}</td>
-                                <td style={{ padding: '0.75rem', color: '#10b981', fontWeight: '600' }}>AED {Number(product.price).toLocaleString()}</td>
-                                <td style={{ padding: '0.75rem' }}>
-                                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                    {product.colors && product.colors.map((c, i) => (
-                                      <span key={i} title={c} style={{
-                                        width: '12px',
-                                        height: '12px',
-                                        borderRadius: '50%',
-                                        background: (name => {
-                                          const mapping = { 'space grey': '#53565a', 'space gray': '#53565a', 'silver': '#c0c0c0', 'midnight': '#191970', 'starlight': '#f0ead6', 'rose gold': '#b76e79', 'gold': '#ffd700', 'graphite': '#41424c', 'black': '#1c1c1c', 'white': '#f5f5f7', 'blue': '#007aff' };
-                                          return mapping[name.toLowerCase()] || name;
-                                        })(c),
-                                        border: '1px solid rgba(0,0,0,0.1)'
-                                      }}></span>
-                                    ))}
-                                    {(!product.colors || product.colors.length === 0) && <span style={{ color: '#9ca3af', fontSize: '0.7rem' }}>-</span>}
-                                  </div>
-                                </td>
-                                <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
-                                  {product.specs?.cpu}<br />
-                                  {product.specs?.ram} | {product.specs?.storage}
-                                </td>
-                                <td style={{ padding: '0.75rem', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                                  <button
-                                    onClick={() => router.push(`/auth/admin/products/edit/${product.id}`)}
-                                    style={{
-                                      background: '#3b82f6',
-                                      color: 'white',
-                                      border: 'none',
-                                      padding: '0.375rem 0.75rem',
-                                      borderRadius: '0.375rem',
-                                      fontSize: '0.75rem',
-                                      cursor: 'pointer',
-                                      transition: 'background 0.2s'
-                                    }}
-                                  >
-                                    ✏️ Edit
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteProduct(product.id)}
-                                    style={{
-                                      background: '#ef4444',
-                                      color: 'white',
-                                      border: 'none',
-                                      padding: '0.375rem 0.75rem',
-                                      borderRadius: '0.375rem',
-                                      fontSize: '0.75rem',
-                                      cursor: 'pointer',
-                                      transition: 'background 0.2s'
-                                    }}
-                                  >
-                                    🗑️ Delete
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
+                            {products.map(product => {
+                              const prodId = product._id || product.id;
+                              const rawImg = product.image || (Array.isArray(product.images) && product.images[0]);
+                              const cleanImg = rawImg?.startsWith('http') ? rawImg : `/${String(rawImg || '').replace(/^\/+/, '')}`;
+                              return (
+                                <tr key={prodId} style={{ borderBottom: '1px solid #F1F5F9', transition: 'background 0.15s' }}>
+                                  <td style={{ padding: '1rem' }}>
+                                    <span style={{
+                                      background: '#F1F5F9',
+                                      color: '#0F172A',
+                                      padding: '3px 8px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.78rem',
+                                      fontFamily: 'monospace',
+                                      fontWeight: '700'
+                                    }}>
+                                      #{String(prodId).slice(-8)}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '1rem' }}>
+                                    <img
+                                      src={cleanImg || '/placeholder.jpg'}
+                                      alt={product.name}
+                                      style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '12px', border: '1px solid #E2E8F0', background: '#F8FAFC' }}
+                                      onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
+                                    />
+                                  </td>
+                                  <td style={{ padding: '1rem', fontWeight: '750', color: '#080808', fontSize: '0.92rem' }}>
+                                    {product.name}
+                                  </td>
+                                  <td style={{ padding: '1rem', color: '#080808', fontWeight: '800', fontSize: '0.92rem' }}>
+                                    AED {Number(product.price).toLocaleString()}
+                                  </td>
+                                  <td style={{ padding: '1rem' }}>
+                                    <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                      {product.colors && product.colors.map((c, i) => (
+                                        <span key={i} title={c} style={{
+                                          width: '13px',
+                                          height: '13px',
+                                          borderRadius: '50%',
+                                          background: (name => {
+                                            const mapping = { 'space grey': '#53565a', 'space gray': '#53565a', 'silver': '#c0c0c0', 'midnight': '#191970', 'starlight': '#f0ead6', 'rose gold': '#b76e79', 'gold': '#ffd700', 'graphite': '#41424c', 'black': '#1c1c1c', 'white': '#f5f5f7', 'blue': '#007aff' };
+                                            return mapping[name.toLowerCase()] || name;
+                                          })(c),
+                                          border: '1px solid rgba(0,0,0,0.15)'
+                                        }}></span>
+                                      ))}
+                                      {(!product.colors || product.colors.length === 0) && <span style={{ color: '#94A3B8', fontSize: '0.75rem' }}>None</span>}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '1rem', fontSize: '0.82rem', color: '#64748B', lineHeight: '1.4' }}>
+                                    <strong style={{ color: '#334155' }}>{product.specs?.cpu || 'Core'}</strong><br />
+                                    {product.specs?.ram || 'RAM'} • {product.specs?.storage || 'Storage'}
+                                  </td>
+                                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                      <button
+                                        onClick={() => router.push(`/auth/admin/products/edit/${prodId}`)}
+                                        style={{
+                                          background: '#0B0B0D',
+                                          color: 'white',
+                                          border: 'none',
+                                          padding: '0.45rem 1rem',
+                                          borderRadius: '9999px',
+                                          fontSize: '0.8rem',
+                                          fontWeight: '750',
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '0.4rem',
+                                          transition: 'all 0.15s ease',
+                                          boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.background = '#0866FF'}
+                                        onMouseOut={(e) => e.currentTarget.style.background = '#0B0B0D'}
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteProduct(prodId)}
+                                        style={{
+                                          background: '#FEF2F2',
+                                          color: '#DC2626',
+                                          border: '1px solid #FECACA',
+                                          padding: '0.45rem 0.9rem',
+                                          borderRadius: '9999px',
+                                          fontSize: '0.8rem',
+                                          fontWeight: '750',
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '0.4rem',
+                                          transition: 'all 0.15s ease'
+                                        }}
+                                        onMouseOver={(e) => { e.currentTarget.style.background = '#DC2626'; e.currentTarget.style.color = '#FFFFFF'; }}
+                                        onMouseOut={(e) => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#DC2626'; }}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

@@ -1,34 +1,14 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
 import dbConnect from '@/lib/mongodb';
 import ProductModel from '@/models/ProductModel';
+import { verifyAdmin } from '@/lib/auth';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-// Helper function to verify admin token
-function verifyAdmin(request) {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authHeader.substring(7);
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'admin') {
-      return null;
-    }
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-}
 
 // GET - Fetch all products
 export async function GET(request) {
-  const admin = verifyAdmin(request);
+  const admin = await verifyAdmin(request);
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -47,6 +27,10 @@ export async function GET(request) {
       image: product.image,
       images: product.images,
       specs: product.specs,
+      colors: product.colors || [],
+      brand: product.brand || '',
+      category: product.category || '',
+      stock: product.stock !== undefined ? product.stock : 1,
       createdAt: product.createdAt
     }));
 
@@ -59,10 +43,11 @@ export async function GET(request) {
 
 // POST - Add new product
 export async function POST(request) {
-  const admin = verifyAdmin(request);
+  const admin = await verifyAdmin(request);
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
 
   try {
     const formData = await request.formData();
@@ -174,10 +159,11 @@ export async function POST(request) {
 
 // DELETE - Remove product
 export async function DELETE(request) {
-  const admin = verifyAdmin(request);
+  const admin = await verifyAdmin(request);
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
 
   try {
     const { productId } = await request.json();

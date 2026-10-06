@@ -1,27 +1,12 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import UserModel from '@/models/User';
-import jwt from 'jsonwebtoken';
+import { verifyUser } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
-
-// Verify user authentication
-async function verifyUser(request) {
-    try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return null;
-        }
-
-        const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return decoded;
-    } catch {
-        return null;
-    }
-}
 
 // PUT - Change password
 export async function PUT(request) {
+
     try {
         const user = await verifyUser(request);
         if (!user) {

@@ -1,15 +1,26 @@
-
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimiter';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request) {
   try {
-    const { email, password, isAdminLogin } = await request.json();
+    const ip = getClientIp(request);
+
+    // Rate limit: max 15 login attempts per 15 minutes per IP
+    const rateLimit = checkRateLimit(`login:ip:${ip}`, 15, 900);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { message: 'Too many login attempts. Please wait a few minutes before trying again.' },
+        { status: 429 }
+      );
+    }
+
+    const { email, password, isAdminLogin, isDeliveryLogin } = await request.json();
 
     // Validate input
     if (!email || !password) {
@@ -21,8 +32,8 @@ export async function POST(request) {
 
     await dbConnect();
 
-    // Find user by email
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user by normalized email
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (!user) {
       return NextResponse.json(
@@ -31,26 +42,28 @@ export async function POST(request) {
       );
     }
 
-    // Role-based login enforcement
-    if (isAdminLogin && user.role !== 'admin') {
+    // Role-based login enforcement:
+    // Only enforce admin privileges when accessing the restricted admin portal
+    const isExplicitAdminLogin = isAdminLogin === true || isAdminLogin === 'admin';
+    if (isExplicitAdminLogin && user.role !== 'admin') {
       return NextResponse.json(
-        { message: 'Access denied. Admin privileges required.' },
+        { message: 'Access denied. Administrator privileges required to access the admin portal.' },
         { status: 403 }
       );
     }
 
-    if (!isAdminLogin && user.role === 'admin') {
+    // Only enforce delivery partner privileges when accessing the delivery portal
+    if (isDeliveryLogin && user.role !== 'delivery_partner' && user.role !== 'admin') {
       return NextResponse.json(
-        { message: 'Admins must login through the admin portal.' },
+        { message: 'Access denied. Delivery partner credentials required to access this driver portal.' },
         { status: 403 }
       );
     }
 
     // Check if user has a password
     if (!user.password) {
-      console.error('User password is undefined for:', user.email);
       return NextResponse.json(
-        { message: 'Account configuration error. Please contact admin.' },
+        { message: 'Account configuration error. Please contact support.' },
         { status: 500 }
       );
     }
@@ -62,6 +75,20 @@ export async function POST(request) {
       return NextResponse.json(
         { message: 'Invalid email or password' },
         { status: 401 }
+      );
+    }
+
+    // Enforce email verification for new accounts
+    // Legacy users have emailVerified: true and bypass this check
+    if (user.emailVerified === false) {
+      return NextResponse.json(
+        {
+          success: false,
+          needsVerification: true,
+          email: user.email,
+          message: 'Your email address is not yet verified. Please enter your verification code to activate your account.',
+        },
+        { status: 403 }
       );
     }
 
@@ -92,15 +119,17 @@ export async function POST(request) {
         country: user.country,
         postalCode: user.postalCode,
         dob: user.dob,
+        emailVerified: user.emailVerified,
+        verificationMethod: user.verificationMethod,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.message);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
   }

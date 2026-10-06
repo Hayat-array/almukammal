@@ -34,12 +34,27 @@ const orderSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: [
+      'pending', 'confirmed', 'processing', 'packed',
+      'ready_for_shipment', 'shipped', 'in_transit',
+      'out_for_delivery', 'delivered', 'cancelled', 'failed',
+      'return_requested', 'returned', 'refunded'
+    ],
     default: 'pending'
   },
-  trackingNumber: String,
+  shipment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Shipment',
+    required: false
+  },
+  trackingNumber: { type: String, index: true },
   estimatedDelivery: Date,
-  orderDate: Date
+  orderDate: Date,
+  shipmentTrackingEnabled: { type: Boolean, default: true },
+  deliveryOtpHash: { type: String, select: false },
+  deliveryOtpExpiresAt: { type: Date },
+  discountAmount: { type: Number, default: 0 },
+  couponCode: { type: String, default: null }
 }, { timestamps: true });
 
 export default mongoose.models.Order || mongoose.model('Order', orderSchema);

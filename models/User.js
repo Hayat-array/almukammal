@@ -23,18 +23,15 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'manager'],
+    enum: ['user', 'admin', 'manager', 'delivery_partner', 'support_agent', 'operations'],
     default: 'user',
   },
   phone: {
     type: String,
   },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String,
+    type: mongoose.Schema.Types.Mixed,
+    default: {},
   },
   savedAddresses: [{
     label: String,
@@ -52,6 +49,20 @@ const UserSchema = new mongoose.Schema({
   emailVerified: {
     type: Boolean,
     default: false,
+  },
+  verificationMethod: {
+    type: String,
+    enum: ['otp_smtp', 'legacy_migrated', 'admin_provisioned', null],
+    default: null,
+  },
+  verificationSource: {
+    type: String,
+    enum: ['email_otp', 'legacy', 'admin', null],
+    default: null,
+  },
+  verificationTimestamp: {
+    type: Date,
+    default: null,
   },
   resetToken: String,
   resetTokenExpiry: Date,

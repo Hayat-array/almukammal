@@ -92,21 +92,27 @@ export function AuthProvider({ children }) {
 
 
 
-  const login = async (email, password, isAdminLogin = false) => {
+  const login = async (email, password, isAdminLogin = false, isDeliveryLogin = false) => {
     try {
+      const isActualAdmin = isAdminLogin === true || isAdminLogin === 'admin';
+      const isActualDelivery = isDeliveryLogin === true || isDeliveryLogin === 'delivery';
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, isAdminLogin }),
+        body: JSON.stringify({
+          email,
+          password,
+          isAdminLogin: isActualAdmin,
+          isDeliveryLogin: isActualDelivery
+        }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         // Migrate cart to user-specific storage
         const oldCart = localStorage.getItem('cart');
         if (oldCart) {
-          // Save old cart to user-specific key
           localStorage.setItem(`cart_${data.user._id}`, oldCart);
           localStorage.removeItem('cart'); // Clear generic cart
         }
@@ -129,7 +135,12 @@ export function AuthProvider({ children }) {
         setUser(data.user);
         return { success: true, user: data.user };
       } else {
-        return { success: false, error: data.message || 'Login failed' };
+        return {
+          success: false,
+          error: data.message || 'Login failed',
+          needsVerification: data.needsVerification || false,
+          email: data.email || null,
+        };
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -147,18 +158,26 @@ export function AuthProvider({ children }) {
 
       const data = await response.json();
 
-      if (response.ok) {
-        // Clear any previous cart data
-        localStorage.removeItem('cart');
+      if (response.ok && data.success) {
+        if (data.needsVerification) {
+          return {
+            success: true,
+            needsVerification: true,
+            email: data.email,
+            message: data.message,
+          };
+        }
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user)); // Fixed: ensure user is saved
-
-        setCookie('token', data.token);
-        setCookie('user_role', 'user'); // Default to user for register
-
-        setToken(data.token);
-        setUser(data.user);
+        // Fallback for immediate activation if ever used
+        if (data.token) {
+          localStorage.removeItem('cart');
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setCookie('token', data.token);
+          setCookie('user_role', 'user');
+          setToken(data.token);
+          setUser(data.user);
+        }
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Registration failed' };
@@ -166,6 +185,62 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('Registration error:', error);
       return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
+  const verifyOtp = async ({ email, otp, purpose = 'registration' }) => {
+    try {
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp, purpose }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (data.token && data.user) {
+          localStorage.removeItem('cart');
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setCookie('token', data.token);
+          setCookie('user_role', data.user.role || 'user');
+          setToken(data.token);
+          setUser(data.user);
+        }
+        return { success: true, message: data.message, user: data.user };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Verification failed',
+          remainingAttempts: data.remainingAttempts,
+          code: data.code,
+        };
+      }
+    } catch (error) {
+      console.error('OTP verification network error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
+  const resendOtp = async ({ email, purpose = 'registration' }) => {
+    try {
+      const response = await fetch('/api/auth/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, purpose }),
+      });
+
+      const data = await response.json();
+      return {
+        success: response.ok && data.success,
+        message: data.message,
+        waitSeconds: data.waitSeconds,
+        cooldownSeconds: data.cooldownSeconds,
+      };
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      return { success: false, message: 'Network error. Please try again.' };
     }
   };
 
@@ -199,6 +274,8 @@ export function AuthProvider({ children }) {
         loading,
         login,
         register,
+        verifyOtp,
+        resendOtp,
         logout,
       }}
     >
