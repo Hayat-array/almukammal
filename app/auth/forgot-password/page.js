@@ -417,7 +417,7 @@ export default function ForgotPassword() {
               </button>
 
               <div className="resend-wrap">
-                <span>Didn't receive the email? </span>
+                <span>Didn&apos;t receive the email? </span>
                 {canResend ? (
                   <button
                     type="button"
@@ -442,9 +442,9 @@ export default function ForgotPassword() {
                   </svg>
                 </div>
                 <div className="spam-notice-content">
-                  <span className="spam-notice-title">Can't find your reset email?</span>
+                  <span className="spam-notice-title">Can&apos;t find your reset email?</span>
                   <span className="spam-notice-desc">
-                    Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. In case your code was sent there, mark it as <em>"Not Spam"</em> so future emails arrive directly in your inbox.
+                    Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. In case your code was sent there, mark it as <em>&quot;Not Spam&quot;</em> so future emails arrive directly in your inbox.
                   </span>
                 </div>
               </div>

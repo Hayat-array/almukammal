@@ -164,7 +164,7 @@ export default function Login() {
           {/* Footer */}
           <div className="card-footer">
             <p className="footer-text">
-              Don't have an account? <Link href={`/auth/register?redirect=${encodeURIComponent(redirect)}`} className="footer-link">Create Account</Link>
+              Don&apos;t have an account? <Link href={`/auth/register?redirect=${encodeURIComponent(redirect)}`} className="footer-link">Create Account</Link>
             </p>
             <div className="divider"></div>
             <p className="footer-text admin-footer">

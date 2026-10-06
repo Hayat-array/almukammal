@@ -38,13 +38,29 @@ Next.js is natively optimized for Vercel with zero-configuration edge routes and
 In **Project Settings > Environment Variables**, add:
 - `MONGODB_URI`: Your production MongoDB connection string.
 - `JWT_SECRET`: High-entropy 32+ character random string (`openssl rand -base64 32`).
+- `NEXTAUTH_SECRET`: Session secret (`openssl rand -base64 32`).
 - `ADMIN_SECRET_KEY`: Secret passcode for admin registration.
 - `NEXT_PUBLIC_WHATSAPP_NUMBER`: `971509550121`
-- `NEXT_PUBLIC_APP_URL`: `https://almukammal.ae`
+- `NEXT_PUBLIC_APP_URL`: `https://almukammal.ae` (or `https://<your-project>.vercel.app`)
+- `NEXT_PUBLIC_CURRENCY`: `AED`
+- `SMTP_HOST`: `smtp.gmail.com`
+- `SMTP_PORT`: `587`
+- `SMTP_USER`: Your SMTP email address
+- `SMTP_PASSWORD`: Your SMTP App Password
+- `SMTP_SECURE`: `false`
+- `SMTP_FROM`: `"Al Mukammal Computer Trading" <no-reply@yourdomain.com>`
+- `OTP_SECRET`: Secret key for HMAC OTP verification
 - `NODE_ENV`: `production`
 
 #### Step 3: Deploy
 Click **Deploy**. Vercel will run `npm run build` and provision serverless functions automatically.
+
+#### Step 4: Vercel Build Hardening Notes
+- **Exit Code 127 Resolution:** Previous builds failed with `sh: line 1: cmd: command not found (exit code 127)` because `package.json` wrapped scripts with Windows-specific `cmd /c`. All scripts have been standardized to cross-platform native commands (`next build`, `next dev`).
+- **Next.js Version:** Upgraded from vulnerable `15.1.4` (CVE-2025-66478) to patched `15.1.12`.
+- **Node Engine Compatibility:** Supported on Node.js `>= 18.18.0` (Vercel Node 20.x, 22.x, and 24.x fully validated).
+- **Pruned Deprecated Packages:** Removed unused legacy packages (`multer`, `gridfs-stream`, `seed`, `breeze`).
+- **ESLint & TypeScript:** Zero errors across all 78 routes with `next build`.
 
 ---
 

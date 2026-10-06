@@ -302,7 +302,7 @@ export default function AdminCouponsPage() {
                                             <td colSpan="7" style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
                                                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎫</div>
                                                 <p style={{ fontSize: '16px', fontWeight: '500', margin: '0 0 8px 0' }}>No coupons created yet</p>
-                                                <p style={{ fontSize: '14px', margin: 0 }}>Click "New Coupon" to create your first discount code!</p>
+                                                <p style={{ fontSize: '14px', margin: 0 }}>Click &quot;New Coupon&quot; to create your first discount code!</p>
                                             </td>
                                         </tr>
                                     )}

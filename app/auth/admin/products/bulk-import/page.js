@@ -476,7 +476,7 @@ export default function BulkImportPage() {
                         ) : (
                             <div style={{ textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>
                                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📋</div>
-                                <p>Paste JSON and click "Validate" to preview</p>
+                                <p>Paste JSON and click &quot;Validate&quot; to preview</p>
                             </div>
                         )}
 
@@ -519,11 +519,11 @@ export default function BulkImportPage() {
                     <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '1rem' }}>📖 Instructions</h3>
                     <ol style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
                         <li>Prepare your product data in JSON format (array of objects)</li>
-                        <li>Click "Load Sample" to see the required format</li>
+                        <li>Click &quot;Load Sample&quot; to see the required format</li>
                         <li>Paste your JSON data in the textarea</li>
-                        <li>Click "Validate JSON" to check for errors</li>
+                        <li>Click &quot;Validate JSON&quot; to check for errors</li>
                         <li>Review the preview on the right</li>
-                        <li>Click "Import" to add all products to the database</li>
+                        <li>Click &quot;Import&quot; to add all products to the database</li>
                     </ol>
 
                     <div style={{ marginTop: '1rem', padding: '1rem', background: '#fef3c7', borderRadius: '8px', border: '1px solid #fbbf24' }}>

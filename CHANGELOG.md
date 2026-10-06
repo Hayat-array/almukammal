@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] — Vercel Production Hardening & Security Patch (October 2026)
+
+### Fixed & Hardened
+- **Vercel Build Command Failure (Exit 127):** Eliminated Windows-specific `cmd /c` wrapper in `package.json`, standardizing all scripts to native cross-platform binaries (`next build`, `next dev`).
+- **Security Vulnerability Upgrade:** Upgraded `next` and `eslint-config-next` from vulnerable `15.1.4` (CVE-2025-66478) to patched release `15.1.12`.
+- **Node Engine Compatibility:** Declared `"engines": { "node": ">=18.18.0" }` in `package.json` for verified runtime stability across Node.js 18, 20, 22, and 24.
+- **Dependency Hygiene:** Safely removed unused deprecated legacy packages (`multer`, `gridfs-stream`, `seed`, `breeze`) and removed dead prototype `routes/products.js`.
+- **ESLint JSX Standards:** Resolved unescaped entity warnings in JSX across `coupons`, `bulk-import`, `forgot-password`, `login`, `verify-otp`, and `Footer.js`.
+- **TypeScript Modernization:** Modernized `tsconfig.json` compiler options to `target: "ES2022"` with zero deprecation warnings.
+- **Verification:** Verified complete test suite passing (36 auth & OTP integration tests + 56 logistics fulfillment tests = 92 passed, 0 failed).
+
 ## [1.0.0] — Production Release (October 2026)
 
 ### Added

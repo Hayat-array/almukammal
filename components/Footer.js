@@ -57,7 +57,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="footer-about">
-              Dubai's premier boutique showroom for high-performance laptops, custom mobile workstations, and executive computing. Serving enterprise clients and enthusiasts across the United Arab Emirates.
+              Dubai&apos;s premier boutique showroom for high-performance laptops, custom mobile workstations, and executive computing. Serving enterprise clients and enthusiasts across the United Arab Emirates.
             </p>
             <div className="footer-contact-pills">
               <a
@@ -68,13 +68,13 @@ export default function Footer() {
               >
                 <span>💬</span> WhatsApp: +971 50 955 0121
               </a>
-              <a
+              <Link
                 href="/#showroom-location"
                 className="contact-pill location-pill"
                 title="View Al Mukammal Flagship Showroom & Directions"
               >
                 <span>📍</span> Showroom: Deira, Dubai, UAE
-              </a>
+              </Link>
             </div>
           </div>
 

@@ -329,9 +329,9 @@ function VerifyOtpContent() {
             </svg>
           </div>
           <div className="spam-notice-content">
-            <span className="spam-notice-title">Can't find your code?</span>
+            <span className="spam-notice-title">Can&apos;t find your code?</span>
             <span className="spam-notice-desc">
-              Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. In case your OTP was delivered there, mark it as <em>"Not Spam"</em> so future emails arrive directly in your Primary inbox.
+              Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. In case your OTP was delivered there, mark it as <em>&quot;Not Spam&quot;</em> so future emails arrive directly in your Primary inbox.
             </span>
           </div>
         </div>
@@ -339,7 +339,7 @@ function VerifyOtpContent() {
         {/* Resend & Secondary Navigation */}
         <div className="card-footer">
           <p className="resend-text">
-            Didn't receive the email code?{' '}
+            Didn&apos;t receive the email code?{' '}
             {canResend ? (
               <button
                 type="button"
