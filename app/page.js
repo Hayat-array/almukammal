@@ -1948,16 +1948,39 @@ export default function Home() {
         }
 
         @media (max-width: 600px) {
+          .home-wrapper {
+            padding-bottom: 70px;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+          }
+
+          .content-container {
+            padding: 0 12px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+
+          /* Force all multi-column grids to 1fr on mobile so they NEVER cause horizontal page overflow */
+          .collections-grid,
+          .dark-cards-grid,
+          .products-grid-showcase,
+          .advantage-pillars-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
           .hero-section {
-            padding: 48px 16px 60px;
+            padding: 40px 12px 50px;
           }
 
           .stage-body {
-            padding: 24px 18px;
+            padding: 20px 14px;
           }
 
           .stage-hero-artwork {
-            height: 170px;
+            height: 160px;
           }
 
           .catalog-header-split {
@@ -1968,11 +1991,198 @@ export default function Home() {
           .consultation-card {
             flex-direction: column;
             align-items: flex-start;
+            padding: 24px 14px;
           }
 
           .btn-whatsapp-large {
             width: 100%;
             justify-content: center;
+          }
+
+          /* Showroom Section Ultra-Narrow Mobile Hardening */
+          .showroom-location-section {
+            padding: 40px 0;
+            overflow: hidden;
+            width: 100% !important;
+          }
+
+          .location-split-layout {
+            gap: 24px;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+
+          .location-info-col {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+
+          .location-main-title {
+            font-size: 1.3rem !important;
+            line-height: 1.25 !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            margin-bottom: 12px !important;
+          }
+
+          .location-description {
+            font-size: 0.86rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 16px !important;
+            word-break: break-word !important;
+          }
+
+          .location-metrics-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            padding: 12px 0 !important;
+            margin-bottom: 18px !important;
+          }
+
+          .loc-metric-block {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: baseline !important;
+            gap: 8px !important;
+          }
+
+          .loc-metric-val {
+            font-size: 1.35rem !important;
+            min-width: 78px !important;
+            flex-shrink: 0 !important;
+          }
+
+          .loc-metric-sub {
+            font-size: 0.74rem !important;
+            margin-top: 0 !important;
+            line-height: 1.3 !important;
+            word-break: break-word !important;
+          }
+
+          .location-cta-group {
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 10px !important;
+            margin-bottom: 18px !important;
+          }
+
+          .btn-location-primary,
+          .btn-location-secondary {
+            width: 100% !important;
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 11px 14px !important;
+            font-size: 0.82rem !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            line-height: 1.3 !important;
+            box-sizing: border-box !important;
+          }
+
+          .btn-location-primary span,
+          .btn-location-secondary span {
+            white-space: normal !important;
+          }
+
+          .location-chips-row {
+            gap: 8px !important;
+            width: 100% !important;
+          }
+
+          .loc-chip-pill {
+            width: 100% !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+            font-size: 0.74rem !important;
+            padding: 8px 10px !important;
+            line-height: 1.35 !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            box-sizing: border-box !important;
+          }
+
+          .loc-chip-pill span:last-child {
+            flex: 1 !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+          }
+
+          .dot-matrix-canvas {
+            display: none !important;
+          }
+
+          .showroom-visual-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 16px !important;
+            box-sizing: border-box !important;
+          }
+
+          .showroom-img-frame {
+            height: 190px !important;
+            width: 100% !important;
+          }
+
+          .showroom-live-pill {
+            top: 10px !important;
+            left: 10px !important;
+            max-width: calc(100% - 20px) !important;
+            font-size: 0.58rem !important;
+            padding: 4px 8px !important;
+            letter-spacing: 0.02em !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+            box-sizing: border-box !important;
+          }
+
+          .showroom-overlay-meta {
+            bottom: 10px !important;
+            left: 12px !important;
+            right: 12px !important;
+          }
+
+          .showroom-overlay-title {
+            font-size: 0.82rem !important;
+            word-break: break-word !important;
+          }
+
+          .showroom-overlay-sub {
+            font-size: 0.58rem !important;
+            word-break: break-word !important;
+          }
+
+          .showroom-bottom-bar {
+            padding: 12px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+          }
+
+          .showroom-gps-info {
+            width: 100% !important;
+          }
+
+          .gps-name {
+            font-size: 0.8rem !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+          }
+
+          .gps-coords {
+            font-size: 0.68rem !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+          }
+
+          .btn-showroom-open-maps {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 10px 12px !important;
+            font-size: 0.8rem !important;
+            box-sizing: border-box !important;
           }
         }
       `}</style>

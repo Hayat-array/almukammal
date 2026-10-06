@@ -4,6 +4,70 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Helper to parse markdown links, code, and bold text cleanly into JSX
+function renderFormattedMessage(text) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return lines.map((line, lineIdx) => {
+    // Regex matching [label](url), **bold**, `code`
+    const regex = /(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|`[^`]+`)/g;
+    const parts = line.split(regex);
+
+    return (
+      <React.Fragment key={lineIdx}>
+        {parts.map((part, partIdx) => {
+          if (!part) return null;
+
+          // Check for link [label](url)
+          const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+          if (linkMatch) {
+            const [, label, url] = linkMatch;
+            const isInternal = url.startsWith('/');
+            if (isInternal) {
+              return (
+                <Link key={partIdx} href={url} className="care-inline-link">
+                  {label}
+                </Link>
+              );
+            }
+            return (
+              <a
+                key={partIdx}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="care-inline-link"
+              >
+                {label}
+              </a>
+            );
+          }
+
+          // Check for bold **text**
+          const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
+          if (boldMatch) {
+            return <strong key={partIdx}>{boldMatch[1]}</strong>;
+          }
+
+          // Check for inline code `code`
+          const codeMatch = part.match(/^`([^`]+)`$/);
+          if (codeMatch) {
+            return (
+              <code key={partIdx} className="care-inline-code">
+                {codeMatch[1]}
+              </code>
+            );
+          }
+
+          return <span key={partIdx}>{part}</span>;
+        })}
+        {lineIdx < lines.length - 1 && <br />}
+      </React.Fragment>
+    );
+  });
+}
+
 export default function CustomerCareWidget() {
   const { user, token } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +83,7 @@ export default function CustomerCareWidget() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(1);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   // Formal Ticket Form State
   const [ticketSubject, setTicketSubject] = useState('');
@@ -167,27 +232,66 @@ export default function CustomerCareWidget() {
 
   return (
     <>
-      {/* Floating Trigger Bubble Button */}
-      <div className="care-widget-root">
+      {/* Floating Concierge AI Trigger */}
+      <div className={`care-widget-root ${isMinimized ? 'is-docked' : ''}`}>
         {!isOpen && (
-          <button
-            type="button"
-            className="care-bubble-btn"
-            onClick={() => setIsOpen(true)}
-            aria-label="Open Al Mukammal Customer Concierge"
-          >
-            <div className="care-bubble-inner">
-              <div className="care-avatar-ring">
-                <span className="care-icon-robot">🤖</span>
-                <span className="care-online-indicator" />
+          <>
+            {isMinimized ? (
+              <button
+                type="button"
+                className="care-edge-dock-btn"
+                onClick={() => {
+                  setIsMinimized(false);
+                }}
+                aria-label="Show AI Concierge Support"
+                title="Tap to show AI Concierge"
+              >
+                <span className="care-dock-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="4" />
+                    <circle cx="9" cy="16" r="1.5" fill="#38BDF8" />
+                    <circle cx="15" cy="16" r="1.5" fill="#38BDF8" />
+                    <path d="M12 2v4M8 2h8" />
+                  </svg>
+                </span>
+                <span className="care-dock-dot" />
+              </button>
+            ) : (
+              <div className="care-fab-container">
+                <button
+                  type="button"
+                  className="care-fab-btn"
+                  onClick={() => setIsOpen(true)}
+                  aria-label="Open Al Mukammal AI Concierge"
+                  title="Al Mukammal AI Concierge • 24/7 Dubai Support"
+                >
+                  <div className="care-fab-icon-wrap">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="10" rx="4" />
+                      <circle cx="9" cy="16" r="1.5" fill="#38BDF8" />
+                      <circle cx="15" cy="16" r="1.5" fill="#38BDF8" />
+                      <path d="M12 2v4M8 2h8" />
+                    </svg>
+                    <span className="care-online-dot-pulse" />
+                  </div>
+                  {unreadCount > 0 && <span className="care-fab-badge">{unreadCount}</span>}
+                </button>
+
+                <button
+                  type="button"
+                  className="care-fab-close-toggle"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMinimized(true);
+                  }}
+                  aria-label="Hide AI bot button"
+                  title="Hide AI bot (dock to edge)"
+                >
+                  ✕
+                </button>
               </div>
-              <div className="care-label-stack">
-                <span className="care-label-title">Concierge &amp; Dispatch</span>
-                <span className="care-label-sub">AI Support 24/7</span>
-              </div>
-            </div>
-            {unreadCount > 0 && <span className="care-unread-chip">{unreadCount}</span>}
-          </button>
+            )}
+          </>
         )}
 
         {/* Expanded Chat & Support Panel */}
@@ -262,7 +366,9 @@ export default function CustomerCareWidget() {
                       )}
                       <div className="care-bubble-container">
                         <div className="care-msg-bubble">
-                          <p className="care-msg-text">{m.text}</p>
+                          <div className="care-msg-text">
+                            {renderFormattedMessage(m.text)}
+                          </div>
 
                           {/* Rich Order Tracking Tool Result Card */}
                           {m.toolData?.order && (
@@ -483,59 +589,152 @@ export default function CustomerCareWidget() {
           font-family: inherit;
         }
 
-        .care-bubble-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 8px 16px 8px 10px;
-          background: #000000;
-          color: #ffffff;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 999px;
-          cursor: pointer;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .care-widget-root.is-docked {
+          right: 0;
+          bottom: auto;
+          top: 62%;
+          transform: translateY(-50%);
+        }
+
+        .care-fab-container {
           position: relative;
-        }
-
-        .care-bubble-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.5);
-        }
-
-        .care-bubble-inner {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .care-avatar-ring {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #1e293b;
           display: flex;
           align-items: center;
           justify-content: center;
-          position: relative;
-          font-size: 18px;
         }
 
-        .care-online-indicator {
-          position: absolute;
-          bottom: 1px;
-          right: 1px;
-          width: 9px;
-          height: 9px;
-          background: #10b981;
-          border: 2px solid #000;
+        .care-fab-btn {
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
+          background: linear-gradient(135deg, #0F172A 0%, #020617 100%);
+          border: 1.5px solid rgba(8, 102, 255, 0.45);
+          color: #38BDF8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.6), 0 0 18px rgba(8, 102, 255, 0.35);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+          position: relative;
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
         }
 
-        .care-label-stack {
+        .care-fab-btn:hover {
+          transform: scale(1.08) translateY(-2px);
+          border-color: #0866FF;
+          box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.7), 0 0 24px rgba(8, 102, 255, 0.55);
+        }
+
+        .care-fab-btn:active {
+          transform: scale(0.96);
+        }
+
+        .care-fab-icon-wrap {
+          position: relative;
           display: flex;
-          flex-direction: column;
-          text-align: left;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .care-online-dot-pulse {
+          position: absolute;
+          bottom: -2px;
+          right: -2px;
+          width: 8px;
+          height: 8px;
+          background: #10B981;
+          border: 2px solid #020617;
+          border-radius: 50%;
+          box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+        }
+
+        .care-fab-badge {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          min-width: 18px;
+          height: 18px;
+          border-radius: 9999px;
+          background: #0866FF;
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid #020617;
+          box-shadow: 0 2px 6px rgba(8, 102, 255, 0.6);
+        }
+
+        .care-fab-close-toggle {
+          position: absolute;
+          top: -4px;
+          left: -4px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: rgba(30, 41, 59, 0.95);
+          color: #94A3B8;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          font-size: 9px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          opacity: 0.75;
+          transition: all 0.15s ease;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+          z-index: 3;
+        }
+
+        .care-fab-close-toggle:hover {
+          opacity: 1;
+          background: #EF4444;
+          color: #FFFFFF;
+          border-color: #EF4444;
+          transform: scale(1.15);
+        }
+
+        /* Docked Edge Launcher */
+        .care-edge-dock-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 40px;
+          padding: 0;
+          border-radius: 12px 0 0 12px;
+          background: rgba(15, 23, 42, 0.88);
+          border: 1.5px solid rgba(8, 102, 255, 0.45);
+          border-right: none;
+          color: #38BDF8;
+          cursor: pointer;
+          box-shadow: -4px 6px 18px rgba(0, 0, 0, 0.45);
+          transition: transform 0.2s, background 0.2s, opacity 0.2s;
+          position: relative;
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+        }
+
+        .care-edge-dock-btn:hover {
+          transform: translateX(-4px);
+          background: rgba(15, 23, 42, 1);
+          border-color: #0866FF;
+          color: #60A5FA;
+        }
+
+        .care-dock-dot {
+          position: absolute;
+          top: 7px;
+          right: 7px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #10B981;
+          box-shadow: 0 0 4px #10B981;
         }
 
         .care-label-title {
@@ -593,9 +792,9 @@ export default function CustomerCareWidget() {
           align-items: center;
           justify-content: space-between;
           padding: 14px 18px;
-          background: #0f172a;
-          color: #ffffff;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          background: #0B0F19 !important;
+          color: #FFFFFF !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         .care-header-info {
@@ -608,35 +807,42 @@ export default function CustomerCareWidget() {
           width: 38px;
           height: 38px;
           border-radius: 12px;
-          background: #1e293b;
+          background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           display: flex;
           align-items: center;
           justify-content: center;
           position: relative;
           font-size: 18px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
         .care-status-dot-active {
           position: absolute;
-          bottom: 0;
-          right: 0;
+          bottom: -1px;
+          right: -1px;
           width: 9px;
           height: 9px;
-          background: #10b981;
+          background: #10B981;
           border-radius: 50%;
-          border: 2px solid #0f172a;
+          border: 2px solid #0B0F19;
+          box-shadow: 0 0 6px #10B981;
         }
 
         .care-header-title {
-          font-size: 14px;
-          font-weight: 700;
-          margin: 0;
+          font-size: 14.5px !important;
+          font-weight: 700 !important;
+          margin: 0 !important;
+          color: #FFFFFF !important;
+          letter-spacing: -0.2px !important;
+          line-height: 1.25 !important;
         }
 
         .care-header-desc {
-          font-size: 11px;
-          color: #94a3b8;
-          margin: 2px 0 0;
+          font-size: 11px !important;
+          color: #94A3B8 !important;
+          margin: 2px 0 0 !important;
+          line-height: 1.2 !important;
         }
 
         .care-header-controls {
@@ -646,53 +852,86 @@ export default function CustomerCareWidget() {
         }
 
         .care-wa-quick-btn {
-          font-size: 11px;
-          font-weight: 600;
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.12);
-          border: 1px solid rgba(16, 185, 129, 0.3);
-          border-radius: 999px;
-          padding: 4px 10px;
-          text-decoration: none;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          color: #FFFFFF !important;
+          background: #25D366 !important;
+          border: 1px solid rgba(255, 255, 255, 0.25) !important;
+          border-radius: 999px !important;
+          padding: 5px 12px !important;
+          text-decoration: none !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 4px !important;
+          box-shadow: 0 2px 8px rgba(37, 211, 102, 0.4) !important;
+          transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+
+        .care-wa-quick-btn:hover {
+          transform: scale(1.05) !important;
+          background: #22C55E !important;
+          color: #FFFFFF !important;
+          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.55) !important;
         }
 
         .care-close-btn {
-          background: transparent;
-          border: none;
-          color: #94a3b8;
-          font-size: 16px;
-          cursor: pointer;
-          padding: 4px 8px;
-          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.08) !important;
+          border: 1px solid rgba(255, 255, 255, 0.14) !important;
+          color: #E2E8F0 !important;
+          font-size: 13px !important;
+          cursor: pointer !important;
+          width: 28px !important;
+          height: 28px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border-radius: 8px !important;
+          transition: all 0.15s ease !important;
         }
 
         .care-close-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF !important;
+          background: rgba(239, 68, 68, 0.85) !important;
+          border-color: rgba(239, 68, 68, 0.85) !important;
+          transform: scale(1.06);
         }
 
+        /* Segmented Pill Tab Bar */
         .care-tab-bar {
           display: flex;
-          background: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
+          background: #F1F5F9;
+          padding: 6px 12px;
+          gap: 8px;
+          border-bottom: 1px solid #E2E8F0;
         }
 
         .care-tab-item {
           flex: 1;
-          padding: 10px;
-          font-size: 12px;
+          padding: 8px 12px;
+          font-size: 12.5px;
           font-weight: 600;
-          color: #64748b;
+          color: #64748B;
           background: transparent;
           border: none;
-          border-bottom: 2px solid transparent;
+          border-radius: 10px;
           cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .care-tab-item:hover {
+          color: #0F172A;
+          background: rgba(255, 255, 255, 0.5);
         }
 
         .care-tab-item.is-active {
-          color: #2563eb;
-          border-bottom-color: #2563eb;
-          background: #ffffff;
+          color: #0866FF !important;
+          background: #FFFFFF !important;
+          font-weight: 700 !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
         }
 
         /* Chat Pane */
@@ -701,7 +940,7 @@ export default function CustomerCareWidget() {
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          background: #f8fafc;
+          background: #F8FAFC;
         }
 
         .care-messages-stream {
@@ -710,13 +949,13 @@ export default function CustomerCareWidget() {
           padding: 16px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
         }
 
         .care-msg-row {
           display: flex;
           gap: 8px;
-          max-width: 88%;
+          max-width: 86%;
         }
 
         .care-msg-row.is-user {
@@ -729,17 +968,19 @@ export default function CustomerCareWidget() {
         }
 
         .care-bot-avatar-mark {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
-          background: #0f172a;
-          color: #fff;
+          width: 30px;
+          height: 30px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #0B0F19 0%, #1E293B 100%);
+          color: #38BDF8;
+          border: 1px solid rgba(56, 189, 248, 0.25);
           font-size: 11px;
           font-weight: 800;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .care-bubble-container {
@@ -749,35 +990,80 @@ export default function CustomerCareWidget() {
         }
 
         .care-msg-bubble {
-          padding: 10px 14px;
-          border-radius: 14px;
-          font-size: 13px;
-          line-height: 1.45;
+          padding: 11px 15px;
+          font-size: 13.5px;
+          line-height: 1.5;
           word-break: break-word;
         }
 
+        /* User Message Bubble: Rich Electric Blue Gradient + High Contrast Pure White Text */
         .care-msg-row.is-user .care-msg-bubble {
-          background: #2563eb;
-          color: #ffffff;
-          border-bottom-right-radius: 3px;
+          background: linear-gradient(135deg, #0866FF 0%, #0052CC 100%) !important;
+          color: #FFFFFF !important;
+          border-radius: 18px 18px 4px 18px !important;
+          box-shadow: 0 4px 14px rgba(8, 102, 255, 0.28) !important;
+          border: none !important;
         }
 
+        .care-msg-row.is-user .care-msg-bubble * {
+          color: #FFFFFF !important;
+        }
+
+        .care-msg-row.is-user .care-msg-text {
+          color: #FFFFFF !important;
+          font-weight: 500 !important;
+          font-size: 13.5px !important;
+          line-height: 1.5 !important;
+        }
+
+        /* Bot Message Bubble: Premium Crisp White Card + High Contrast Slate-900 Text */
         .care-msg-row.is-bot .care-msg-bubble {
-          background: #ffffff;
-          color: #1e293b;
-          border: 1px solid #e2e8f0;
-          border-bottom-left-radius: 3px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+          background: #FFFFFF !important;
+          color: #0F172A !important;
+          border: 1px solid #E2E8F0 !important;
+          border-radius: 18px 18px 18px 4px !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         }
 
-        .care-msg-text {
-          margin: 0;
-          white-space: pre-wrap;
+        .care-msg-row.is-bot .care-msg-text {
+          color: #0F172A !important;
+          font-size: 13.5px !important;
+          line-height: 1.55 !important;
+        }
+
+        .care-msg-row.is-bot .care-msg-text * {
+          color: #0F172A;
+        }
+
+        .care-inline-link {
+          color: #0866FF !important;
+          font-weight: 700 !important;
+          text-decoration: underline !important;
+          text-underline-offset: 2.5px !important;
+          word-break: break-all;
+          transition: color 0.15s ease;
+        }
+
+        .care-inline-link:hover {
+          color: #0043A8 !important;
+          text-decoration-thickness: 2px !important;
+        }
+
+        .care-inline-code {
+          background: #F1F5F9;
+          color: #0F172A !important;
+          padding: 2px 6px;
+          border-radius: 5px;
+          font-size: 12px;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          border: 1px solid #E2E8F0;
+          display: inline-block;
+          vertical-align: baseline;
         }
 
         .care-msg-time {
           font-size: 10px;
-          color: #94a3b8;
+          color: #94A3B8;
           padding: 0 4px;
         }
 
@@ -788,32 +1074,32 @@ export default function CustomerCareWidget() {
         /* Rich Order Card */
         .care-rich-order-card {
           margin-top: 10px;
-          background: #f1f5f9;
-          border: 1px solid #cbd5e1;
-          border-radius: 10px;
-          padding: 10px;
+          background: #F8FAFC;
+          border: 1px solid #CBD5E1;
+          border-radius: 12px;
+          padding: 12px;
         }
 
         .care-order-card-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
 
         .care-order-number {
           font-weight: 800;
-          font-size: 12px;
-          color: #0f172a;
+          font-size: 12.5px;
+          color: #0F172A;
         }
 
         .care-order-status-badge {
-          background: #2563eb;
-          color: #fff;
+          background: #0866FF;
+          color: #FFFFFF;
           font-size: 10px;
           font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 4px;
+          padding: 3px 8px;
+          border-radius: 6px;
         }
 
         .care-order-meta {
@@ -822,11 +1108,19 @@ export default function CustomerCareWidget() {
           margin-bottom: 8px;
         }
 
+        .care-tracking-ref {
+          margin-top: 3px;
+        }
+
+        .care-tracking-ref strong {
+          color: #0F172A;
+        }
+
         .care-track-direct-btn {
           display: inline-block;
-          font-size: 11px;
+          font-size: 11.5px;
           font-weight: 700;
-          color: #2563eb;
+          color: #0866FF;
           text-decoration: underline;
         }
 
@@ -835,39 +1129,42 @@ export default function CustomerCareWidget() {
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
-          margin-top: 8px;
+          margin-top: 10px;
         }
 
         .care-action-pill {
-          background: #eff6ff;
-          color: #2563eb;
-          border: 1px solid #bfdbfe;
+          background: #EFF6FF;
+          color: #0866FF;
+          border: 1px solid #BFDBFE;
           border-radius: 999px;
-          padding: 4px 10px;
+          padding: 5px 12px;
           font-size: 11px;
           font-weight: 600;
           cursor: pointer;
+          transition: all 0.15s ease;
         }
 
         .care-action-pill:hover {
-          background: #dbeafe;
+          background: #DBEAFE;
+          transform: translateY(-1px);
         }
 
         /* Typing Dots */
         .care-typing-indicator {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 8px 12px;
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          border-radius: 14px;
+          padding: 10px 14px;
           display: flex;
-          gap: 4px;
+          gap: 5px;
           align-items: center;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
         .care-typing-indicator span {
           width: 6px;
           height: 6px;
-          background: #94a3b8;
+          background: #0866FF;
           border-radius: 50%;
           animation: careDotPulse 1.2s infinite ease-in-out;
         }
@@ -883,10 +1180,10 @@ export default function CustomerCareWidget() {
         @keyframes careDotPulse {
           0%, 80%, 100% {
             transform: scale(0.6);
-            opacity: 0.4;
+            opacity: 0.35;
           }
           40% {
-            transform: scale(1);
+            transform: scale(1.1);
             opacity: 1;
           }
         }
@@ -894,12 +1191,13 @@ export default function CustomerCareWidget() {
         /* Quick Prompts Bar */
         .care-quick-prompts-bar {
           display: flex;
-          gap: 6px;
+          gap: 8px;
           overflow-x: auto;
-          padding: 8px 14px;
-          background: #ffffff;
-          border-top: 1px solid #e2e8f0;
+          padding: 10px 14px;
+          background: #F8FAFC;
+          border-top: 1px solid #E2E8F0;
           scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
         }
 
         .care-quick-prompts-bar::-webkit-scrollbar {
@@ -908,61 +1206,92 @@ export default function CustomerCareWidget() {
 
         .care-prompt-chip {
           white-space: nowrap;
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
-          color: #334155;
-          font-size: 11px;
+          background: #FFFFFF;
+          border: 1px solid #CBD5E1;
+          color: #0F172A;
+          font-size: 11.5px;
           font-weight: 600;
           border-radius: 999px;
-          padding: 4px 10px;
+          padding: 6px 13px;
           cursor: pointer;
-          transition: background 0.15s;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          flex-shrink: 0;
         }
 
         .care-prompt-chip:hover {
-          background: #e2e8f0;
+          background: #EFF6FF;
+          border-color: #0866FF;
+          color: #0866FF;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 6px rgba(8, 102, 255, 0.12);
         }
 
         /* Input Bar */
         .care-input-bar {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 10px 14px;
-          background: #ffffff;
-          border-top: 1px solid #e2e8f0;
+          gap: 10px;
+          padding: 12px 14px;
+          background: #FFFFFF;
+          border-top: 1px solid #E2E8F0;
         }
 
         .care-text-input {
           flex: 1;
-          border: 1px solid #cbd5e1;
+          border: 1.5px solid #CBD5E1;
+          background: #F8FAFC;
+          color: #0F172A;
           border-radius: 999px;
-          padding: 8px 14px;
-          font-size: 13px;
+          padding: 10px 16px;
+          font-size: 13.5px;
           outline: none;
+          transition: all 0.2s ease;
+        }
+
+        .care-text-input::placeholder {
+          color: #94A3B8;
+          font-size: 13px;
         }
 
         .care-text-input:focus {
-          border-color: #2563eb;
+          background: #FFFFFF;
+          border-color: #0866FF;
+          box-shadow: 0 0 0 3.5px rgba(8, 102, 255, 0.12);
         }
 
         .care-send-btn {
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          background: #2563eb;
-          color: #ffffff;
+          background: linear-gradient(135deg, #0866FF 0%, #0052CC 100%);
+          color: #FFFFFF;
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          transition: background 0.15s;
+          box-shadow: 0 2px 8px rgba(8, 102, 255, 0.35);
+          transition: all 0.15s ease;
+        }
+
+        .care-send-btn:hover:not(:disabled) {
+          transform: scale(1.06);
+          box-shadow: 0 4px 14px rgba(8, 102, 255, 0.5);
+        }
+
+        .care-send-btn:active:not(:disabled) {
+          transform: scale(0.95);
         }
 
         .care-send-btn:disabled {
-          background: #cbd5e1;
+          background: #E2E8F0;
+          color: #94A3B8;
+          box-shadow: none;
           cursor: not-allowed;
         }
 
@@ -971,13 +1300,14 @@ export default function CustomerCareWidget() {
           flex: 1;
           overflow-y: auto;
           padding: 18px;
-          background: #ffffff;
+          background: #FFFFFF;
         }
 
         .care-ticket-intro {
-          font-size: 12px;
-          color: #64748b;
+          font-size: 12.5px;
+          color: #64748B;
           margin-bottom: 14px;
+          line-height: 1.5;
         }
 
         .care-ticket-form {
@@ -989,86 +1319,188 @@ export default function CustomerCareWidget() {
         .care-field-group {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 5px;
         }
 
         .care-field-group label {
           font-size: 12px;
-          font-weight: 600;
-          color: #334155;
+          font-weight: 700;
+          color: #0F172A;
         }
 
         .care-select,
         .care-input,
         .care-textarea {
           width: 100%;
-          padding: 8px 10px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
+          padding: 9px 12px;
+          border: 1.5px solid #CBD5E1;
+          background: #F8FAFC;
+          color: #0F172A;
+          border-radius: 10px;
           font-size: 13px;
           outline: none;
           font-family: inherit;
+          transition: all 0.2s ease;
         }
 
         .care-select:focus,
         .care-input:focus,
         .care-textarea:focus {
-          border-color: #2563eb;
+          background: #FFFFFF;
+          border-color: #0866FF;
+          box-shadow: 0 0 0 3px rgba(8, 102, 255, 0.12);
         }
 
         .care-submit-ticket-btn {
-          background: #0f172a;
-          color: #ffffff;
+          background: linear-gradient(135deg, #0866FF 0%, #0052CC 100%);
+          color: #FFFFFF;
           border: none;
-          padding: 10px;
-          border-radius: 8px;
-          font-size: 13px;
+          padding: 12px;
+          border-radius: 10px;
+          font-size: 13.5px;
           font-weight: 700;
           cursor: pointer;
           margin-top: 6px;
+          box-shadow: 0 4px 12px rgba(8, 102, 255, 0.3);
+          transition: all 0.15s ease;
         }
 
-        .care-submit-ticket-btn:hover {
-          background: #1e293b;
+        .care-submit-ticket-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(8, 102, 255, 0.45);
+        }
+
+        .care-submit-ticket-btn:disabled {
+          background: #CBD5E1;
+          box-shadow: none;
+          cursor: not-allowed;
         }
 
         .care-ticket-err-banner {
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #b91c1c;
-          padding: 8px 10px;
-          border-radius: 6px;
+          background: #FEF2F2;
+          border: 1px solid #FECACA;
+          color: #B91C1C;
+          padding: 9px 12px;
+          border-radius: 8px;
           font-size: 12px;
+          font-weight: 600;
         }
 
         .care-ticket-success-box {
           text-align: center;
-          padding: 24px 12px;
+          padding: 28px 14px;
         }
 
         .care-success-badge {
-          width: 44px;
-          height: 44px;
+          width: 48px;
+          height: 48px;
           border-radius: 50%;
-          background: #dcfce7;
-          color: #15803d;
-          font-size: 20px;
+          background: #DCFCE7;
+          color: #15803D;
+          font-size: 22px;
           font-weight: 800;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 12px;
+          margin: 0 auto 14px;
+        }
+
+        .care-ticket-success-box h4 {
+          color: #0F172A !important;
+          font-size: 16px;
+          font-weight: 800;
+          margin-bottom: 6px;
+        }
+
+        .care-ticket-success-box p {
+          color: #475569;
+          font-size: 13px;
+        }
+
+        .care-success-sub {
+          margin-top: 6px;
+          font-size: 12px !important;
+          color: #64748B !important;
         }
 
         .care-btn-outline {
-          background: transparent;
-          border: 1px solid #cbd5e1;
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
+          background: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          color: #0F172A;
+          padding: 9px 16px;
+          border-radius: 999px;
+          font-size: 12.5px;
           font-weight: 600;
           cursor: pointer;
-          margin-top: 14px;
+          margin-top: 16px;
+          transition: all 0.15s ease;
+        }
+
+        .care-btn-outline:hover {
+          background: #F8FAFC;
+          border-color: #0866FF;
+          color: #0866FF;
+        }
+
+        @media (max-width: 768px) {
+          .care-widget-root {
+            bottom: 16px;
+            right: 12px;
+          }
+
+          .care-widget-root.is-docked {
+            right: 0;
+            bottom: auto;
+            top: 60%;
+            transform: translateY(-50%);
+          }
+
+          .care-fab-btn {
+            width: 44px;
+            height: 44px;
+          }
+
+          .care-fab-close-toggle {
+            top: -5px;
+            left: -5px;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+          }
+
+          .care-drawer-modal {
+            position: fixed;
+            top: auto;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100vw;
+            max-width: 100vw;
+            height: 86vh;
+            max-height: 86vh;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.45);
+            animation: careSlideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          @keyframes careSlideUpMobile {
+            from {
+              opacity: 0;
+              transform: translateY(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .care-modal-header {
+            padding: 14px 16px;
+          }
+
+          .care-input-bar {
+            padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+          }
         }
       `}</style>
     </>

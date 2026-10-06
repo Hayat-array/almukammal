@@ -208,7 +208,7 @@ export default function Navbar() {
   const activeCategoryData = megaCategories[activeMegaCategory] || megaCategories[0];
 
   return (
-    <header className={`navbar-header-root ${isScrolled ? 'is-scrolled' : ''} ${!isVisible ? 'is-hidden' : ''}`}>
+    <header className={`navbar-header-root ${isScrolled ? 'is-scrolled' : ''} ${!isVisible ? 'is-hidden' : ''} ${isMobileMenuOpen ? 'menu-open' : ''}`}>
       <div className="navbar-pill-container">
         {/* Main Floating Pill Navigation Bar */}
         <nav className="nav-pill" aria-label="Main Navigation">
@@ -910,6 +910,11 @@ export default function Navbar() {
           pointer-events: none;
         }
 
+        .navbar-header-root.menu-open {
+          z-index: 10005 !important;
+          pointer-events: auto !important;
+        }
+
         .navbar-pill-container {
           max-width: var(--max-width-site, 1280px);
           margin: 0 auto;
@@ -987,6 +992,7 @@ export default function Navbar() {
           letter-spacing: 0.035em;
           color: #ffffff !important;
           line-height: 1.1;
+          white-space: nowrap;
         }
 
         .brand-sub {
@@ -2013,6 +2019,30 @@ export default function Navbar() {
           -webkit-backdrop-filter: blur(28px);
           animation: searchSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           color: #FFFFFF !important;
+          max-height: calc(100vh - 90px);
+          max-height: calc(100dvh - 90px);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          pointer-events: auto;
+        }
+
+        .mobile-drawer-sheet::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        .mobile-drawer-sheet::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .mobile-drawer-sheet::-webkit-scrollbar-thumb {
+          background: rgba(8, 102, 255, 0.45);
+          border-radius: 9999px;
+        }
+
+        .mobile-drawer-sheet {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(8, 102, 255, 0.45) transparent;
         }
 
         .mobile-drawer-inner {
@@ -2384,7 +2414,11 @@ export default function Navbar() {
           }
 
           .nav-pill {
-            padding: 7px 16px 7px 12px;
+            padding: 6px 14px 6px 10px;
+          }
+
+          .nav-brand {
+            gap: 8px;
           }
 
           .brand-logo-frame {
@@ -2395,6 +2429,7 @@ export default function Navbar() {
 
           .brand-name {
             font-size: 0.92rem;
+            white-space: nowrap;
           }
 
           .brand-sub {
@@ -2402,7 +2437,8 @@ export default function Navbar() {
           }
 
           .nav-actions {
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
           }
 
           .action-icon-btn,
@@ -2422,9 +2458,21 @@ export default function Navbar() {
           }
 
           :global(.login-pill-btn) {
-            padding: 7px 14px !important;
-            font-size: 0.8rem !important;
-            margin-left: 2px !important;
+            width: 36px !important;
+            height: 36px !important;
+            padding: 0 !important;
+            border-radius: 50% !important;
+            justify-content: center !important;
+            margin-left: 0 !important;
+            box-shadow: 0 2px 10px rgba(8, 102, 255, 0.35) !important;
+          }
+
+          :global(.login-pill-btn span) {
+            display: none !important;
+          }
+
+          :global(.login-pill-btn svg) {
+            margin: 0 !important;
           }
 
           .profile-menu-dropdown {
@@ -2437,20 +2485,34 @@ export default function Navbar() {
         }
 
         @media (max-width: 380px) {
+          .navbar-header-root {
+            padding: 0 6px;
+          }
+
+          .nav-pill {
+            padding: 5px 10px 5px 8px;
+          }
+
+          .brand-logo-frame {
+            width: 32px;
+            height: 32px;
+          }
+
           .brand-name {
             font-size: 0.82rem;
           }
 
           .nav-actions {
-            gap: 8px;
+            gap: 6px;
           }
 
           .action-icon-btn,
           :global(.cart-pill-link),
           .user-avatar-btn,
+          :global(.login-pill-btn),
           .mobile-hamburger-btn {
-            width: 33px !important;
-            height: 33px !important;
+            width: 32px !important;
+            height: 32px !important;
           }
         }
       `}</style>

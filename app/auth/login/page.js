@@ -353,36 +353,41 @@ export default function Login() {
           }
 
           .submit-btn {
-            background: #0B0B0D;
+            width: 100%;
+            min-height: 52px;
+            background: linear-gradient(135deg, #0866FF 0%, #0052CC 100%);
             color: #FFFFFF;
             border: none;
             border-radius: 9999px;
             padding: 14px 24px;
-            font-size: 0.95rem;
-            font-weight: 750;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 8px;
+            margin-top: 10px;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 10px 25px -4px rgba(8, 102, 255, 0.42), 0 2px 6px rgba(0, 0, 0, 0.08);
+            touch-action: manipulation;
           }
 
           .submit-btn:hover:not(:disabled) {
-            background: #0866FF;
-            box-shadow: 0 10px 28px rgba(8, 102, 255, 0.32);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #0756D6 0%, #0045B0 100%);
+            box-shadow: 0 14px 32px -2px rgba(8, 102, 255, 0.55);
+            transform: translateY(-2px);
           }
 
           .submit-btn:active:not(:disabled) {
-            transform: translateY(0);
+            transform: scale(0.98);
           }
 
           .submit-btn:disabled {
             opacity: 0.65;
             cursor: not-allowed;
+            transform: none;
           }
 
           .spinner {
@@ -443,13 +448,29 @@ export default function Login() {
           }
 
           @media (max-width: 640px) {
+            .auth-container {
+              padding: 24px 12px 60px;
+            }
+
             .auth-card {
-              padding: 30px 20px;
+              padding: 28px 18px;
               border-radius: 24px;
             }
 
             .card-title {
-              font-size: 1.5rem;
+              font-size: 1.45rem;
+            }
+
+            .modern-input {
+              font-size: 16px !important; /* Prevents iOS auto-zoom on mobile */
+              padding: 13px 16px 13px 44px;
+            }
+
+            .submit-btn {
+              min-height: 52px;
+              font-size: 1rem;
+              border-radius: 14px;
+              box-shadow: 0 8px 24px rgba(8, 102, 255, 0.4);
             }
           }
         `}</style>

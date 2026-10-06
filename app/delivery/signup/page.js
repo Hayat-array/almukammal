@@ -418,30 +418,40 @@ export default function DeliveryPartnerSignupPage() {
         }
 
         .driver-signup-submit-btn {
-          height: 50px;
-          background: #0f172a;
+          width: 100%;
+          min-height: 52px;
+          background: linear-gradient(135deg, #0866FF 0%, #0052CC 100%);
           color: #ffffff;
           border: none;
-          border-radius: 12px;
-          font-size: 14px;
-          font-weight: 700;
+          border-radius: 14px;
+          font-size: 15px;
+          font-weight: 800;
+          letter-spacing: 0.02em;
           cursor: pointer;
-          transition: background 0.2s, transform 0.1s;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-top: 10px;
+          margin-top: 14px;
+          box-shadow: 0 10px 25px -4px rgba(8, 102, 255, 0.42);
+          touch-action: manipulation;
         }
 
-        .driver-signup-submit-btn:hover {
-          background: #1e293b;
-          transform: translateY(-1px);
+        .driver-signup-submit-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #0756D6 0%, #0045B0 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 14px 32px -2px rgba(8, 102, 255, 0.55);
+        }
+
+        .driver-signup-submit-btn:active:not(:disabled) {
+          transform: scale(0.98);
         }
 
         .driver-signup-submit-btn:disabled {
           background: #94a3b8;
           cursor: not-allowed;
           transform: none;
+          box-shadow: none;
         }
 
         .driver-btn-loading {
